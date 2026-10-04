@@ -1,7 +1,7 @@
 # Free Flying Forecast
 
 A self-hosted, simple soaring forecast for paraglider and hang glider pilots at Mystic (Bright),
-VIC. It builds one static, phone-friendly web page from free NOAA weather data.
+VIC. It builds one static, phone-friendly web page from free NOAA weather data - published with GitHub Pages (its address is the repository's website link).
 
 - **Days 1 to 4**: detailed hourly blocks (10:00 to 18:00 local) with wind, shear, thermal height
   and quality, updraft, temperature, XC potential and a grade for paragliders and hang gliders: Ok,
@@ -65,6 +65,9 @@ AUSRASP re-runs each forecast day on its own, so a second job checks for changes
 (it is sent to AUSRASP in the user agent) and set `enabled = false` there to stop all requests.
 The poll windows are a first guess: after a week, compare them with
 `cache/ausrasp/stamps.jsonl` (every change AUSRASP made, with the time it was noticed).
+
+After forking, run `python3 scripts/update_readme_url.py` to point the page link at your own GitHub Pages
+address. It reads the owner and repository from `FFFORECAST_PROJECT` or the `origin` remote.
 
 ## Docker image and Portainer
 

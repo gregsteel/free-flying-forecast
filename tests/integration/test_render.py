@@ -42,9 +42,9 @@ def load_html(fixture_path, site, rules):
 
 
 def test_dst_start_handled(fixture_path, site, rules):
-    # 2026-10-04 is the first day of AEDT; blocks must still read 11:00..17:00 local
+    # 2026-10-04 is the first day of AEDT; blocks must still read 11:00..5:00 local (12-hour clock)
     html = render_page(load(fixture_path), site, rules)
-    assert "11:00" in html and "17:00" in html
+    assert "11:00" in html and "5:00" in html and "17:00" not in html
 
 
 def test_station_chart_has_alt_text_and_links(fixture_path, site, rules):

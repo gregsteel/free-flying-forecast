@@ -14,8 +14,10 @@ services:
       FFFORECAST_CONTACT: <email>
       # FFFORECAST_RUN_TIMES: "05:30 15:30"
     volumes:
-      # The private deploy key on the Docker host: change the left-hand path.
-      - /opt/ffforecast/deploy_key:/run/deploy_key:ro
+      # The private deploy key on the Docker host: change the left-hand path. With Colima or Docker
+      # Desktop on a Mac, keep it under your home directory (the VM does not see /opt); a path the
+      # VM cannot see becomes an empty directory and the scheduler stops.
+      - /Users/<username>/ffforecast/deploy_key:/run/deploy_key:ro
       - cache:/app/cache
       - state:/app/state
       - out:/app/out

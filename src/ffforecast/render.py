@@ -26,6 +26,11 @@ from .units import (
 
 # Glider types. The first is the default. Each is rendered side by side and CSS shows the chosen one.
 GLIDERS = (("pg", "Paraglider", "PG"), ("hg", "Hang glider", "HG"))
+def clock12(hour: int, minute: int = 0) -> str:
+    """A 12-hour clock time without am/pm, e.g. 13:00 -> '1:00' (the flying day makes it obvious)."""
+    return f"{hour % 12 or 12}:{minute:02d}"
+
+
 BOM_LINKS = {"bom_warnings": "https://www.bom.gov.au/vic/warnings/"}
 ICONS = {
     "ok": "\U0001f44c",  # OK hand
@@ -233,7 +238,8 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
         )
         day["blocks"].append(
             {
-                "time": start.strftime("%H:%M"),
+                "time": start.strftime("%H:%M"),  # 24-hour key for the slot lookup
+                "clock": clock12(start.hour, start.minute),
                 "gl": [
                     {
                         "id": gid,
@@ -265,7 +271,7 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
                 "ground": _wind_num(b.wind_ground),
                 "aloft": _wind_num(b.wind_aloft),
                 "shear": b.shear,
-                "hour": start.strftime("%H"),
+                "hour": str(start.hour % 12 or 12),
                 "thermal_height": _height_num(b.thermal_height_m),
                 "thermal_height_short": height_down(b.thermal_height_m, short=True),
                 "launch_short": _wind_short(b.wind_launch) if b.wind_launch else None,
@@ -348,8 +354,8 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
         "launch_unit": Markup(_U_SPD),
         "detailed_days": DETAILED_DAYS,
         "slot_count": len(BLOCK_HOURS),
-        "first_hour": f"{BLOCK_HOURS[0]:02d}:00",
-        "last_hour": f"{BLOCK_HOURS[-1]:02d}:00",
+        "first_hour": clock12(BLOCK_HOURS[0]),
+        "last_hour": clock12(BLOCK_HOURS[-1]),
         "outlook_range": f"{DETAILED_DAYS + 1} to {DETAILED_DAYS + OUTLOOK_DAYS}",
         "outlook_cols": OUTLOOK_DAYS,
         "gliders": [{"id": i, "name": n, "abbr": a} for i, n, a in GLIDERS],

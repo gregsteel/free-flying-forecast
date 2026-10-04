@@ -320,7 +320,7 @@ Check the <a href="{{ links.bom_warnings }}">Bureau of Meteorology Victorian war
   <table class="dt">
   <colgroup><col class="dt-first">{% for _ in day.slots %}<col>{% endfor %}</colgroup>
   <thead><tr><td></td>
-    {% for b in day.slots %}{% if b %}<th scope="col" class="pg-{{ b.verdict_pg }} hg-{{ b.verdict_hg }}"><span class="sr">{{ b.time }}: </span>{% for g in b.gl %}<a class="pill g g-{{ g.id }} {{ g.verdict }}" href="#guide-{{ '' if g.id == 'pg' else 'hg-' }}{{ g.verdict }}" data-grade="{{ g.verdict }}" title="{{ g.name }}: what does this grade mean?"><span class="ic">{{ g.icon }}</span> {{ g.label }}</a>{% endfor %}</th>{% else %}<th scope="col" class="empty" aria-hidden="true"></th>{% endif %}{% endfor %}
+    {% for b in day.slots %}{% if b %}<th scope="col" class="pg-{{ b.verdict_pg }} hg-{{ b.verdict_hg }}"><span class="sr">{{ b.clock }}: </span>{% for g in b.gl %}<a class="pill g g-{{ g.id }} {{ g.verdict }}" href="#guide-{{ '' if g.id == 'pg' else 'hg-' }}{{ g.verdict }}" data-grade="{{ g.verdict }}" title="{{ g.name }}: what does this grade mean?"><span class="ic">{{ g.icon }}</span> {{ g.label }}</a>{% endfor %}</th>{% else %}<th scope="col" class="empty" aria-hidden="true"></th>{% endif %}{% endfor %}
   </tr></thead>
   <tbody>
     {% if day.has_launch %}<tr><th scope="row">Wind at launch <span class="nb">({{ launch_alt }}, {{ launch_unit }})</span></th>{% for b in day.slots %}<td>{% if b and b.launch %}<span class="clw">{{ arrow(b.launch_dir, b.launch_rot) }} {{ b.launch_short }}</span>{% endif %}</td>{% endfor %}</tr>{% endif %}
@@ -331,7 +331,7 @@ Check the <a href="{{ links.bom_warnings }}">Bureau of Meteorology Victorian war
   </div>
   <details class="whyd"><summary>Why this grade</summary>
   <div class="whygrid">
-    {% for b in day.slots %}<div class="why">{% if b %}<strong class="whytime">{{ b.time }}</strong>{% for g in b.gl %}<ul class="reasons g g-{{ g.id }}">{% for r in g.reasons %}<li>{{ r }}</li>{% endfor %}</ul>{% endfor %}{% endif %}</div>{% endfor %}
+    {% for b in day.slots %}<div class="why">{% if b %}<strong class="whytime">{{ b.clock }}</strong>{% for g in b.gl %}<ul class="reasons g g-{{ g.id }}">{% for r in g.reasons %}<li>{{ r }}</li>{% endfor %}</ul>{% endfor %}{% endif %}</div>{% endfor %}
   </div>
   </details>
   </div>
@@ -509,7 +509,7 @@ function tile(tab){
    if(H.time[i]<(c.time||"").slice(0,13)+":00"){tr.className="past";}
    else if(H.time[i].slice(0,13)===(c.time||"").slice(0,13)){tr.className="nowrow";}
    var p=H.precipitation_probability?H.precipitation_probability[i]:null,mm=H.precipitation[i];
-   tr.innerHTML="<td>"+H.time[i].slice(11,16)+"</td><td aria-hidden=\"true\">"+wx(H.weather_code[i])[0]+"</td><td>"+tmp(H.temperature_2m[i])+"</td><td>"+(p===null?"":p+"%")+(mm>=0.1?" "+rn(mm):"")+"</td><td>"+COMPASS[Math.round(H.wind_direction_10m[i]/22.5)%16]+" "+spd(H.wind_speed_10m[i])+" ("+spd(H.wind_gusts_10m[i])+")</td>";
+   tr.innerHTML="<td>"+(hr%12||12)+":00</td><td aria-hidden=\"true\">"+wx(H.weather_code[i])[0]+"</td><td>"+tmp(H.temperature_2m[i])+"</td><td>"+(p===null?"":p+"%")+(mm>=0.1?" "+rn(mm):"")+"</td><td>"+COMPASS[Math.round(H.wind_direction_10m[i]/22.5)%16]+" "+spd(H.wind_speed_10m[i])+" ("+spd(H.wind_gusts_10m[i])+")</td>";
    body.appendChild(tr);}}
   var t=(c.time||"").replace("T"," ");
   document.getElementById("now-note-"+id).textContent="Model estimate for "+tab.label+" at "+t+" local time, not a measurement."+(c.cape>=1000?" High storm energy: check the BoM warnings.":"");
