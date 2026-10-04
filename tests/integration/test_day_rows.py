@@ -82,6 +82,11 @@ def test_missing_block_keeps_columns_aligned(site, rules, fixture_path):
     row = days(html)[0]
     summary = summary_of(row)
     assert summary.count('class="cell ') == 9 and 'class="cell empty"' in summary
+    # the blank tile still shows its hour, so the row reads 10, 11, 12, 1 ... 6 with no gap
+    assert re.findall(r'<span class="ctime">(\d+)</span>', summary) == [
+        str(h % 12 or 12) for h in range(10, 19)
+    ]
+    assert re.search(r'class="cell empty"[^>]*><span class="ctime">\d+</span>', summary)
 
 
 def test_outlook_columns_match_the_number_of_outlook_days(fixture_path, site, rules):

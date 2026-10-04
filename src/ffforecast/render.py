@@ -354,6 +354,7 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
         "launch_unit": Markup(_U_SPD),
         "detailed_days": DETAILED_DAYS,
         "slot_count": len(BLOCK_HOURS),
+        "slot_labels": [str(h % 12 or 12) for h in BLOCK_HOURS],  # hour label of each column, for blank tiles
         "first_hour": clock12(BLOCK_HOURS[0]),
         "last_hour": clock12(BLOCK_HOURS[-1]),
         "outlook_range": f"{DETAILED_DAYS + 1} to {DETAILED_DAYS + OUTLOOK_DAYS}",
