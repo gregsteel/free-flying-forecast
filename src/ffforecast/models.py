@@ -9,7 +9,9 @@ Verdict = str  # "ok" | "good" | "strong" | "poor" | "turbulent" | "dangerous"
 # Listed in the order the Guide shows them. Strong is powerful, not simply "better": it demands experience.
 VERDICTS = ("ok", "good", "strong", "poor", "turbulent", "dangerous")
 SHEAR_CLASSES = ("light", "moderate", "strong")
-SCHEMA_VERSION = 2  # 2: grades renamed Good/Great/Pumping to Ok/Good/Strong (2026-10-04)
+# 2: grades renamed Good/Great/Pumping to Ok/Good/Strong (2026-10-04)
+# 3: estimated gusts, AUSRASP wind and sunshine added (2026-10-05); older files still read
+SCHEMA_VERSION = 3
 # Verdict names used by forecast files made with schema 1
 LEGACY_VERDICTS = {"good": "ok", "great": "good", "pumping": "strong"}
 DETAILED_DAYS = 4  # days 1 to 4: 2-hour blocks
@@ -44,6 +46,15 @@ class ForecastBlock:
     # Where the thermal height and updraft came from: "ausrasp" (its run start in thermal_run) or "gfs"
     thermal_source: str = "gfs"
     thermal_run: str = ""
+    # Estimated gusts (kph) at launch and at the top of the thermals; None in older forecasts
+    gust_launch_kph: float | None = None
+    gust_aloft_kph: float | None = None
+    # AUSRASP's 10 m wind and its wind at the top of the thermals (kph), when it was read
+    wind_ausrasp_kph: float | None = None
+    wind_top_kph: float | None = None
+    # Share of possible sunshine reaching the ground (percent) and where it came from
+    sun_pct: int | None = None
+    sun_source: str = ""  # "ausrasp" or "gfs"
 
 
 @dataclass

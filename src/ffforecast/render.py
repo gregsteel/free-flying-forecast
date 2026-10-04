@@ -92,6 +92,11 @@ def rate(ms: float) -> Markup:
     return Markup(_u("a-m", f"{ms:.1f} m/s") + _u("a-ft", f"{ms * FT_PER_M:.1f} ft/sec"))
 
 
+def _est(kph: float | None) -> Markup:
+    """An estimated gust, or 'not available' for a forecast made before gusts were estimated."""
+    return spd_short(kph) if kph is not None else Markup("not available")
+
+
 def spd_short(kph: float) -> Markup:
     """A speed as bare numbers, for the narrow hourly cells (the unit is in the settings)."""
     return Markup(_u("s-kts", f"{kph_to_kts(kph):.0f}") + _u("s-kph", f"{kph:.0f}"))
@@ -285,6 +290,9 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
                 "temp_air": _temp_num(b.temp_air_c, 1),
                 "rain": _rain_num(b.rain_mm_h) if b.rain_mm_h >= 0.05 else Markup("none"),
                 "gusts": spd_short(b.gust_kph) if b.gust_kph > 0 else Markup("not available"),
+                "gusts_launch": _est(b.gust_launch_kph),
+                "gusts_aloft": _est(b.gust_aloft_kph),
+                "sun": f"{b.sun_pct}%" if b.sun_pct is not None else Markup("not available"),
                 "storm": b.cape_j_kg >= rules.cape_overdevelop_j_kg,
                 "reasons": [unitise(r) for r in b.reasons],
             }
@@ -381,12 +389,15 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
         "station_default": site.station_default,
         "detail_rows": [
             (_row_label("Ground wind", _U_SPD), "ground"),
-            (_row_label("Gusts", _U_SPD), "gusts"),
+            (_row_label("Gusts at 10 m (model)", _U_SPD), "gusts"),
+            (_row_label("Gusts at launch (est.)", _U_SPD), "gusts_launch"),
             (_row_label("Wind aloft", _U_SPD), "aloft"),
+            (_row_label("Gusts at thermal height (est.)", _U_SPD), "gusts_aloft"),
             (_row_label("Wind shear"), "shear"),
             (_row_label("Thermal height", _U_ALT), "thermal_height"),
             (_row_label("Thermal quality"), "quality"),  # a percentage: no unit label
             (_row_label("Updraft", _U_RATE), "updraft"),
+            (_row_label("Sun reaching the ground"), "sun"),  # a percentage: no unit label
             (_row_label("Temperature, ground", _U_TEMP), "temp_ground"),
             (_row_label("Temperature, at thermal height", _U_TEMP), "temp_air"),
             (_row_label("Rain", _U_RAIN), "rain"),
@@ -431,6 +442,12 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
             "green_from": spd(mph_to_kph(rules.speed_green_from_mph)),
             "gust_orange": spd(mph_to_kph(rules.gust_orange_from_mph)),
             "gust_red": spd(mph_to_kph(rules.gust_red_from_mph)),
+            "gust_aloft_orange": spd(mph_to_kph(rules.gust_aloft_orange_from_mph)),
+            "gust_aloft_red": spd(mph_to_kph(rules.gust_aloft_red_from_mph)),
+            "gust_mix": f"{rules.gust_mix_fraction * 100:.0f}",
+            "gust_aloft_factor": f"{rules.gust_aloft_factor:g}",
+            "sun_full": f"{rules.sun_full_pct:.0f}",
+            "sun_shaded": f"{rules.sun_shaded_pct:.0f}",
             "rain_light": rain(rules.rain_light_mm_h),
             "rain_heavy": rain(rules.rain_heavy_mm_h),
             "cape_overdevelop": f"{rules.cape_overdevelop_j_kg:.0f}",

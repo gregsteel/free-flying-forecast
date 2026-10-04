@@ -10,7 +10,7 @@ from zoneinfo import ZoneInfo
 
 import requests
 
-from . import ausrasp, gfs
+from . import ausrasp, gfs, history
 from .config import Rules, Site
 from .gfsmode import blocks_from_samples, outlook_after_blocks
 from .models import Forecast
@@ -30,6 +30,7 @@ class RunConfig:
     publish_remote: str | None = None
     publish_branch: str = "gh-pages"
     publish_key: Path | None = None
+    history_dir: Path | None = None  # where each day's forecasts are kept (None: not kept)
     now: datetime | None = None
     last_hour: int = 192  # day 7 can reach about f180 when the run starts after the day's flying
 
@@ -118,11 +119,24 @@ def gfs_stages(
         fc = Forecast.from_dict(json.loads((staging / "forecast.json").read_text()))
         render_to_dir(fc, cfg.site, cfg.rules, staging)
 
+    def keep_history(staging: Path) -> None:
+        """Keep this forecast for later comparison with what happened. Never fails the run."""
+        if cfg.history_dir is None:
+            return
+        try:
+            fc = Forecast.from_dict(json.loads((staging / "forecast.json").read_text()))
+            dates = history.record(cfg.history_dir, fc, cfg.site.timezone)
+            if dates:
+                print(f"history: kept the forecast for {', '.join(dates)}")
+        except Exception as e:  # noqa: BLE001 - a full disk must not stop the page publishing
+            print(f"note: could not keep the forecast history ({e})")
+
     stages = [
         Stage("fetch", fetch),
         Stage("ausrasp", thermal_source),
         Stage("diagnose", diagnose),
         Stage("render", render),
+        Stage("history", keep_history),
     ]
     if cfg.publish_remote:
         remote = cfg.publish_remote

@@ -1,4 +1,4 @@
-version = 1
+version = 2
 source = "Mytic Site Guide, FreeFlightWx Mystic site settings"
 
 [wind]
@@ -66,3 +66,27 @@ cape_overdevelop_j_kg = 400 # storm energy: with no rain, "turbulent" (overdevel
 cape_storm_j_kg = 1000      # storm energy: "dangerous" on its own; also with any rain from 400
 gust_orange_from_mph = 16   # gusts, turbulent from here (about 26 kph)
 gust_red_from_mph = 20      # gusts, dangerous from here (about 32 kph)
+# GFS gives a gust only 10 m above the ground. The gust a pilot meets at launch, and at the top of the
+# thermals, are estimated (judgement calls, to be tuned against what pilots actually flew: see
+# docs/verification.md).
+#   launch gust = the larger of the 10 m gust and the launch wind plus this fraction of the extra wind
+#                 at the top of the thermals (thermals mix the faster upper air down to the launch)
+gust_mix_fraction = 0.5
+#   gust at the top of the thermals = the mean wind there times this
+gust_aloft_factor = 1.25
+#   rough air up there: turbulent from here (about 45 kph), dangerous from here (about 55 kph)
+gust_aloft_orange_from_mph = 28
+gust_aloft_red_from_mph = 34
+# AUSRASP's 10 m wind (4 km regional model) often reads stronger than GFS on the ridge. When it is, the
+# block is graded on it. Set to false to grade on GFS wind alone.
+ausrasp_wind_counts = true
+
+[sun]
+# How much of the possible sunshine reaches the ground (AUSRASP's figure, or worked out from GFS cloud).
+# Below full_pct thermal quality is scaled by sun / full_pct; below shaded_pct the page says so.
+full_pct = 70
+shaded_pct = 40
+# GFS cloud layers: how much sun each stops. Only used when AUSRASP's sunshine is not available.
+low_cloud_blocks = 0.9
+mid_cloud_blocks = 0.6
+high_cloud_blocks = 0.25

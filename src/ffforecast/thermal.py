@@ -12,3 +12,7 @@ class Thermal:
     height_m: float
     updraft_ms: float
     run: str  # model start time of the source run, ISO UTC
+    # Also from AUSRASP when it was read for this hour (None otherwise)
+    sfc_wind_ms: float | None = None  # wind 10 m above the ground, the strongest in the cell block
+    top_wind_ms: float | None = None  # wind at the top of the thermals (the boundary layer)
+    sun_pct: float | None = None  # share of possible sunshine reaching the ground, block average

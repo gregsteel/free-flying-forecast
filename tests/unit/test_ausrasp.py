@@ -123,7 +123,8 @@ def test_first_refresh_stores_every_day_and_the_lookup_returns_the_cell_values(
     assert r.changed == [f"OUT+{n}" for n in range(7)] and not r.reason
     paths = [p for p, _ in world.requests]
     assert paths[:2] == ["latlon2d.json", "version.json"]
-    assert len(paths) == 2 + 7 * 2 * HOURS  # nine hours, two quantities, seven days
+    # nine hours: two quantities for seven days, and three more (wind, wind aloft, sun) for four
+    assert len(paths) == 2 + 7 * 2 * HOURS + 4 * 3 * HOURS
     lookup, notes = thermal_lookup(tmp_path, cfg, NOW)
     t = lookup[datetime(2026, 10, 4, 4, tzinfo=UTC)]  # local 15:00 on the 4th
     assert (t.height_m, t.updraft_ms) == (1800, 2) and t.run == "2026-10-02T12:00:00Z"
@@ -146,7 +147,7 @@ def test_only_the_day_whose_stamp_changed_is_fetched(site, cfg, tmp_path, world)
     r = run_refresh(cfg, site, tmp_path, world, LATER)
     assert r.changed == ["OUT+2"]
     paths = [p for p, _ in world.requests]
-    assert len(paths) == 1 + 2 * HOURS and all(p.startswith("OUT+2/") for p in paths[1:])
+    assert len(paths) == 1 + 5 * HOURS and all(p.startswith("OUT+2/") for p in paths[1:])
     lookup, _ = thermal_lookup(tmp_path, cfg, NOW)
     assert lookup[datetime(2026, 10, 5, 4, tzinfo=UTC)].height_m == 1500
 
@@ -486,3 +487,58 @@ def test_days_stored_by_an_older_reading_of_the_clock_are_not_trusted(site, cfg,
     world.requests.clear()
     r = run_refresh(cfg, site, tmp_path, world, LATER)
     assert r.changed == ["OUT+2"]  # fetched again although its stamp did not change
+
+
+# --- wind and sunshine (the extras) -------------------------------------------------------------
+
+
+def test_wind_and_sun_are_stored_for_the_detailed_days_only(site, cfg, tmp_path, world):
+    world.sfc_wind = lambda key, hhmm: 6.0
+    world.top_wind = lambda key, hhmm: 11.0
+    world.sun = lambda key, hhmm: 70.0
+    run_refresh(cfg, site, tmp_path, world)
+    lookup, _ = thermal_lookup(tmp_path, cfg, NOW)
+    near = lookup[datetime(2026, 10, 4, 4, tzinfo=UTC)]  # OUT+1
+    assert (near.sfc_wind_ms, near.top_wind_ms, near.sun_pct) == (6.0, 11.0, 70.0)
+    far = lookup[datetime(2026, 10, 7, 4, tzinfo=UTC)]  # OUT+4: not read
+    assert (far.sfc_wind_ms, far.top_wind_ms, far.sun_pct) == (None, None, None)
+
+
+def test_wind_takes_the_strongest_cell_of_the_block_and_sunshine_the_average():
+    import numpy as np
+
+    grid = np.full((5, 5), 4.0)
+    grid[2, 3] = 9.0  # one stronger cell beside the launch cell (2, 2)
+    grid[0, 0] = 99.0  # outside the 3 by 3 block
+    assert ausrasp.block_max(grid, 2, 2, 1) == 9.0
+    sun = np.full((5, 5), 90.0)
+    sun[2, 3] = 0.0  # a cloud-shaded neighbour
+    assert ausrasp.block_mean(sun, 2, 2, 1) == pytest.approx(80.0)
+
+
+def test_a_missing_wind_file_keeps_the_thermals_and_is_not_retried(site, cfg, tmp_path, world):
+    world.fail["bltopwindspd"] = 404
+    r = run_refresh(cfg, site, tmp_path, world)
+    assert r.changed == [f"OUT+{n}" for n in range(7)] and not r.reason
+    lookup, _ = thermal_lookup(tmp_path, cfg, NOW)
+    t = lookup[datetime(2026, 10, 4, 4, tzinfo=UTC)]
+    assert (t.height_m, t.updraft_ms) == (1800, 2)
+    assert (t.sfc_wind_ms, t.top_wind_ms, t.sun_pct) == (None, None, None)
+    world.requests.clear()
+    run_refresh(cfg, site, tmp_path, world, LATER)  # same stamps: nothing more is asked for
+    assert [p for p, _ in world.requests] == ["version.json"]
+
+
+def test_a_day_stored_before_the_extras_existed_is_fetched_again(site, cfg, tmp_path, world):
+    run_refresh(cfg, site, tmp_path, world)
+    path = ausrasp.day_path(store_dir(tmp_path), "OUT+1")
+    day = json.loads(path.read_text())
+    day.pop("extras")
+    for v in day["values"].values():
+        for k in ("sfc_wind_ms", "top_wind_ms", "sun_pct"):
+            v.pop(k, None)
+    path.write_text(json.dumps(day))
+    world.requests.clear()
+    r = run_refresh(cfg, site, tmp_path, world, LATER)
+    assert r.changed == ["OUT+1"]
+    assert len([p for p, _ in world.requests]) == 1 + 5 * HOURS

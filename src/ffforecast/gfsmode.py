@@ -10,7 +10,7 @@ from datetime import UTC, datetime
 from zoneinfo import ZoneInfo
 
 from .config import Rules, Site
-from .diagnostics import build_block
+from .diagnostics import build_block, sun_from_cloud
 from .gfs import BLOCK_HOURS
 from .models import DETAILED_DAYS, DailyOutlook, ForecastBlock, Wind
 from .outlook import outlook_from_samples
@@ -66,9 +66,18 @@ def blocks_from_samples(
                 gust_kph=s.get("gust_ms", 0.0) * MS_TO_KPH,
                 launch=launch,
                 thermal=(thermal or {}).get(s["time"].astimezone(UTC)),
+                sun_pct_gfs=_sun_pct(s, rules),
             )
         )
     return out
+
+
+def _sun_pct(s: dict, rules: Rules) -> float | None:
+    """Sunshine from the sample's GFS cloud layers (percent cover), when all three were read."""
+    low, mid, high = s.get("cloud_low_pct"), s.get("cloud_mid_pct"), s.get("cloud_high_pct")
+    if low is None or mid is None or high is None:
+        return None
+    return sun_from_cloud(low, mid, high, rules)
 
 
 def outlook_after_blocks(

@@ -6,7 +6,7 @@ from ffforecast.config import ConfigError, load_rules, load_site
 
 
 def test_loads_real_files(rules, site):
-    assert rules.version == 1
+    assert rules.version == 2
     assert rules.speed_orange_from_mph == 12 and rules.speed_red_from_mph == 14
     assert rules.sector_center_deg == 0 and rules.sector_half_width_deg == 40
     assert site.lat == pytest.approx(-36.7584099)

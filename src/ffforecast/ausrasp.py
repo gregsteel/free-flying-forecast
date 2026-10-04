@@ -34,12 +34,24 @@ FORMAT = (
 )
 DAY_KEYS = tuple(f"OUT+{n}" for n in range(7))
 HEIGHT, UPDRAFT = "hglider", "wstar"
+# Read for the days the page shows hour by hour: the 10 m wind, the wind at the top of the thermals
+# (the boundary layer) and the share of possible sunshine that reaches the ground.
+SFC_WIND, TOP_WIND, SUN = "sfcwindspd", "bltopwindspd", "sfcsunpct"
+EXTRAS = (SFC_WIND, TOP_WIND, SUN)
+EXTRAS_DAYS = 4  # OUT+0 to OUT+3
+# The quantity named inside a wind file differs from the file's name
+HEADER_PARAM = {SFC_WIND: "sfcwindSpeed", TOP_WIND: "bltopwindSpeed"}
 QUANTITIES = {  # name -> (unit in the file header, smallest and largest believable value)
     HEIGHT: ("m", 0.0, 5000.0),
     UPDRAFT: ("m/sec", 0.0, 10.0),
+    SFC_WIND: ("m/s", 0.0, 60.0),
+    TOP_WIND: ("m/s", 0.0, 80.0),
+    SUN: ("%", 0.0, 100.0),
 }
-REQUESTS_PER_HOUR = 150  # a full refresh of seven days is 126 files (nine hours, two quantities)
-BYTES_PER_DAY = 25 * 1024 * 1024
+# A full refresh is 126 files for height and updraft (seven days, nine hours) and 108 more for the
+# wind and sun of the four detailed days; one day's refresh is 18 or 45 files.
+REQUESTS_PER_HOUR = 300
+BYTES_PER_DAY = 40 * 1024 * 1024
 PAUSE_S = 1.0
 BACKOFF = timedelta(hours=6)
 
@@ -76,7 +88,7 @@ def parse_grid(text: str, param: str, shape: tuple[int, int] | None = None) -> G
     lines = [ln.strip() for ln in text.splitlines()]
     h = _header(lines)
     unit, lo, hi = QUANTITIES.get(param, ("", -math.inf, math.inf))
-    if h.get("Param") != param:
+    if h.get("Param") != HEADER_PARAM.get(param, param):
         raise AusraspError(f"expected quantity {param}, file says {h.get('Param')}")
     if unit and h.get("Unit") != unit:
         raise AusraspError(f"{param}: expected unit {unit}, file says {h.get('Unit')}")
@@ -303,9 +315,15 @@ def _clock_guess(stamp: str, tz: str) -> int:
 # Fetching a day and refreshing from the manifest
 
 
-def fetch_day(client: Client, key: str, stamp: str, cell: dict, site: Site) -> dict:
+def fetch_day(
+    client: Client, key: str, stamp: str, cell: dict, site: Site, extras: bool = False
+) -> dict:
     """All wanted hours of both quantities for one day, for the cell. Raises AusraspError if
     anything is missing, unreadable, or from different model runs; stores nothing in that case.
+
+    With `extras` the wind and sun files are read too. They are optional: if one cannot be read
+    (but AUSRASP itself is up) the day is kept without them and marked `"extras": false`, so the
+    height and updraft are never lost for the sake of them.
 
     File names carry AUSRASP's own clock hour, so the hour to ask for depends on which clock the
     run used (standard or daylight time). The first file settles it: it must be valid at the
@@ -340,6 +358,7 @@ def fetch_day(client: Client, key: str, stamp: str, cell: dict, site: Site) -> d
     assert first is not None
     values: dict[str, dict] = {}
     run = first.run
+    have_extras = extras
     for valid in plan:
         entry = values.setdefault(_iso(valid), {})
         for param in (HEIGHT, UPDRAFT):
@@ -351,6 +370,23 @@ def fetch_day(client: Client, key: str, stamp: str, cell: dict, site: Site) -> d
             entry["height_m" if param == HEIGHT else "updraft_ms"] = block_max(
                 grid.values, cell["row"], cell["col"], radius
             )
+        if have_extras:
+            try:
+                for param in EXTRAS:
+                    grid = get(valid, offset, param)
+                    if grid.valid_utc != valid or grid.run != run:
+                        raise AusraspError(f"{key}: {param} is not from the same run and hour")
+                    # the strongest wind in the block (a ridge launch), the average sunshine
+                    pick = block_mean if param == SUN else block_max
+                    entry[_EXTRA_KEYS[param]] = pick(grid.values, cell["row"], cell["col"], radius)
+            except AusraspError as e:
+                if client_blocked(e):
+                    raise
+                have_extras = False  # keep the thermals; the wind and sun are left out
+    if extras and not have_extras:
+        for entry in values.values():
+            for k in _EXTRA_KEYS.values():
+                entry.pop(k, None)
     return {
         "key": key,
         "format": FORMAT,
@@ -358,8 +394,18 @@ def fetch_day(client: Client, key: str, stamp: str, cell: dict, site: Site) -> d
         "model_start": _iso(run),
         "fetched_at": _iso(now),
         "radius": radius,
+        "extras": have_extras,
         "values": values,
     }
+
+
+_EXTRA_KEYS = {SFC_WIND: "sfc_wind_ms", TOP_WIND: "top_wind_ms", SUN: "sun_pct"}
+
+
+def block_mean(values: np.ndarray, row: int, col: int, radius: int) -> float:
+    """The average value in the block of cells `radius` around (row, col), clipped to the grid."""
+    block = values[max(row - radius, 0) : row + radius + 1, max(col - radius, 0) : col + radius + 1]
+    return float(block.mean())
 
 
 def block_max(values: np.ndarray, row: int, col: int, radius: int) -> float:
@@ -416,10 +462,18 @@ def refresh(cfg: AusraspConfig, site: Site, cache_dir: Path, session, **client_k
                 },
             )
             seen[key] = stamp
-        if stored and stored.get("stamp") == stamp and stored.get("radius") == cfg.cell_radius:
+        want_extras = cfg.extras and int(key[4:]) < EXTRAS_DAYS
+        if (
+            stored
+            and stored.get("stamp") == stamp
+            and stored.get("radius") == cfg.cell_radius
+            and (
+                not want_extras or "extras" in stored
+            )  # a stored false is not retried until the stamp changes
+        ):
             continue
         try:
-            day = fetch_day(client, key, stamp, cell, site)
+            day = fetch_day(client, key, stamp, cell, site, want_extras)
         except AusraspError as e:
             result.problems.append(f"{key}: {e}")
             if client_blocked(e):
@@ -502,7 +556,14 @@ def thermal_lookup(
         for iso, v in day["values"].items():
             t = parse_iso(iso.replace("Z", "+00:00"))
             if t is not None:
-                out[t] = Thermal(float(v["height_m"]), float(v["updraft_ms"]), _iso(run))
+                out[t] = Thermal(
+                    float(v["height_m"]),
+                    float(v["updraft_ms"]),
+                    _iso(run),
+                    v.get("sfc_wind_ms"),
+                    v.get("top_wind_ms"),
+                    v.get("sun_pct"),
+                )
     if not held:
         notes.append("no AUSRASP data has been fetched yet")
     return out, notes

@@ -44,6 +44,10 @@ BLOCK_FIELDS: tuple[tuple[str, str], ...] = (
     # the model ground are dropped by profile.usable_profile using surface pressure.
     ("PRES", "surface"),
     ("HGT", "surface"),
+    # Cloud cover by layer (percent): the sunshine reaching the ground when AUSRASP's is not available
+    ("LCDC", "low cloud layer"),
+    ("MCDC", "middle cloud layer"),
+    ("HCDC", "high cloud layer"),
     *((var, f"{lvl} mb") for lvl in (950, 925, 900, 850) for var in ("UGRD", "VGRD", "HGT")),
 )
 DEFAULT_FIELDS = BLOCK_FIELDS
@@ -94,16 +98,19 @@ def parse_idx(text: str) -> list[IdxEntry]:
     return entries
 
 
+_TWICE = ("PRATE", "LCDC", "MCDC", "HCDC")
+
+
 def select(
     entries: list[IdxEntry], fields: tuple[tuple[str, str], ...] = DEFAULT_FIELDS
 ) -> list[IdxEntry]:
     wanted = set(fields)
-    # GFS lists PRATE twice: instantaneous ("6 hour fcst") and an average ("0-6 hour ave fcst").
-    # Only the instantaneous value is wanted.
+    # GFS lists PRATE and the cloud covers twice: instantaneous ("6 hour fcst") and an average
+    # ("0-6 hour ave fcst"). Only the instantaneous value is wanted.
     return [
         e
         for e in entries
-        if (e.variable, e.level) in wanted and not (e.variable == "PRATE" and "ave" in e.forecast)
+        if (e.variable, e.level) in wanted and not (e.variable in _TWICE and "ave" in e.forecast)
     ]
 
 

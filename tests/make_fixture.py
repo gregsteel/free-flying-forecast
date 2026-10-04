@@ -26,6 +26,8 @@ weather = {
     "dangerous": (2.3, 900, 40),
     "turbulent": (0, 0, 20),
 }  # gusts under the limit: only the wind differs by glider
+# Percent of possible sun reaching the ground (GFS-style cloud estimate); anything else is 90
+sun = {"poor": 35, "turbulent": 60}
 # Hourly blocks, 10:00 to 18:00. The original four per day stay at 11, 13, 15 and 17 o'clock; the other
 # hours are Ok, so every grade still appears. Day 1 keeps its original order; days 2 to 4 bring in Ok and Strong.
 per_day = [
@@ -45,7 +47,7 @@ for day, four in enumerate(per_day):
             build_block(
                 start, Wind(g, gk), Wind(a, ak), pb, hfx, t2, 785, rules,
                 rain_mm_h=rain, cape_j_kg=cape, gust_kph=gust,
-                launch=Wind(g + 5, gk + 2),
+                launch=Wind(g + 5, gk + 2), sun_pct_gfs=sun.get(key, 90),
             )
         )  # fmt: skip
 

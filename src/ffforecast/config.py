@@ -34,6 +34,8 @@ class AusraspConfig:
     # alone. The highest value in the block is used (the launch sits on a mountain).
     cell_radius: int = 1
     max_age_h: float = 36.0
+    # Also read AUSRASP's wind and sunshine for the four detailed days (about twice the downloads)
+    extras: bool = True
     windows: tuple[PollWindow, ...] = ()
     default_every_min: int = 180
 
@@ -90,6 +92,21 @@ class Rules:
     # Good and Strong updraft limits when the updraft is AUSRASP's, which is published in whole m/s
     ausrasp_good_updraft_ms: float = 3.0
     ausrasp_strong_updraft_ms: float = 4.0
+    # Gust estimates. GFS gives a gust only 10 m above the ground; the gust at launch and at the top
+    # of the thermals are estimated from the wind there (see grading and the page's method section).
+    gust_aloft_orange_from_mph: float = 28.0
+    gust_aloft_red_from_mph: float = 34.0
+    gust_mix_fraction: float = 0.5
+    gust_aloft_factor: float = 1.25
+    # When AUSRASP's 10 m wind is stronger than the global model's wind at launch, grade on it
+    ausrasp_wind_counts: bool = True
+    # Sunshine: below sun_full_pct thermal quality is scaled down; below sun_shaded_pct the shading is
+    # called out. The cloud_*_blocks values are how much of the sun each GFS cloud layer stops.
+    sun_full_pct: float = 70.0
+    sun_shaded_pct: float = 40.0
+    cloud_low_blocks: float = 0.9
+    cloud_mid_blocks: float = 0.6
+    cloud_high_blocks: float = 0.25
 
 
 def _read(path: Path) -> dict[str, Any]:
@@ -221,6 +238,7 @@ def _ausrasp(d: dict[str, Any], where: str) -> AusraspConfig:
         max_cell_km=max_cell,
         cell_radius=radius,
         max_age_h=max_age,
+        extras=bool(a.get("extras", True)),
         windows=tuple(windows),
         default_every_min=default_every,
     )
@@ -265,14 +283,44 @@ def _weather(section: dict[str, Any], where: str) -> dict[str, float]:
         "cape_storm_j_kg",
         "gust_orange_from_mph",
         "gust_red_from_mph",
+        "gust_aloft_orange_from_mph",
+        "gust_aloft_red_from_mph",
+        "gust_mix_fraction",
+        "gust_aloft_factor",
     )
     out = {k: float(section[k]) for k in keys if k in section}
+    if not 0 <= out.get("gust_mix_fraction", 0.5) <= 1:
+        raise ConfigError(f"{where}: gust_mix_fraction must be from 0 to 1")
+    if out.get("gust_aloft_factor", 1.25) < 1:
+        raise ConfigError(f"{where}: gust_aloft_factor must be at least 1")
+    if out.get("gust_aloft_orange_from_mph", 28) > out.get("gust_aloft_red_from_mph", 34):
+        raise ConfigError(f"{where}: aloft gust orange must not exceed aloft gust red")
     if out.get("rain_light_mm_h", 0.1) > out.get("rain_heavy_mm_h", 1.0):
         raise ConfigError(f"{where}: rain_light_mm_h must not exceed rain_heavy_mm_h")
     if out.get("cape_overdevelop_j_kg", 400) > out.get("cape_storm_j_kg", 1000):
         raise ConfigError(f"{where}: cape_overdevelop_j_kg must not exceed cape_storm_j_kg")
     if out.get("gust_orange_from_mph", 16) > out.get("gust_red_from_mph", 20):
         raise ConfigError(f"{where}: gust orange must not exceed gust red")
+    return out
+
+
+def _sun(section: dict[str, Any], where: str) -> dict[str, float]:
+    """The [sun] values (all optional): the shading thresholds and the cloud layer opacities."""
+    keys = {
+        "full_pct": "sun_full_pct",
+        "shaded_pct": "sun_shaded_pct",
+        "low_cloud_blocks": "cloud_low_blocks",
+        "mid_cloud_blocks": "cloud_mid_blocks",
+        "high_cloud_blocks": "cloud_high_blocks",
+    }
+    out = {field: float(section[key]) for key, field in keys.items() if key in section}
+    if not 0 < out.get("sun_shaded_pct", 40.0) <= out.get("sun_full_pct", 70.0) <= 100:
+        raise ConfigError(f"{where}: [sun] needs 0 < shaded_pct <= full_pct <= 100")
+    for field in ("cloud_low_blocks", "cloud_mid_blocks", "cloud_high_blocks"):
+        if not 0 <= out.get(field, 0.5) <= 1:
+            raise ConfigError(
+                f"{where}: [sun] {field.split('_')[1]}_cloud_blocks must be from 0 to 1"
+            )
     return out
 
 
@@ -384,6 +432,8 @@ def load_rules(path: Path) -> Rules:
         thermal_ok_quality_pct=float(_need(thermal, "ok_quality_pct", w)),
         thermal_min_height_m=float(_need(thermal, "min_height_m", w)),
         **_weather(d.get("weather", {}), w),
+        ausrasp_wind_counts=bool(d.get("weather", {}).get("ausrasp_wind_counts", True)),
+        **_sun(d.get("sun", {}), w),
         **_thermal_calibration(thermal, w),
         **_tiers(thermal, wind, d.get("thermal_ausrasp", {}), w),
     )

@@ -61,6 +61,29 @@ def thermal_quality_pct(
     return int(round(max(0.0, base - penalty) / 10) * 10)
 
 
+def estimate_gusts(
+    gust10_kph: float, launch_kph: float, top_kph: float, rules: Rules
+) -> tuple[float, float]:
+    """(gust at launch, gust at the top of the thermals) in kph, both estimates.
+
+    The global model gives a gust only 10 m above the ground. At launch the gusts are at least that,
+    and thermals mix some of the faster air from the top of the boundary layer down: so the launch
+    gust is the launch wind plus a fraction of the difference. At the top of the thermals the gust
+    is the mean wind there times a gust factor. These are rules of thumb, not model output."""
+    mix = max(top_kph - launch_kph, 0.0) * rules.gust_mix_fraction
+    return max(gust10_kph, launch_kph + mix), top_kph * rules.gust_aloft_factor
+
+
+def sun_from_cloud(low: float, mid: float, high: float, rules: Rules) -> float:
+    """Percent of possible sunshine reaching the ground from GFS cloud cover (each 0 to 100 %),
+    treating the layers as stopping a fixed share of the sun where they are overcast."""
+    return 100.0 * (
+        (1 - rules.cloud_low_blocks * low / 100)
+        * (1 - rules.cloud_mid_blocks * mid / 100)
+        * (1 - rules.cloud_high_blocks * high / 100)
+    )
+
+
 def shear_class(ground: Wind, aloft: Wind, rules: Rules) -> str:
     gu = -ground.kph * math.sin(math.radians(ground.dir_deg))
     gv = -ground.kph * math.cos(math.radians(ground.dir_deg))
@@ -88,6 +111,7 @@ def build_block(
     gust_kph: float = 0.0,
     launch: Wind | None = None,
     thermal: Thermal | None = None,
+    sun_pct_gfs: float | None = None,
 ) -> ForecastBlock:
     """One graded block. With `thermal` (AUSRASP's height and updraft) those replace the figures
     estimated from the global model's boundary layer and heating; wind, rain, gusts and storms
@@ -104,6 +128,14 @@ def build_block(
         up = wstar(hfx_wm2, pblh_agl_m, theta)
         height = usable_thermal_height_asl(pblh_agl_m, up, terrain_m, rules)
         limits = {}
+    rasp_ground = thermal.sfc_wind_ms * 3.6 if thermal and thermal.sfc_wind_ms is not None else None
+    rasp_top = thermal.top_wind_ms * 3.6 if thermal and thermal.top_wind_ms is not None else None
+    if thermal is not None and thermal.sun_pct is not None:
+        sun, sun_source = thermal.sun_pct, "ausrasp"
+    elif sun_pct_gfs is not None:
+        sun, sun_source = sun_pct_gfs, "gfs"
+    else:
+        sun, sun_source = None, ""
     quality = thermal_quality_pct(
         up,
         max(ground.kph, aloft.kph),
@@ -111,19 +143,36 @@ def build_block(
         rules.quality_wind_threshold_kph,
         rules.quality_wind_penalty_per_kph,
     )
+    if sun is not None and sun < rules.sun_full_pct:  # cloud shading weakens the thermals
+        quality = int(round(quality * sun / rules.sun_full_pct / 10) * 10)
     # The verdict is judged on the wind at launch altitude when we have it (it is what a pilot
     # meets at take-off); otherwise on the 10 m wind. The stronger of the lower winds counts for
-    # speed, so a windier surface or 850 hPa flow still shows.
+    # speed, so a windier surface or 850 hPa flow still shows. AUSRASP's regional 10 m wind joins
+    # them when it is stronger (it resolves the ridge the global model smooths away).
     judged = launch or ground
+    extra_reasons: list[str] = []
+    if rules.ausrasp_wind_counts and rasp_ground is not None and rasp_ground > judged.kph:
+        extra_reasons.append(
+            f"AUSRASP's regional model has a stronger wind here ({rasp_ground:.0f} kph at 10 m); "
+            "graded on that."
+        )
+        judged = Wind(judged.dir_deg, rasp_ground)
     speed_aloft = max(aloft.kph, ground.kph, judged.kph)
+    # the wind at the top of the thermals: AUSRASP's, or the 850 hPa wind (about 1,500 m) without it
+    top_kph = rasp_top if rasp_top is not None else aloft.kph
+    gust_launch, gust_aloft = estimate_gusts(gust_kph, judged.kph, top_kph, rules)
     verdict_pg, reasons = grade_block(
         judged.dir_deg, judged.kph, speed_aloft, quality, height, rules, "pg",
-        rain_mm_h, cape_j_kg, gust_kph, up, **limits,
+        rain_mm_h, cape_j_kg, gust_launch, up, **limits,
+        gust_aloft_kph=gust_aloft, sun_pct=sun,
     )  # fmt: skip
     verdict_hg, reasons_hg = grade_block(
         judged.dir_deg, judged.kph, speed_aloft, quality, height, rules, "hg",
-        rain_mm_h, cape_j_kg, gust_kph, up, **limits,
+        rain_mm_h, cape_j_kg, gust_launch, up, **limits,
+        gust_aloft_kph=gust_aloft, sun_pct=sun,
     )  # fmt: skip
+    reasons = [*extra_reasons, *reasons]
+    reasons_hg = [*extra_reasons, *reasons_hg]
     return ForecastBlock(
         start=start.isoformat(),
         wind_ground=Wind(round(ground.dir_deg), round(ground.kph)),
@@ -146,6 +195,12 @@ def build_block(
         wind_launch=Wind(round(launch.dir_deg), round(launch.kph)) if launch else None,
         thermal_source="ausrasp" if thermal else "gfs",
         thermal_run=thermal.run if thermal else "",
+        gust_launch_kph=round(gust_launch),
+        gust_aloft_kph=round(gust_aloft),
+        wind_ausrasp_kph=round(rasp_ground) if rasp_ground is not None else None,
+        wind_top_kph=round(rasp_top) if rasp_top is not None else None,
+        sun_pct=round(sun) if sun is not None else None,
+        sun_source=sun_source,
     )
 
 

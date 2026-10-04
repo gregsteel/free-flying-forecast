@@ -51,7 +51,31 @@ def run_all(stages, staging):
 
 def test_stage_order_keeps_fetch_first_and_ausrasp_before_diagnose(setup):
     _, build, _ = setup
-    assert list(build()) == ["fetch", "ausrasp", "diagnose", "render"]
+    assert list(build()) == ["fetch", "ausrasp", "diagnose", "render", "history"]
+
+
+def test_the_run_keeps_the_forecast_history_when_asked(setup, site, rules, tmp_path):
+    import dataclasses
+
+    from ffforecast import history
+
+    world, _, tmp = setup
+    cfg = runner.RunConfig(
+        site=dataclasses.replace(site, ausrasp=dataclasses.replace(site.ausrasp, base_url=BASE)),
+        rules=rules,
+        cache_dir=tmp / "cache",
+        history_dir=tmp / "history",
+        now=NOW,
+    )
+    stages = {st.name: st.fn for st in runner.gfs_stages(cfg, CYCLE, world)}  # type: ignore[arg-type]
+    staging = tmp / "staging2"
+    staging.mkdir()
+    for name in ("ausrasp", "diagnose", "render", "history"):
+        stages[name](staging)
+    kept = history.read_day(tmp / "history", "2026-10-03")
+    assert (
+        len(kept) == 1 and kept[0]["thermal_runs"] and kept[0]["blocks"][0]["sun_pct"] is not None
+    )
 
 
 def test_blocks_take_ausrasp_thermals_and_the_page_names_the_source(setup, capsys):
@@ -67,11 +91,24 @@ def test_blocks_take_ausrasp_thermals_and_the_page_names_the_source(setup, capsy
     assert "AUSRASP" in (tmp / "staging" / "index.html").read_text()
 
 
-def test_wind_and_rain_are_not_taken_from_ausrasp(setup):
+def test_only_thermals_wind_and_sun_are_asked_of_ausrasp(setup):
     world, build, tmp = setup
     run_all(build(), tmp / "staging")
     asked = {p.split("/FCST/")[1].split(".")[0] for p, _ in world.requests if "/FCST/" in p}
-    assert asked == {"hglider", "wstar"}  # nothing about wind, rain, cape or temperature
+    # nothing about rain, cape or temperature; its wind only feeds the gust estimate
+    assert asked == {"hglider", "wstar", "sfcwindspd", "bltopwindspd", "sfcsunpct"}
+
+
+def test_the_wind_and_sun_files_can_be_switched_off(setup, site):
+    import dataclasses
+
+    world, build, tmp = setup
+    off = dataclasses.replace(
+        site, ausrasp=dataclasses.replace(site.ausrasp, base_url=BASE, extras=False)
+    )
+    run_all(build(cfg_site=off), tmp / "staging")
+    asked = {p.split("/FCST/")[1].split(".")[0] for p, _ in world.requests if "/FCST/" in p}
+    assert asked == {"hglider", "wstar"}
 
 
 def test_when_ausrasp_is_down_the_run_still_works_on_the_estimate(setup, capsys):

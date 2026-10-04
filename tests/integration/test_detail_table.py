@@ -6,12 +6,15 @@ from ffforecast.render import render_page
 
 LABELS = [
     "Ground wind",
-    "Gusts",
+    "Gusts at 10 m",
+    "Gusts at launch",
     "Wind aloft",
+    "Gusts at thermal height",
     "Wind shear",
     "Thermal height",
     "Thermal quality",
     "Updraft",
+    "Sun reaching the ground",
     "Temperature, ground",
     "Temperature, at thermal height",
     "Rain",
@@ -57,7 +60,7 @@ def test_row_headings_are_in_the_left_column_once_per_day(fixture_path, site, ru
 
 def test_headings_are_real_row_headers(fixture_path, site, rules):
     for t in tables(page(fixture_path, site, rules)):
-        assert t.count('<th scope="row">') == 11
+        assert t.count('<th scope="row">') == 14
         assert t.count('<th scope="col"') == 9
         # every body row is a heading plus one value cell per time
         body = re.search(r"<tbody>(.*?)</tbody>", t, flags=re.S)
@@ -162,7 +165,7 @@ def test_gusts_sit_directly_under_ground_wind(fixture_path, site, rules):
     for t in tables(page(fixture_path, site, rules)):
         labels = row_labels(t)
         names = [base(x) for x in labels]
-        assert names[names.index("Ground wind") + 1] == "Gusts"
+        assert names[names.index("Ground wind") + 1] == "Gusts at 10 m"
 
 
 def test_why_this_grade_is_collapsed_by_default(fixture_path, site, rules):
@@ -193,7 +196,9 @@ def test_the_units_are_in_the_row_labels_and_the_cells_hold_only_numbers(fixture
     expected = {
         "Wind at launch": ("kts", "kph"),
         "Ground wind": ("kts", "kph"),
-        "Gusts": ("kts", "kph"),
+        "Gusts at 10 m": ("kts", "kph"),
+        "Gusts at launch": ("kts", "kph"),
+        "Gusts at thermal height": ("kts", "kph"),
         "Wind aloft": ("kts", "kph"),
         "Thermal height": ("m", "ft"),
         "Updraft": ("m/s", "ft/sec"),
@@ -206,7 +211,15 @@ def test_the_units_are_in_the_row_labels_and_the_cells_hold_only_numbers(fixture
         assert full is not None, label
         for unit in units:  # both unit names are in the label; CSS shows the chosen one
             assert f">{unit}</span>" in full.group(1), (label, unit)
-    for label in ("Ground wind", "Gusts", "Wind aloft", "Thermal height", "Updraft"):
+    for label in (
+        "Ground wind",
+        "Gusts at 10 m",
+        "Gusts at launch",
+        "Gusts at thermal height",
+        "Wind aloft",
+        "Thermal height",
+        "Updraft",
+    ):
         for cell in cells_of(t, label):
             visible = re.sub(r"<[^>]+>", " ", cell)
             assert not any(w in visible for w in ("kts", "kph", " m ", " ft", "m/s", "ft/sec")), (
@@ -227,8 +240,8 @@ def test_words_stay_words_in_the_table(fixture_path, site, rules):
     rain = cells_of(t, "Rain")
     assert "none" in rain  # no rain is the word, not a number with a unit
     assert any("a-m" in c for c in rain)  # a wet hour shows the number
-    assert "not available" in "".join(cells_of(t, "Gusts")) or any(
-        "s-kts" in c for c in cells_of(t, "Gusts")
+    assert "not available" in "".join(cells_of(t, "Gusts at 10 m")) or any(
+        "s-kts" in c for c in cells_of(t, "Gusts at 10 m")
     )
 
 

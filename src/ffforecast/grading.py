@@ -71,7 +71,11 @@ def grade_direction(
 
 
 def grade_weather(
-    rain_mm_h: float, cape_j_kg: float, gust_kph: float, rules: Rules
+    rain_mm_h: float,
+    cape_j_kg: float,
+    gust_kph: float,
+    rules: Rules,
+    gust_aloft_kph: float = 0.0,
 ) -> list[tuple[str, str]]:
     """Rain, storm and gust states as (state, reason) pairs; only problems are reported.
     States use the same vocabulary as the wind grades ('poor', 'turbulent', 'dangerous')."""
@@ -90,6 +94,18 @@ def grade_weather(
         out.append(("dangerous", f"Gusts to {gust_kph:.0f} kph: likely unsuitable for flying."))
     elif gust_mph >= rules.gust_orange_from_mph:
         out.append(("turbulent", f"Gusts to {gust_kph:.0f} kph: rough air likely."))
+    aloft_mph = kph_to_mph(gust_aloft_kph)
+    if aloft_mph >= rules.gust_aloft_red_from_mph:
+        out.append(
+            (
+                "dangerous",
+                f"Gusts to {gust_aloft_kph:.0f} kph at thermal height: violent air aloft.",
+            )
+        )
+    elif aloft_mph >= rules.gust_aloft_orange_from_mph:
+        out.append(
+            ("turbulent", f"Gusts to {gust_aloft_kph:.0f} kph at thermal height: rough air aloft.")
+        )
     return out
 
 
@@ -115,6 +131,8 @@ def grade_block(
     updraft_ms: float | None = None,
     good_updraft_ms: float | None = None,
     strong_updraft_ms: float | None = None,
+    gust_aloft_kph: float = 0.0,
+    sun_pct: float | None = None,
 ) -> tuple[str, list[str]]:
     """Verdict and reasons for one block. Direction is judged on the ground (launch) wind;
     speed is judged on the stronger of ground and aloft wind.
@@ -122,7 +140,10 @@ def grade_block(
     The worst problem found (wind, direction, gusts, rain, storms) sets Poor, Turbulent or
     Dangerous. With no problem, the thermals decide: Poor if weak or low, otherwise Ok, Good or
     Strong. Without an updraft value only quality is used, so Strong cannot be reached. The
-    updraft limits default to the rules' values; AUSRASP's whole-number updraft passes its own."""
+    updraft limits default to the rules' values; AUSRASP's whole-number updraft passes its own.
+    `gust_kph` is the gust at launch and `gust_aloft_kph` the gust at the top of the thermals (both
+    estimates; see diagnostics.estimate_gusts). `sun_pct` only adds a reason: the caller has already
+    scaled the thermal quality by it."""
     good_u = rules.thermal_good_updraft_ms if good_updraft_ms is None else good_updraft_ms
     strong_u = rules.thermal_strong_updraft_ms if strong_updraft_ms is None else strong_updraft_ms
     reasons: list[str] = []
@@ -142,9 +163,18 @@ def grade_block(
         verdict = worst(verdict, _to_verdict(state))
         reasons.append(reason)
 
-    for state, reason in grade_weather(rain_mm_h, cape_j_kg, gust_kph, rules):
+    for state, reason in grade_weather(rain_mm_h, cape_j_kg, gust_kph, rules, gust_aloft_kph):
         verdict = worst(verdict, _to_verdict(state))
         reasons.append(reason)
+
+    # Shading is already in the thermal quality (scaled by the caller); say so when it is marked
+    if sun_pct is not None and sun_pct < rules.sun_full_pct:
+        reasons.append(
+            f"Cloud shading: only {sun_pct:.0f}% of the possible sun reaches the ground, so thermals "
+            "are weaker and less reliable."
+            if sun_pct < rules.sun_shaded_pct
+            else f"Some cloud shading ({sun_pct:.0f}% of the possible sun): thermals are a little weaker."
+        )
 
     if verdict != "ok":
         return verdict, reasons

@@ -43,6 +43,14 @@ def grid_text(
     )
 
 
+# file name -> (the quantity named inside the file, its unit, the World attribute that supplies it)
+EXTRA_FILES = {
+    "sfcwindspd": ("sfcwindSpeed", "m/s", "sfc_wind"),
+    "bltopwindspd": ("bltopwindSpeed", "m/s", "top_wind"),
+    "sfcsunpct": ("sfcsunpct", "%", "sun"),
+}
+
+
 class Resp:
     def __init__(self, status: int, text: str = "", headers: dict | None = None):
         self.status_code = status
@@ -69,6 +77,10 @@ class World:
         # other cells with their own values: {(row offset, column offset): (height, updraft)}
         self.around: dict[tuple[int, int], tuple[float, float]] = {}
         self.mult = 1
+        # the wind (m/s) and sunshine (%) files, as functions of (day key, hhmm)
+        self.sfc_wind = lambda key, hhmm: 4.0
+        self.top_wind = lambda key, hhmm: 9.0
+        self.sun = lambda key, hhmm: 80.0
         self.clock: dict[
             str, int
         ] = {}  # force a day's clock (10 = AES, 11 = AED); default follows the stamp
@@ -106,6 +118,13 @@ class World:
         if not 8 <= int(hhmm[:2]) <= 18:
             return Resp(404, "not found")
         r, c = self.cell["row"], self.cell["col"]
+        if param in EXTRA_FILES:
+            header, unit, fn = EXTRA_FILES[param]
+            value = getattr(self, fn)(key, hhmm)
+            text = grid_text(
+                header, valid, self.runs[key], value, (r, c, value), unit, offset=offset
+            )
+            return Resp(200, text, {"content-length": str(len(text) // 3)})
         pick = 0 if param == "hglider" else 1
         own = self.height(key, hhmm) if pick == 0 else self.updraft(key, hhmm)
         cells = [(r, c, own)] + [(r + dr, c + dc, v[pick]) for (dr, dc), v in self.around.items()]

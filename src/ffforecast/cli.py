@@ -54,6 +54,7 @@ def _run_config(args: argparse.Namespace, site, rules) -> RunConfig:
         publish_remote=args.publish_remote,
         publish_branch=args.publish_branch,
         publish_key=Path(args.publish_key) if args.publish_key else None,
+        history_dir=Path(args.state) / "history",
     )
 
 

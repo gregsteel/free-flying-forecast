@@ -142,6 +142,9 @@ _WANTED = {
     (0, 2, 22, "surface", 0): "gust_ms",
     (0, 3, 0, "surface", 0): "sp_pa",
     (0, 3, 5, "surface", 0): "orog_m",
+    (0, 6, 3, "lowCloudLayer", 0): "cloud_low",  # percent cover, instantaneous only
+    (0, 6, 4, "middleCloudLayer", 0): "cloud_mid",
+    (0, 6, 5, "highCloudLayer", 0): "cloud_high",
     (0, 2, 2, "isobaricInhPa", 850): "u850",
     (0, 2, 3, "isobaricInhPa", 850): "v850",
     **{
@@ -150,6 +153,9 @@ _WANTED = {
         for cat, num, name in ((2, 2, "u"), (2, 3, "v"), (3, 5, "gh"))
     },
 }
+
+
+_INSTANT_ONLY = ("prate", "cloud_low", "cloud_mid", "cloud_high")
 
 
 def _int(handle, key: str) -> int:
@@ -191,8 +197,8 @@ def read_gfs_samples(files: list[Path], lat: float, lon: float) -> list[dict]:
                     name = _WANTED.get(key)
                     if name is None:
                         continue
-                    if name == "prate" and "-" in str(eccodes.codes_get(h, "stepRange")):
-                        continue  # skip the 6-hour average; take the instantaneous rate
+                    if name in _INSTANT_ONLY and "-" in str(eccodes.codes_get(h, "stepRange")):
+                        continue  # skip the 6-hour average; take the instantaneous value
                     date = _int(h, "validityDate")
                     hhmm = _int(h, "validityTime")
                     t = datetime(
@@ -219,6 +225,9 @@ def read_gfs_samples(files: list[Path], lat: float, lon: float) -> list[dict]:
                     "rain_mm_h": v.get("prate", 0.0) * 3600,
                     "cape_j_kg": v.get("cape", 0.0),
                     "gust_ms": v.get("gust_ms", 0.0),
+                    "cloud_low_pct": v.get("cloud_low"),
+                    "cloud_mid_pct": v.get("cloud_mid"),
+                    "cloud_high_pct": v.get("cloud_high"),
                     "u850": v.get("u850"),
                     "v850": v.get("v850"),
                     "profile": _profile(v),

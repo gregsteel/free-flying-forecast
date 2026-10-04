@@ -3,8 +3,8 @@
 A self-hosted, simple soaring forecast for paraglider and hang glider pilots at Mystic (Bright),
 VIC. It builds one static, phone-friendly web page from free NOAA weather data - published with GitHub Pages (its address is the repository's website link).
 
-- **Days 1 to 4**: detailed hourly blocks (10:00 to 18:00 local) with wind, shear, thermal height
-  and quality, updraft, temperature, XC potential and a grade for paragliders and hang gliders: Ok,
+- **Days 1 to 4**: detailed hourly blocks (10:00 to 18:00 local) with wind, estimated gusts at launch and
+  at thermal height, shear, thermal height and quality, updraft, sun reaching the ground, temperature and a grade for paragliders and hang gliders: Ok,
   Good ("definitely go flying"), Strong (powerful, demands experience), Poor, Turbulent or Dangerous.
 - **Days 5 to 7**: a low-confidence daily outlook.
 - **Glider type**: a PG / HG toggle in the header (paraglider by default).
@@ -12,7 +12,7 @@ VIC. It builds one static, phone-friendly web page from free NOAA weather data -
   available). Both choices are kept in a cookie in the browser.
 - **Guide**: collapsed; select any grade to open it at that grade.
 - **How the numbers are calculated**: collapsed; where the data comes from and how the thermal figures are worked out.
-- **Rain and storms**: rain, thunderstorm risk and gusts are graded; a notice links to the official BoM Victorian warnings when any are possible.
+- **Rain, storms and gusts**: rain, thunderstorm risk and gusts (at 10 m, at launch and at thermal height) are graded; cloud shading lowers thermal quality; a notice links to the official BoM Victorian warnings when any are possible.
 - **Today**: current conditions and an hourly forecast for the rest of the day (Open-Meteo), with a tab
   for Mystic and one for Mt Hotham (strong wind there can mean Mystic is marginal). Add more places as
   `[[weather_tabs]]` in `config/site.mystic.toml`.
@@ -66,12 +66,19 @@ arm64 (on GitHub's native arm64 runners) and pushes it to `ghcr.io/<username>/fr
 deploy key by bind-mounting the key file. Keep `cache`, `state`, `out` and
 `work` on volumes.
 
+## Forecast history
+
+Every run keeps each day's forecast in `state/history/<date>.jsonl` (`/app/state/history` in the
+container), so it can later be compared with what happened. How that comparison could be made, and
+which flight and weather sources were checked, is in `docs/verification.md`.
+
 ## Tuning
 
 The grading rules live in `config/rules.toml`; bump `version` when you change them. They start from
 the NEVHGC FreeFlightWx Mystic site settings. The site (location, AUSRASP polling, weather tabs, station
 charts and links) is defined in `config/site.mystic.toml`; set the `FFFORECAST_PROJECT` environment variable (or `[links] github` there) and the page's
-"fork the project" text becomes a link. Run `uv run ffforecast check` after editing either file.
+"fork the project" text becomes a link. Run `uv run ffforecast check` after editing either file. The gust, sun and AUSRASP-wind values in
+`rules.toml` are starting guesses; `docs/verification.md` says how they are to be checked.
 
 ## Credits
 
