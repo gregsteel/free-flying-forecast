@@ -92,7 +92,8 @@ def test_the_fork_the_project_words_link_to_github_once_it_is_configured(fixture
     import dataclasses
 
     fc = Forecast.from_dict(json.loads(fixture_path.read_text()))
-    assert "fork the project</a>" not in render_page(fc, site, rules)  # no repository set yet
+    norepo = dataclasses.replace(site, links={k: v for k, v in site.links.items() if k != "github"})
+    assert "fork the project</a>" not in render_page(fc, norepo, rules)  # no repository set
     withrepo = dataclasses.replace(
         site, links={**site.links, "github": "https://github.com/example/free-flying-forecast"}
     )

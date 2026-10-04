@@ -12,3 +12,5 @@ work/
 state/
 .claude/settings.local.json
 .pyright/
+ffforecast_deploy
+ffforecast_deploy.pub

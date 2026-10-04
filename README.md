@@ -66,11 +66,21 @@ AUSRASP re-runs each forecast day on its own, so a second job checks for changes
 The poll windows are a first guess: after a week, compare them with
 `cache/ausrasp/stamps.jsonl` (every change AUSRASP made, with the time it was noticed).
 
+## Docker image and Portainer
+
+`.github/workflows/docker.yml` runs the tests, then builds `docker/Dockerfile.gfs` (GFS-only, no WRF) for
+amd64 and arm64 and pushes it to `ghcr.io/gregsteel/free-flying-forecast` (`latest` on main, plus a
+`sha-` tag). The container runs `docker/gfs-scheduler.sh`: a forecast run at start-up and at 05:30 and
+15:30 Melbourne time (`FFFORECAST_RUN_TIMES`), and `poll --if-due` every 5 minutes. Paste
+`docker/portainer-stack.yml` into a Portainer stack, set `FFFORECAST_PUBLISH_REMOTE`, and provide the
+deploy key as the `deploy_key` secret (or bind-mount the key file). Keep `cache`, `state`, `out` and
+`work` on volumes.
+
 ## Tuning
 
 The grading rules live in `config/rules.toml`; bump `version` when you change them. They start from
 the NEVHGC FreeFlightWx Mystic site settings. The site (location, AUSRASP polling, weather tabs, station
-charts and links) is defined in `config/site.mystic.toml`; set `[links] github` there and the page's
+charts and links) is defined in `config/site.mystic.toml`; set `[links] github` there (it is set to this repository) and the page's
 "fork the project" text becomes a link. Run `uv run ffforecast check` after editing either file.
 
 ## Credits

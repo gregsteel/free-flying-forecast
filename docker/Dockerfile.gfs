@@ -1,0 +1,27 @@
+# Free Flying Forecast, GFS-only mode: the Python pipeline and a small scheduler, no WRF.
+# This is the image the GitHub Action builds. (docker/Dockerfile is the unverified WRF image.)
+FROM python:3.13-slim
+
+ENV TZ=Australia/Melbourne \
+    UV_PROJECT_ENVIRONMENT=/opt/venv \
+    UV_LINK_MODE=copy \
+    PATH=/opt/venv/bin:$PATH \
+    PYTHONUNBUFFERED=1
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      git openssh-client ca-certificates tzdata \
+    && apt-get clean
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+WORKDIR /app
+COPY pyproject.toml uv.lock .python-version ./
+RUN uv sync --frozen --no-dev --no-install-project
+COPY src ./src
+COPY config ./config
+COPY templates ./templates
+RUN uv sync --frozen --no-dev
+COPY docker/gfs-scheduler.sh /usr/local/bin/gfs-scheduler
+RUN chmod +x /usr/local/bin/gfs-scheduler
+
+VOLUME ["/app/cache", "/app/state", "/app/out", "/app/work"]
+# Runs the forecast twice a day and polls AUSRASP; `docker run IMAGE ffforecast run` for a one-off.
+CMD ["gfs-scheduler"]
