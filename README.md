@@ -69,11 +69,11 @@ The poll windows are a first guess: after a week, compare them with
 ## Docker image and Portainer
 
 `.github/workflows/docker.yml` runs the tests, then builds `docker/Dockerfile.gfs` (GFS-only, no WRF) for
-amd64 and arm64 and pushes it to `ghcr.io/gregsteel/free-flying-forecast` (`latest` on main, plus a
+arm64 (on GitHub's native arm64 runners) and pushes it to `ghcr.io/gregsteel/free-flying-forecast` (`latest` on main, plus a
 `sha-` tag). The container runs `docker/gfs-scheduler.sh`: a forecast run at start-up and at 05:30 and
 15:30 Melbourne time (`FFFORECAST_RUN_TIMES`), and `poll --if-due` every 5 minutes. Paste
 `docker/portainer-stack.yml` into a Portainer stack, set `FFFORECAST_PUBLISH_REMOTE`, and provide the
-deploy key as the `deploy_key` secret (or bind-mount the key file). Keep `cache`, `state`, `out` and
+deploy key by bind-mounting the key file. Keep `cache`, `state`, `out` and
 `work` on volumes.
 
 ## Tuning

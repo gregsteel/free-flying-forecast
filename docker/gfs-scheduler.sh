@@ -13,6 +13,11 @@ ARGS=()
 if [ -n "${FFFORECAST_PUBLISH_REMOTE:-}" ]; then
   ARGS+=(--publish-remote "$FFFORECAST_PUBLISH_REMOTE")
   if [ -n "${FFFORECAST_DEPLOY_KEY:-}" ]; then
+    if [ ! -f "$FFFORECAST_DEPLOY_KEY" ]; then
+      # Docker makes a missing bind-mount source on the host an empty directory.
+      echo "scheduler: $FFFORECAST_DEPLOY_KEY is not a file; the key must exist on the host before the stack starts" >&2
+      exit 1
+    fi
     # ssh refuses a key that others can read, and mounted files often are.
     install -m 600 "$FFFORECAST_DEPLOY_KEY" /tmp/deploy_key
     ARGS+=(--publish-key /tmp/deploy_key)
