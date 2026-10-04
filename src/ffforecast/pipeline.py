@@ -22,13 +22,35 @@ class Stage:
 
 
 def swap_in(staging: Path, publish_dir: Path) -> None:
-    """Replace publish_dir with staging. Done only after every stage succeeded."""
+    """Replace publish_dir with staging. Done only after every stage succeeded.
+
+    Renaming is atomic, but it fails when publish_dir is a mount point (a Docker volume) or on another
+    filesystem than staging; then the contents are copied across instead."""
     prev = publish_dir.with_name(publish_dir.name + ".prev")
     if prev.exists():
         shutil.rmtree(prev)
+    try:
+        if publish_dir.exists():
+            publish_dir.rename(prev)
+        staging.rename(publish_dir)
+        return
+    except OSError:
+        pass
+    _swap_in_by_copy(staging, publish_dir, prev)
+
+
+def _swap_in_by_copy(staging: Path, publish_dir: Path, prev: Path) -> None:
+    if prev.exists() and not publish_dir.exists():
+        prev.rename(publish_dir)  # a rename half-done: put the old output back first
     if publish_dir.exists():
-        publish_dir.rename(prev)
-    staging.rename(publish_dir)
+        shutil.copytree(publish_dir, prev, dirs_exist_ok=True)
+        for child in publish_dir.iterdir():
+            shutil.rmtree(child) if child.is_dir() else child.unlink()
+    else:
+        publish_dir.mkdir(parents=True)
+    for child in staging.iterdir():
+        shutil.move(child, publish_dir / child.name)  # shutil.move copes with other filesystems
+    staging.rmdir()
 
 
 def run_pipeline(
