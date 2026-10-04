@@ -121,3 +121,19 @@ def test_rules_without_the_tier_thresholds_use_the_defaults(tmp_path):
     p.write_text(text)
     r = load_rules(p)
     assert r.thermal_good_quality_pct == 70 and r.thermal_strong_updraft_ms == 3.5
+
+
+SITE = Path(__file__).resolve().parents[2].joinpath("config/site.mystic.toml")
+
+
+def test_project_and_contact_come_from_the_environment(monkeypatch):
+    monkeypatch.delenv("FFFORECAST_PROJECT", raising=False)
+    monkeypatch.delenv("FFFORECAST_CONTACT", raising=False)
+    plain = load_site(SITE)
+    assert "github" not in plain.links and plain.ausrasp.contact == ""
+
+    monkeypatch.setenv("FFFORECAST_PROJECT", "https://github.com/example/project")
+    monkeypatch.setenv("FFFORECAST_CONTACT", " me@example.test ")
+    site = load_site(SITE)
+    assert site.links["github"] == "https://github.com/example/project"
+    assert site.ausrasp.contact == "me@example.test"

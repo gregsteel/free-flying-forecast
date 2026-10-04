@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
@@ -215,13 +216,23 @@ def _ausrasp(d: dict[str, Any], where: str) -> AusraspConfig:
     return AusraspConfig(
         enabled=bool(a.get("enabled", True)),
         base_url=base,
-        contact=str(a.get("contact", "")).strip(),
+        # FFFORECAST_CONTACT keeps a personal address out of the committed config.
+        contact=os.environ.get("FFFORECAST_CONTACT", str(a.get("contact", ""))).strip(),
         max_cell_km=max_cell,
         cell_radius=radius,
         max_age_h=max_age,
         windows=tuple(windows),
         default_every_min=default_every,
     )
+
+
+def _links(d: dict[str, Any]) -> dict[str, str]:
+    links = {k: str(v) for k, v in d.get("links", {}).items()}
+    # FFFORECAST_PROJECT is the project's repository URL, for the page's "fork the project" link.
+    project = os.environ.get("FFFORECAST_PROJECT", "").strip()
+    if project:
+        links["github"] = project
+    return links
 
 
 def load_site(path: Path) -> Site:
@@ -238,7 +249,7 @@ def load_site(path: Path) -> Site:
         lon=lon,
         elevation_m=float(_need(d, "elevation_m", w)),
         timezone=str(_need(d, "timezone", w)),
-        links={k: str(v) for k, v in d.get("links", {}).items()},
+        links=_links(d),
         domain={k: dict(v) for k, v in d.get("domain", {}).items()},
         ausrasp=_ausrasp(d, w),
         weather_tabs=_weather_tabs(d, lat, lon, w),

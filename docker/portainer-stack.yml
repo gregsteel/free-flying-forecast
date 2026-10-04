@@ -1,14 +1,17 @@
 # Portainer stack: Stacks > Add stack > Web editor, paste this in.
 # The image is built by .github/workflows/docker.yml (arm64). If the GitHub package is private, add
 # ghcr.io under Portainer's Registries (a GitHub token with read:packages); a public one needs nothing.
+# Replace <username> and <email> with your GitHub username and your email.
 services:
   ffforecast:
-    image: ghcr.io/gregsteel/free-flying-forecast:latest
+    image: ghcr.io/<username>/free-flying-forecast:latest
     restart: unless-stopped
     environment:
       TZ: Australia/Melbourne
-      FFFORECAST_PUBLISH_REMOTE: git@github.com:gregsteel/free-flying-forecast.git
+      FFFORECAST_PROJECT: https://github.com/<username>/free-flying-forecast
+      FFFORECAST_PUBLISH_REMOTE: git@github.com:<username>/free-flying-forecast.git
       FFFORECAST_DEPLOY_KEY: /run/deploy_key
+      FFFORECAST_CONTACT: <email>
       # FFFORECAST_RUN_TIMES: "05:30 15:30"
     volumes:
       # The private deploy key on the Docker host: change the left-hand path.

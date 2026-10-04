@@ -51,3 +51,10 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Redeploy the Portainer stack
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          PORTAINER_WEBHOOK: ${{ secrets.PORTAINER_WEBHOOK_URL }}
+        run: |
+          if [ -z "$PORTAINER_WEBHOOK" ]; then echo "PORTAINER_WEBHOOK is not set; skipping"; exit 0; fi
+          curl -fsS -X POST "$PORTAINER_WEBHOOK"

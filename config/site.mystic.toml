@@ -12,8 +12,8 @@ station_default = "4h"
 [ausrasp]
 enabled = true
 base_url = "https://ausrasp.com/VIC/"
-# Sent in the user agent so AUSRASP can see who is asking. Add an email address here if you want to be reachable.
-contact = "greg.steel@gmail.com"
+# Sent in the user agent so AUSRASP can see who is asking. Set the FFFORECAST_CONTACT environment variable
+# (an email address or URL) so they can reach you; it overrides a `contact` set here.
 max_cell_km = 3
 # The highest value among the nearest cell and the ring of cells around it (1 = a block of 3 by 3, about
 # 12 km square; 0 = the nearest cell alone). The launch is on a mountain, so one cell can read low.
@@ -41,7 +41,9 @@ resolution_km = 4
 size_km = 400
 
 [links]
-github = "https://github.com/gregsteel/free-flying-forecast"   # when set, "fork the project" in the page header links to it
+# The project's repository comes from the FFFORECAST_PROJECT environment variable; when set (or when `github`
+# is set here), "fork the project" in the page header links to it.
+# github = "https://github.com/<you>/<project>"
 station = "https://www.freeflightwx.com/mystic/index.php"
 gauge = "https://www.freeflightwx.com/mystic/gauge.php"
 history = "https://www.freeflightwx.com/mystic/4hours.php"
