@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Install: copy to ~/Library/LaunchAgents/au.ffforecast.poll.plist, edit the path below, then
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/au.ffforecast.poll.plist
+  Every 20 minutes launchd starts `run-on-host.sh poll`. The command decides whether a check is due
+  from the polling windows in config/site.mystic.toml ([[ausrasp.poll]]), so most starts end at once
+  ("poll: not due"). When AUSRASP has re-run a day, the page is rebuilt from the stored values.
+  See specs/003-ausrasp-thermal-source.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>au.ffforecast.poll</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/CHANGE_ME/workspace/pg/scripts/run-on-host.sh</string>
+    <string>poll</string>
+  </array>
+  <key>StartInterval</key><integer>1200</integer>
+  <key>EnvironmentVariables</key>
+  <dict><key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string></dict>
+  <key>StandardOutPath</key><string>/tmp/ffforecast-poll.log</string>
+  <key>StandardErrorPath</key><string>/tmp/ffforecast-poll.err</string>
+</dict>
+</plist>

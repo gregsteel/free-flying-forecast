@@ -1,0 +1,84 @@
+# Free Flying Forecast
+
+A self-hosted, simple soaring forecast for paraglider and hang glider pilots at Mystic (Bright),
+VIC. It builds one static, phone-friendly web page from free NOAA weather data.
+
+- **Days 1 to 4**: detailed hourly blocks (10:00 to 18:00 local) with wind, shear, thermal height
+  and quality, updraft, temperature, XC potential and a grade for paragliders and hang gliders: Ok,
+  Good ("definitely go flying"), Strong (powerful, demands experience), Poor, Turbulent or Dangerous.
+- **Days 5 to 7**: a low-confidence daily outlook.
+- **Glider type**: a PG / HG toggle in the header (paraglider by default).
+- **Settings** (hamburger menu): units (knots, metres and Celsius by default; km/h, feet and Fahrenheit
+  available). Both choices are kept in a cookie in the browser.
+- **Guide**: collapsed; select any grade to open it at that grade.
+- **How the numbers are calculated**: collapsed; where the data comes from and how the thermal figures are worked out.
+- **Rain and storms**: rain, thunderstorm risk and gusts are graded; a notice links to the official BoM Victorian warnings when any are possible.
+- **Today**: current conditions and an hourly forecast for the rest of the day (Open-Meteo), with a tab
+  for Mystic and one for Mt Hotham (strong wind there can mean Mystic is marginal). Add more places as
+  `[[weather_tabs]]` in `config/site.mystic.toml`.
+- **FreeFlight WX**: the Mystic station's wind chart (FreeFlightWx) with a Current / 1 / 4 / 12 hour / Day toggle.
+
+## Status
+
+| Part | State |
+|------|-------|
+| GFS-only forecast (`--model gfs`) | Works; ran end to end against live NOAA data |
+| Page, grading, Guide, settings, cookie | Built and tested (`uv run pytest`: 460 pass, 2 skipped), and checked in a real browser |
+| Thermal height and updraft from AUSRASP | Built and tested; read live and ran end to end (see `specs/003-ausrasp-thermal-source/`). The GFS estimate is the fallback; wind and rain always come from GFS |
+| Public hosting | **GitHub Pages**: the git publisher is built and tested against a local repository; it still needs your real repository (see below). Firebase (`specs/002-firebase-hosting-deploy/`) was set aside |
+| WRF regional model (`--model wrf`) | Dockerfile and namelists written, **not yet built or run**; needs the iMac. `run --model wrf` and the `fetch`, `wrf`, `diagnose` and `publish` commands exit with code 3 until it is wired up |
+| launchd schedules | Written (forecast run at 05:30 and 15:30 local, AUSRASP poll every 20 minutes), **not yet tried** on the iMac |
+
+See `specs/001-free-flying-forecast/` for the spec, plan and task list, and `docs/benchmarks.md`.
+
+## Run it
+
+```bash
+uv sync
+uv run ffforecast check                       # validate config/
+uv run ffforecast render --input tests/fixtures/forecast.json --out out   # page from sample data
+uv run ffforecast run --model gfs             # real forecast from NOAA GFS (about a minute; --force reruns a published cycle)
+uv run ffforecast poll --no-rebuild           # check AUSRASP for new thermal data (about 2 minutes the first time)
+uv run pytest                                  # tests (FFF_NETWORK=1 adds live NOAA and AUSRASP checks)
+```
+
+Output is `out/index.html` and `out/forecast.json`. Add `--publish-remote <git url>` (and
+`--publish-key <deploy key>`) to push the site to a git remote as a single commit. In the repository's
+settings, set GitHub Pages to deploy from the `gh-pages` branch. (A free GitHub Pages site needs a public
+repository. The deploy key lives outside the project, and nothing secret is committed.)
+
+## On the iMac (Colima)
+
+```bash
+colima start --cpu 8 --memory 10 --disk 80 --vm-type vz
+docker build -t ffforecast -f docker/Dockerfile .
+```
+
+Copy `scripts/ffforecast-launchd.plist` to `~/Library/LaunchAgents/`, edit its path, and put
+settings in `~/.config/ffforecast/env` (`FFFORECAST_PUBLISH_REMOTE`, `FFFORECAST_DEPLOY_KEY`,
+`FFFORECAST_MODEL`). `scripts/run-on-host.sh` starts Colima and runs the container.
+
+AUSRASP re-runs each forecast day on its own, so a second job checks for changes: copy
+`scripts/ffforecast-poll-launchd.plist` the same way. Every 20 minutes it runs
+`run-on-host.sh poll`, which only acts inside the polling windows in `config/site.mystic.toml`
+(`[[ausrasp.poll]]`) and rebuilds the page when a day changed. Put your contact in `[ausrasp] contact`
+(it is sent to AUSRASP in the user agent) and set `enabled = false` there to stop all requests.
+The poll windows are a first guess: after a week, compare them with
+`cache/ausrasp/stamps.jsonl` (every change AUSRASP made, with the time it was noticed).
+
+## Tuning
+
+The grading rules live in `config/rules.toml`; bump `version` when you change them. They start from
+the NEVHGC FreeFlightWx Mystic site settings. The site (location, AUSRASP polling, weather tabs, station
+charts and links) is defined in `config/site.mystic.toml`; set `[links] github` there and the page's
+"fork the project" text becomes a link. Run `uv run ffforecast check` after editing either file.
+
+## Credits
+
+The wind speed and wind direction rules are based on the published Mystic site settings of the
+[North East Victorian Hang Gliding Club (NEVHGC)](https://www.nevhgc.net) as shown on the
+[FreeFlightWx Mystic weather station](https://www.freeflightwx.com/mystic/index.php). The
+station chart is from [FreeFlightWx](https://www.freeflightwx.com/mystic/4hours.php). Current
+conditions: [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0). Forecast data: NOAA GFS.
+
+This is advisory information, not a safety guarantee.

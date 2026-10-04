@@ -1,0 +1,113 @@
+id = "mystic"
+name = "Mystic, VIC"
+lat = -36.7584099
+lon = 146.965839
+elevation_m = 800  # launch altitude AMSL, as given by the owner
+timezone = "Australia/Melbourne"
+# Weather station chart periods (below, FreeFlightWx); the one shown first.
+station_default = "4h"
+
+# Thermal height and updraft come from AUSRASP's published Victoria forecast (specs/003-ausrasp-thermal-source).
+# Wind, rain, gusts and storm energy do not: they stay with the global model.
+[ausrasp]
+enabled = true
+base_url = "https://ausrasp.com/VIC/"
+# Sent in the user agent so AUSRASP can see who is asking. Add an email address here if you want to be reachable.
+contact = "https://free-flying-forecast.web.app"
+max_cell_km = 3
+# The highest value among the nearest cell and the ring of cells around it (1 = a block of 3 by 3, about
+# 12 km square; 0 = the nearest cell alone). The launch is on a mountain, so one cell can read low.
+cell_radius = 1
+max_age_h = 36
+# When to check AUSRASP's manifest (UTC). AUSRASP re-runs each day from the 00Z and 12Z global-model cycles;
+# the windows bracket when those runs were seen to finish (one day's observation: see spec 003 FR-012/FR-013).
+[[ausrasp.poll]]
+from = "04:30"
+to = "09:00"
+every_min = 20
+[[ausrasp.poll]]
+from = "16:00"
+to = "21:00"
+every_min = 20
+[ausrasp.poll_default]
+every_min = 180
+
+[domain.d01]
+resolution_km = 12
+size_km = 1200
+
+[domain.d02]
+resolution_km = 4
+size_km = 400
+
+[links]
+# github = "https://github.com/<you>/<project>"   # when set, "fork the project" in the page header links to it
+station = "https://www.freeflightwx.com/mystic/index.php"
+gauge = "https://www.freeflightwx.com/mystic/gauge.php"
+history = "https://www.freeflightwx.com/mystic/4hours.php"
+openmeteo = "https://open-meteo.com/"
+ausrasp = "https://www.ausrasp.com/"
+ausrasp_vic = "https://ausrasp.com/VIC/"
+vhpa = "https://www.vhpa.org.au/"
+freeflightwx = "https://www.freeflightwx.com/"
+nevhgc = "https://www.nevhgc.net"
+
+# The "Today" weather panel: one tab per place (Open-Meteo model data, loaded by the browser). Add more tabs here.
+[[weather_tabs]]
+id = "mystic"
+label = "Mystic"
+heading = "Today at Mystic"
+# A link to the Bureau of Meteorology for the area. Only a link: nothing is fetched from it.
+link_label = "Bureau of Meteorology: Bright forecast and observations"
+link_url = "https://www.bom.gov.au/places/vic/bright/"
+
+[[weather_tabs]]
+id = "hotham"
+label = "Mt Hotham"
+heading = "Today at Mt Hotham"
+lat = -36.97528      # the summit
+lon = 147.13278
+elevation_m = 1862
+note = "Strong wind at Mt Hotham might indicate Mystic is marginal."
+link_label = "Bureau of Meteorology: measured observations at Mount Hotham"
+link_url = "https://www.bom.gov.au/products/IDV60801/IDV60801.94906.shtml"
+
+[[station_charts]]
+id = "cur"
+label = "Current"
+heading = "current"
+link = "Full current page"
+page = "https://www.freeflightwx.com/mystic/index.php"
+chart = "https://www.freeflightwx.com/mystic/windgraph.php?time=600&window=600&width=440&height=380&max=0&min=0&markers=1&error=1&average=0&point=3&timeDisplay=true"
+
+[[station_charts]]
+id = "1h"
+label = "1 hr"
+heading = "last hour"
+link = "Full 1-hour page"
+page = "https://www.freeflightwx.com/mystic/1hour.php"
+chart = "https://www.freeflightwx.com/mystic/windgraph.php?time=3600&window=600&width=440&height=380&max=1&min=1&markers=1&error=1&average=1&point=1.0&timeDisplay=true"
+
+[[station_charts]]
+id = "4h"
+label = "4 hr"
+heading = "last 4 hours"
+link = "Full 4-hour page"
+page = "https://www.freeflightwx.com/mystic/4hours.php"
+chart = "https://www.freeflightwx.com/mystic/windgraph.php?time=14400&window=600&width=440&height=380&max=1&min=1&markers=1&error=0&average=1&point=1.0&timeDisplay=true"
+
+[[station_charts]]
+id = "12h"
+label = "12 hr"
+heading = "last 12 hours"
+link = "Full 12-hour page"
+page = "https://www.freeflightwx.com/mystic/12hours.php"
+chart = "https://www.freeflightwx.com/mystic/windgraph.php?time=43200&window=600&width=440&height=380&max=1&min=1&markers=0&error=0&average=1&point=1.0&timeDisplay=true"
+
+[[station_charts]]
+id = "day"
+label = "Day"
+heading = "today"
+link = "Full day page"
+page = "https://www.freeflightwx.com/mystic/day.php"
+chart = "https://www.freeflightwx.com/mystic/windgraph2.php?begin=today&end=tomorrow&window=600&width=440&height=380&max=1&min=1&markers=0&error=0&average=1&point=1.0&timeDisplay=true"

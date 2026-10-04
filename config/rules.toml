@@ -1,0 +1,68 @@
+version = 1
+source = "Mytic Site Guide, FreeFlightWx Mystic site settings"
+
+[wind]
+# Wind speed bands. Values are miles per hour, as published by FreeFlightWx.
+speed_green_from_mph = 1
+speed_orange_from_mph = 12
+speed_red_from_mph = 14
+# Hang gliders cope with more wind than paragliders; start equal to the paraglider bands and tune.
+hg_speed_orange_from_mph = 14
+hg_speed_red_from_mph = 20
+
+[direction]
+sector_center_deg = 0
+sector_half_width_deg = 40
+# How far outside the sector still counts as marginal: a marginally crossed launch that can still be flown. It is noted
+# (amber arrow, a reason) but does not lower the grade. Further out is Poor, or Dangerous with strong wind.
+marginal_margin_deg = 30
+
+[shear]
+# Vertical wind shear classes by speed difference (kph) between ground and aloft.
+moderate_from_kph = 8
+strong_from_kph = 16
+
+[thermal]
+# A block with no problems from wind, gusts, rain or storms is graded by how good the thermals are:
+#   Poor     thermals weak or low (quality under ok_quality_pct, or not reaching min_height_m)
+#   Ok       decent thermals: quality at least ok_quality_pct
+#   Good     strong thermals: quality at least good_quality_pct AND updraft at least good_updraft_ms (2.5 m/s,
+#            the owner's figure: an updraft of 1.7 m/s is only Ok). A time you definitely want to go flying.
+#   Strong   powerful: updraft at least strong_updraft_ms, OR Good-strength thermals with a brisk (still green)
+#            wind of strong_wind_from_mph or more. It demands experience.
+ok_quality_pct = 40
+good_quality_pct = 70
+good_updraft_ms = 2.5
+strong_updraft_ms = 3.5
+strong_wind_from_mph = 9
+hg_strong_wind_from_mph = 11
+# A block whose usable thermals do not reach this height (m above sea level) is "poor".
+min_height_m = 900
+
+# The next five values are calibrated against AUSRASP Victoria forecast figures, compared on 16 blocks
+# on 2026-10-03; see research.md section 21. Result: thermal height within about 255 m on average, updraft
+# within 0.47 m/s, quality within 18 points. Fitted to a small comparison: reasonable, not proven.
+# Thermals are "usable" only when the updraft is at least this: 225 ft/min, RASP's critical value.
+critical_updraft_ms = 1.143
+# Usable thermal height = launch altitude + this fraction of the boundary layer depth (observed 0.34 to 0.63, mean 0.48).
+usable_depth_fraction = 0.48
+# Quality is 100% at this updraft, less a penalty for wind that breaks thermals up.
+quality_full_updraft_ms = 1.6
+quality_wind_threshold_kph = 12
+quality_wind_penalty_per_kph = 2.5
+
+[thermal_ausrasp]
+# AUSRASP publishes the updraft in whole metres per second, so its Good and Strong limits are whole numbers:
+# Good at 3 m/s or more (the 2.5 m/s rule applied to whole numbers), Strong at 4 m/s or more.
+# Starting values: confirm against real days (specs/003-ausrasp-thermal-source, FR-021).
+good_updraft_ms = 3
+strong_updraft_ms = 4
+
+[weather]
+# Rain, storms and gusts. Starting values are judgement calls: tune against real days.
+rain_light_mm_h = 0.1       # at or above: rain, caps the verdict at "poor"
+rain_heavy_mm_h = 1.0       # at or above: heavy rain, "dangerous"
+cape_overdevelop_j_kg = 400 # storm energy: with no rain, "turbulent" (overdevelopment risk)
+cape_storm_j_kg = 1000      # storm energy: "dangerous" on its own; also with any rain from 400
+gust_orange_from_mph = 16   # gusts, turbulent from here (about 26 kph)
+gust_red_from_mph = 20      # gusts, dangerous from here (about 32 kph)

@@ -1,0 +1,534 @@
+{% macro arrow(cls, rot) -%}<span class="dir {{ cls }}" title="{{ dir_titles[cls] }}" aria-hidden="true"><svg viewBox="0 0 20 20" width="100%" height="100%" aria-hidden="true" focusable="false" style="transform:rotate({{ rot }}deg)"><path d="M10 18.5 3.5 3.5h13z" fill="currentColor"/></svg></span>{%- endmacro %}
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Flying Forecast: {{ site.name }}</title>
+<meta name="description" content="Simple soaring forecast for paraglider and hang glider pilots at {{ site.name }}.">
+<style>
+:root{--bg:#f7f8fa;--fg:#1d2430;--muted:#5b6575;--card:#fff;--line:#d9dee6;
+--good:#1f7a3d;--good-bg:#e3f4e8;--ok:#0f6e6a;--ok-bg:#d7f2ef;--strong:#6d28d9;--strong-bg:#ece3ff;--poor:#8a6d00;--poor-bg:#fff4cc;
+--turbulent:#a14a00;--turbulent-bg:#ffe5cc;--dangerous:#a3121a;--dangerous-bg:#fde0e1;--link:#0b5cad}
+@media (prefers-color-scheme:dark){:root{--bg:#12161c;--fg:#e6eaf0;--muted:#9aa5b5;--card:#1b212b;--line:#2d3644;
+--good:#6fd08c;--good-bg:#17331f;--ok:#6fd6cf;--ok-bg:#10312f;--strong:#c9a8ff;--strong-bg:#2b1d49;--poor:#e6c34d;--poor-bg:#3a3210;
+--turbulent:#ffab5e;--turbulent-bg:#3d2812;--dangerous:#ff8a90;--dangerous-bg:#401519;--link:#7db8ff}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,sans-serif}
+main{max-width:56rem;margin:0 auto;padding:1rem}
+h1{font-size:1.5rem;margin:.2rem 0}h2{font-size:1.2rem;margin:1.6rem 0 .6rem}h3{font-size:1rem;margin:1rem 0 .4rem}
+a{color:var(--link)}.muted{color:var(--muted);font-size:.9rem}
+.banner{background:var(--poor-bg);color:var(--poor);border:1px solid var(--poor);border-radius:8px;padding:.6rem .8rem;margin:.8rem 0}
+.grid{display:grid;gap:.6rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))}
+.pill.ok{border-color:var(--ok)}.pill.good{border-color:var(--good)}.pill.strong{border-color:var(--strong)}.pill.poor{border-color:var(--poor)}
+.pill.turbulent{border-color:var(--turbulent)}.pill.dangerous{border-color:var(--dangerous)}
+/* Glider choice: every value is rendered for both gliders (class g-pg / g-hg) and CSS shows only
+   the chosen one. A block or cell carries both grades as variables; the chosen glider's is used. */
+.pg-ok{--pgc:var(--ok);--pgb:var(--ok-bg)}.pg-strong{--pgc:var(--strong);--pgb:var(--strong-bg)}
+.pg-good{--pgc:var(--good);--pgb:var(--good-bg)}.pg-poor{--pgc:var(--poor);--pgb:var(--poor-bg)}
+.pg-turbulent{--pgc:var(--turbulent);--pgb:var(--turbulent-bg)}.pg-dangerous{--pgc:var(--dangerous);--pgb:var(--dangerous-bg)}
+.hg-ok{--hgc:var(--ok);--hgb:var(--ok-bg)}.hg-strong{--hgc:var(--strong);--hgb:var(--strong-bg)}
+.hg-good{--hgc:var(--good);--hgb:var(--good-bg)}.hg-poor{--hgc:var(--poor);--hgb:var(--poor-bg)}
+.hg-turbulent{--hgc:var(--turbulent);--hgb:var(--turbulent-bg)}.hg-dangerous{--hgc:var(--dangerous);--hgb:var(--dangerous-bg)}
+body:has(#gl-hg:checked) .g-pg{display:none}
+body:not(:has(#gl-hg:checked)) .g-hg{display:none}
+.pill{white-space:nowrap;display:inline-block;border:2px solid;border-radius:999px;padding:0 .6rem;font-weight:600}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.strong{background:var(--strong-bg);color:var(--strong)}
+.pill.good{background:var(--good-bg);color:var(--good)}.pill.poor{background:var(--poor-bg);color:var(--poor)}
+.pill.turbulent{background:var(--turbulent-bg);color:var(--turbulent)}.pill.dangerous{background:var(--dangerous-bg);color:var(--dangerous)}
+.time{font-weight:700;font-size:1.1rem}
+dl{margin:.4rem 0;display:grid;grid-template-columns:auto 1fr;gap:.1rem .8rem}dt{color:var(--muted)}dd{margin:0}
+ul.reasons{margin:.4rem 0 0;padding-left:1.1rem;font-size:.9rem;color:var(--muted)}
+img.history{display:block;min-height:6rem;width:100%;max-width:780px;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem}
+.tile-main{display:flex;align-items:center;gap:.8rem}.tile-icon{font-size:2.6rem;line-height:1}
+.tile-text{font-weight:600}.tile-temp{font-size:1.8rem;font-weight:700}
+
+/* Unit selection: every value is rendered in all units; CSS shows only the chosen one.
+   Defaults: knots, metres, Celsius. Works without JavaScript. */
+.u{display:none}
+.s-kts,.a-m,.t-c{display:inline}
+{% for u in speed_units %}body:has(#sp-{{ u }}:checked) .u.s-{{ u }}{display:inline}
+{% if not loop.first %}body:has(#sp-{{ u }}:checked) .u.s-{{ speed_units[0] }}{display:none}
+{% endif %}{% endfor %}{% for u in alt_units %}{% if not loop.first %}body:has(#al-{{ u }}:checked) .u.a-{{ u }}{display:inline}
+body:has(#al-{{ u }}:checked) .u.a-{{ alt_units[0] }}{display:none}
+{% endif %}{% endfor %}{% for u in temp_units %}{% if not loop.first %}body:has(#tp-{{ u }}:checked) .u.t-{{ u }}{display:inline}
+body:has(#tp-{{ u }}:checked) .u.t-{{ temp_units[0] }}{display:none}
+{% endif %}{% endfor %}
+/* The title bar, settings, update time and alert stay pinned; only the rest of the page scrolls. */
+html{scroll-padding-top:calc(var(--hdr,6rem) + .75rem)}
+.sticky{position:sticky;top:0;z-index:30;background:var(--bg);margin:0 -1rem;padding:.6rem 1rem .9rem;border-bottom:1px solid var(--line);box-shadow:0 8px 8px -8px rgba(0,0,0,.55)}
+.sticky h1{margin:.1rem 0}
+.sticky>.muted{margin:.25rem 0 0;font-size:.85rem}
+.sticky .banner{margin:.4rem 0 0;padding:.35rem .6rem;font-size:.9rem}
+@media (max-width:44rem){.sticky h1{font-size:1.05rem;line-height:1.2}}
+/* Weather station period: every period is in the page but only the chosen one is shown, so only that chart is fetched. */
+.st{display:none}
+{% if weather_tabs|length > 1 %}.wx{display:none}
+{% for t in weather_tabs %}body:has(#wx-{{ t.id }}:checked) span.wx-{{ t.id }}{display:inline}
+body:has(#wx-{{ t.id }}:checked) div.wx-{{ t.id }}{display:block}
+{% endfor %}{% endif %}/* The club's gauge page, shrunk and cropped to just its circle (the page lays out at 500 px wide: measured, the circle's outer ring runs from x 40 to 459 and y 154 to 573, so 420 px square at 40, 154; 168 px is 420 at .4). */
+.gaugewrap{box-sizing:content-box;position:relative;width:168px;height:168px;overflow:hidden;border-radius:50%;margin:0 auto .6rem;background:#fff;border:1px solid var(--line)}
+.gauge{position:absolute;left:0;top:0;border:0;max-width:none;transform-origin:0 0;transform:scale(.4) translate(-40px,-154px)}
+.fine{margin:.3rem 0 .2rem;font-size:.78rem}
+section[aria-label="Weather station"] .periods{margin:.6rem 0 0}
+.tabnote{margin:.5rem 0 0;font-size:.9rem;font-weight:600}.tablink{margin:.4rem 0 0;font-size:.9rem}
+{% for c in station_charts %}body:has(#st-{{ c.id }}:checked) span.st-{{ c.id }},body:has(#st-{{ c.id }}:checked) a.st-{{ c.id }}{display:inline}
+body:has(#st-{{ c.id }}:checked) p.st-{{ c.id }}{display:block}
+{% endfor %}.periods{display:flex;flex-wrap:wrap;border:0;margin:0 0 .6rem;padding:0;position:relative}
+.periods legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.periods input{position:absolute;opacity:0;pointer-events:none}
+.periods label{padding:.35rem .75rem;border:1px solid var(--line);border-left-width:0;cursor:pointer;font-size:.9rem;font-weight:600;background:var(--card)}
+.periods label:first-of-type{border-left-width:1px;border-radius:8px 0 0 8px}.periods label:last-of-type{border-radius:0 8px 8px 0}
+.periods input:checked+label{background:var(--link);border-color:var(--link);color:var(--card)}
+.periods input:focus-visible+label{outline:3px solid var(--link);outline-offset:2px;position:relative}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;position:relative}
+.bar h1{margin:.2rem 0}
+.bar-right{display:flex;align-items:center;gap:.6rem;flex:none}
+.glider{display:flex;border:0;margin:0;padding:0;position:relative}
+.glider legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.glider label{display:flex;align-items:center;height:2.8rem;padding:0 .85rem;font-weight:700;border-radius:0}
+.glider label[for=gl-pg]{border-radius:8px 0 0 8px}.glider label[for=gl-hg]{border-radius:0 8px 8px 0;border-left-width:0}
+.menu{position:relative;flex:none}
+.menu>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:center;width:2.8rem;height:2.8rem;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg)}
+.menu>summary::-webkit-details-marker{display:none}
+.menu>summary:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+.menu[open]>summary{background:var(--link);border-color:var(--link);color:var(--card)}
+.panel{position:absolute;right:0;top:3.3rem;z-index:20;width:min(19rem,calc(100vw - 2rem));background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.2rem .9rem .8rem;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.panel h2{margin:.7rem 0 .4rem;font-size:1.05rem}
+.units{display:flex;flex-direction:column;gap:.7rem;position:relative}
+.units fieldset{border:0;margin:0;padding:0;display:flex;align-items:center;gap:.3rem}
+.units legend{float:left;width:4.2rem;padding:0;color:var(--muted);font-size:.9rem}
+.units input,.glider input{position:absolute;opacity:0;pointer-events:none}
+.units label,.glider label{padding:.3rem .8rem;border:1px solid var(--line);border-radius:6px;cursor:pointer;font-size:.95rem}
+.units input:checked+label,.glider input:checked+label{background:var(--link);border-color:var(--link);color:var(--card);font-weight:600}
+.units input:focus-visible+label,.glider input:focus-visible+label{outline:3px solid var(--link);outline-offset:2px}
+
+/* Days as rows: heading at the left, one column per hour ({{ first_hour }} to {{ last_hour }}). */
+details.day{--lw:3.4rem;background:var(--card);border:1px solid var(--line);border-radius:8px;margin:.5rem 0;overflow:hidden}
+details.day>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:var(--lw) repeat({{ slot_count }},minmax(0,1fr));gap:.1rem;align-items:stretch;padding:.3rem}
+details.day>summary::-webkit-details-marker{display:none}
+details.day>summary:focus-visible{outline:3px solid var(--link);outline-offset:-3px}
+.daylabel{display:flex;flex-direction:column;justify-content:center;font-size:.8rem;line-height:1.25}
+.daylabel strong{font-size:1rem}
+.daylabel::after{content:"\25B8";color:var(--muted);font-size:1.1rem;line-height:1;margin-top:.15rem;transition:transform .15s}
+details[open]>summary .daylabel::after{transform:rotate(90deg)}
+.cell{display:flex;flex-direction:column;gap:.1rem;padding:.3rem .15rem;border-radius:6px;border-top:4px solid var(--line);font-size:.78rem;line-height:1.25;min-width:0;text-align:center}
+.cell.empty{border-top-color:transparent}
+.cell{border-top-color:var(--pgc,transparent);background:var(--pgb,transparent)}
+body:has(#gl-hg:checked) .cell{border-top-color:var(--hgc,transparent);background:var(--hgb,transparent)}
+.ctime{color:var(--muted)}.cht{font-weight:600}.chg{color:var(--muted)}
+.clw{font-weight:600;white-space:nowrap;font-size:.72rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem}
+.cicon{font-size:1.7rem;line-height:1.15}
+/* The hourly cells are narrow (nine across): small type, bare numbers, units come from the settings. */
+details.day .cell{padding:.25rem .05rem;font-size:.62rem;gap:.05rem}
+details.day .cicon{font-size:1.15rem}
+details.day .clw{font-size:.6rem;gap:.05rem}
+details.day .dir{width:1.7em;height:1.7em;padding:.15em}
+.dtscroll{overflow-x:auto}
+/* Direction arrow: coloured by where the wind comes from, on a white circle so it reads in dark mode too. */
+.dir{display:inline-flex;align-items:center;justify-content:center;width:1.8em;height:1.8em;padding:.2em;box-sizing:border-box;border-radius:50%;background:#fff;flex:none}
+.dir svg{display:block;overflow:visible}
+.dir.ok{color:#17803d}.dir.marginal{color:#b45309}.dir.off{color:#c62828}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* Day details: one table. Row headings sit once in the left column under the date, and the four
+   times are columns that line up with the header row above. */
+.detail{padding:.1rem .1rem .7rem;border-top:1px solid var(--line)}
+table.dt{width:100%;min-width:{{ slot_count * 3.6 + 5.5 }}rem;table-layout:fixed;border-collapse:separate;border-spacing:.1rem 0}
+table.dt col.dt-first{width:var(--lw)}
+table.dt th[scope=row]{position:sticky;left:0;z-index:1;background:var(--card);text-align:left;font-weight:400;color:var(--muted);font-size:.74rem;line-height:1.25;padding:.4rem .25rem .4rem .3rem;vertical-align:top;border-top:1px solid var(--line)}
+table.dt td{padding:.4rem .1rem;text-align:center;font-weight:600;font-size:.76rem;line-height:1.3;vertical-align:top;border-top:1px solid var(--line);overflow-wrap:anywhere}
+table.dt td .clw{justify-content:center}
+table.dt thead th{font-weight:600;padding:.3rem .1rem .35rem;border-top:4px solid var(--pgc,transparent);background:var(--pgb,transparent);border-radius:6px 6px 0 0}
+body:has(#gl-hg:checked) table.dt thead th{border-top-color:var(--hgc,transparent);background:var(--hgb,transparent)}
+table.dt thead th.empty{border-top-color:transparent;background:none}
+.nb{white-space:nowrap}
+table.dt .pill{white-space:normal;border:0;background:none;padding:0;font-size:.74rem}
+table.dt .ic{display:none}
+.whygrid{display:block;padding:0 .3rem}
+details.whyd{margin-top:.3rem;border-top:1px solid var(--line)}
+details.whyd>summary{cursor:pointer;font-size:.8rem;color:var(--muted);padding:.4rem .3rem}
+details.whyd>summary:focus-visible{outline:3px solid var(--link);outline-offset:-3px}
+.whygrid ul.reasons{margin:0;padding-left:1rem;font-size:.76rem}
+.whytime{display:block;font-size:.8rem;margin-top:.5rem}
+.outlook{display:grid;gap:.2rem;grid-template-columns:repeat({{ outlook_cols }},minmax(0,1fr))}
+.cwet{font-size:.72rem;font-weight:600;color:var(--poor)}
+@media (max-width:44rem){
+  .whygrid ul.reasons{font-size:.8rem}
+  /* On a narrow screen show every other hour (10, 12, 14, 16, 18): nine columns would be too small to read. */
+  details.day{--lw:5rem}
+  details.day>summary{grid-template-columns:var(--lw) repeat({{ (slot_count + 1) // 2 }},minmax(0,1fr))}
+  details.day>summary>.cell:nth-child(2n+3){display:none}
+  table.dt{min-width:0}
+  table.dt tr>:nth-child(2n+3),table.dt col:nth-child(2n+3){display:none}
+  .whygrid>.why:nth-child(even){display:none}
+}
+@media (min-width:44rem){
+  details.day{--lw:9.5rem}
+  table.dt{min-width:0}
+  table.dt th[scope=row]{font-size:.85rem}table.dt td{font-size:.9rem}
+  table.dt thead th{padding-top:.4rem}
+  table.dt .pill{font-size:.85rem;border:1px solid;padding:0 .5rem}table.dt .pill.ok{background:var(--ok-bg)}table.dt .pill.strong{background:var(--strong-bg)}table.dt .pill.good{background:var(--good-bg)}table.dt .pill.poor{background:var(--poor-bg)}
+  table.dt .pill.turbulent{background:var(--turbulent-bg)}table.dt .pill.dangerous{background:var(--dangerous-bg)}table.dt .ic{display:inline}
+  .outlook .cell{font-size:.9rem}.outlook .cicon{font-size:2rem}.outlook .clw{font-size:.9rem;flex-direction:row;gap:.3rem}
+  details.day .cell{font-size:.8rem}details.day .cicon{font-size:1.5rem}details.day .clw{font-size:.75rem}
+  table.dt td,table.dt th[scope=row]{font-size:.8rem}table.dt td{font-size:.82rem}
+}
+.top{display:grid;gap:0 1.2rem;grid-template-columns:minmax(0,1fr)}
+@media (min-width:44rem){.top{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.top>#now{order:2}}  /* wide screens: the station (gauge and chart) on the left, the weather on the right; phones keep the weather first */
+img.history{max-width:440px}
+.tile{max-width:none}
+table.today{width:100%;border-collapse:collapse;margin:.6rem 0 0;font-size:.85rem}
+table.today th{font-weight:500;color:var(--muted);text-align:left;padding:.15rem .2rem;border-bottom:1px solid var(--line)}
+table.today td{padding:.2rem;border-bottom:1px solid var(--line);vertical-align:middle}
+table.today tr.past{opacity:.5}table.today tr.nowrow{background:var(--poor-bg)}
+a.pill,a.cicon{text-decoration:none}
+a.cicon{display:block;color:inherit;border-radius:6px}
+a.cicon:hover{transform:scale(1.12)}a.cicon:focus-visible,a.pill:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+a.pill:hover{filter:brightness(1.15)}
+details.guide{margin:1.4rem 0 0}
+details.guide>summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;padding:.1rem 0}
+details.guide>summary::-webkit-details-marker{display:none}
+details.guide>summary h2{display:inline;margin:0}
+details.guide>summary::before{content:"\25B8";font-size:1.2rem;transition:transform .15s}
+details.guide[open]>summary::before{transform:rotate(90deg)}
+details.guide>summary:focus-visible{outline:3px solid var(--link);outline-offset:3px;border-radius:6px}
+.guide li{scroll-margin-top:1rem;border-radius:8px;padding:.15rem .3rem}
+.guide li.hl{outline:3px solid var(--link);outline-offset:2px;background:var(--card)}
+footer{margin:2rem 0 1rem;padding-top:1rem;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<main>
+<div class="sticky" id="sticky">
+<header class="bar">
+<h1>Free Flying Forecast: {{ site.name }}</h1>
+<div class="bar-right">
+<fieldset class="glider"><legend class="sr">Glider type</legend>
+<input type="radio" name="gl" id="gl-pg" checked><label for="gl-pg" title="Paraglider">PG</label>
+<input type="radio" name="gl" id="gl-hg"><label for="gl-hg" title="Hang glider">HG</label></fieldset>
+<details class="menu" id="menu">
+<summary aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></summary>
+<div class="panel" role="group" aria-label="Settings">
+<h2>Settings</h2>
+<form class="units" aria-label="Display units" onsubmit="return false">
+<fieldset><legend>Wind</legend>
+<input type="radio" name="sp" id="sp-kts" checked><label for="sp-kts">kts</label>
+<input type="radio" name="sp" id="sp-kph"><label for="sp-kph">km/h</label></fieldset>
+<fieldset><legend>Height</legend>
+<input type="radio" name="al" id="al-m" checked><label for="al-m">m</label>
+<input type="radio" name="al" id="al-ft"><label for="al-ft">ft</label></fieldset>
+<fieldset><legend>Temp</legend>
+<input type="radio" name="tp" id="tp-c" checked><label for="tp-c">&deg;C</label>
+<input type="radio" name="tp" id="tp-f"><label for="tp-f">&deg;F</label></fieldset>
+</form>
+<p class="muted">Your choices are saved in a cookie in this browser. The cookie holds only these settings.</p>
+</div>
+</details>
+</div>
+</header>
+<script id="prefs">
+// Settings (glider, units) are kept in a first-party cookie, with localStorage as a fallback for
+// when cookies are unavailable (for example a page opened from a file). Runs here, straight after
+// the settings controls, so the rest of the page is drawn with the saved choices.
+(function(){
+ var NAME="ffforecast-prefs",LS="ffforecast-units",YEAR=31536000;
+ function dir(){return location.pathname.replace(/[^\/]*$/,"")||"/";}
+ function fromCookie(){
+  var m=document.cookie.match(new RegExp("(?:^|; )"+NAME+"=([^;]*)"));if(!m){return null;}
+  var o={};decodeURIComponent(m[1]).split("&").forEach(function(p){var kv=p.split("=");if(kv[0]&&kv[1]){o[kv[0]]=kv[1];}});return o;}
+ function fromStorage(){return JSON.parse(localStorage.getItem(LS)||"null");}
+ function read(){var o=null;try{o=fromCookie();}catch(x){}if(!o){try{o=fromStorage();}catch(x){}}return o||{};}
+ function apply(o){ // only ever tick a radio that exists and belongs to that setting
+  for(var k in o){if(Object.prototype.hasOwnProperty.call(o,k)){var el=document.getElementById(o[k]);
+   if(el&&el.type==="radio"&&el.name===k){el.checked=true;}}}}
+ function write(){
+  var inputs=document.querySelectorAll("input[type=radio]"),o={},parts=[];
+  for(var i=0;i<inputs.length;i++){if(inputs[i].checked){o[inputs[i].name]=inputs[i].id;parts.push(inputs[i].name+"="+inputs[i].id);}}
+  try{document.cookie=NAME+"="+encodeURIComponent(parts.join("&"))+"; Path="+dir()+"; Max-Age="+YEAR+"; SameSite=Lax"+(location.protocol==="https:"?"; Secure":"");}catch(x){}
+  try{localStorage.setItem(LS,JSON.stringify(o));}catch(x){}
+ }
+ function bind(){ // settings further down the page (the station chart period) appear after this script runs
+  var inputs=document.querySelectorAll("input[type=radio]");
+  for(var i=0;i<inputs.length;i++){if(!inputs[i].__ff){inputs[i].__ff=1;inputs[i].addEventListener("change",write);}}
+ }
+ function applyAll(){apply(read());bind();}
+ window.ffApplyPrefs=applyAll; // the chart loader calls this so it sees the saved period
+ applyAll();
+ document.addEventListener("DOMContentLoaded",applyAll);
+})();
+</script>
+<p class="muted">Updated {{ generated_local }}. Model: {{ model }}, run {{ cycle_label }}. {{ thermal_summary }}</p>
+{% if wet_days %}<div class="banner" role="alert"><strong>Rain or storms are possible on {{ wet_days|join(", ") }}.</strong>
+Check the <a href="{{ links.bom_warnings }}">Bureau of Meteorology Victorian warnings</a> before you go.</div>{% endif %}
+<div id="stale" class="banner" hidden>This forecast is out of date. The newest run has not published yet.</div>
+<p class="muted fine">This page was made for my own use, you are welcome to use it (but don't complain). Or {% if links.github %}<a href="{{ links.github }}" target="_blank" rel="noopener noreferrer">fork the project</a>{% else %}fork the project{% endif %} and make your own.</p>
+</div>
+
+<div class="top">
+{% set multi = weather_tabs|length > 1 %}
+<section id="now" hidden aria-label="Weather today">
+<h2>{% for t in weather_tabs %}<span{% if multi %} class="wx wx-{{ t.id }}"{% endif %}>{{ t.heading }}</span>{% endfor %}</h2>
+{% if multi %}<fieldset class="periods"><legend class="sr">Place</legend>
+{% for t in weather_tabs %}<input type="radio" name="wx" id="wx-{{ t.id }}"{% if loop.first %} checked{% endif %}><label for="wx-{{ t.id }}">{{ t.label }}</label>{% endfor %}
+</fieldset>{% endif %}
+{% for t in weather_tabs %}<div class="tile{% if multi %} wx wx-{{ t.id }}{% endif %}" id="tile-{{ t.id }}">
+  <div class="tile-main"><span id="now-icon-{{ t.id }}" class="tile-icon" aria-hidden="true"></span>
+  <div><div id="now-text-{{ t.id }}" class="tile-text"></div><div id="now-temp-{{ t.id }}" class="tile-temp"></div></div></div>
+  <dl>
+    <dt>Wind</dt><dd id="now-wind-{{ t.id }}"></dd>
+    <dt>Gusts</dt><dd id="now-gust-{{ t.id }}"></dd>
+    <dt>Rain</dt><dd id="now-rain-{{ t.id }}"></dd>
+  </dl>
+  <table class="today" aria-label="Forecast for the rest of today: {{ t.label }}">
+    <thead><tr><th>Time</th><th><span class="sr">Weather</span></th><th>Temp</th><th>Rain</th><th>Wind (gusts)</th></tr></thead>
+    <tbody id="today-rows-{{ t.id }}"></tbody>
+  </table>
+  {% if t.note %}<p class="tabnote">{{ t.note }}</p>{% endif %}
+  {% if t.link_url %}<p class="tablink"><a href="{{ t.link_url }}" target="_blank" rel="noopener noreferrer">{{ t.link_label }}</a></p>{% endif %}
+  <p class="muted" id="now-note-{{ t.id }}"></p>
+</div>
+{% endfor %}</section>
+
+<section aria-label="Weather station">
+<h2><a href="https://www.freeflightwx.com/mystic/index.php">FreeFlight WX</a></h2>
+<div class="gaugewrap"><iframe class="gauge" src="{{ links.gauge }}" title="Live wind gauge at the Mystic launch: direction and gust speed in knots" width="500" height="620" scrolling="no" loading="lazy" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin"></iframe></div>
+{% for c in station_charts %}<p class="st st-{{ c.id }}"><a href="{{ c.page }}" target="_blank" rel="noopener noreferrer"><img class="history" data-src="{{ c.chart }}" alt="Wind speed and direction at the Mystic weather station: {{ c.heading }}" width="440" height="380" referrerpolicy="no-referrer">{% if c.id == station_default %}<noscript><img src="{{ c.chart }}" alt="Wind speed and direction at the Mystic weather station: {{ c.heading }}" width="440" height="380" referrerpolicy="no-referrer"></noscript>{% endif %}</a></p>
+{% endfor %}
+<fieldset class="periods"><legend class="sr">Chart period</legend>
+{% for c in station_charts %}<input type="radio" name="st" id="st-{{ c.id }}"{% if c.id == station_default %} checked{% endif %}><label for="st-{{ c.id }}">{{ c.label }}</label>{% endfor %}
+</fieldset>
+</section>
+</div>
+
+<h2>Next {{ detailed_days }} days</h2>
+{% for day in days %}
+<details class="day"{% if loop.first %} open{% endif %}>
+  <summary>
+    <span class="daylabel"><strong>{{ day.short_day }}</strong><span>{{ day.short_date }}</span></span>
+    {% for b in day.slots %}{% if b %}
+    <span class="cell pg-{{ b.verdict_pg }} hg-{{ b.verdict_hg }}">
+      <span class="ctime">{{ b.hour }}</span>
+      {% for g in b.gl %}<a class="cicon g g-{{ g.id }}" href="#guide-{{ '' if g.id == 'pg' else 'hg-' }}{{ g.verdict }}" data-grade="{{ g.verdict }}" title="{{ g.name }}: {{ g.label }}. What does this grade mean?" aria-label="{{ g.name }}: {{ g.label }}. What does this grade mean?">{{ g.icon }}</a>{% endfor %}
+      <span class="cht">{{ b.thermal_height_short }}</span>
+      {% if b.launch %}<span class="clw" title="Wind at launch altitude">{{ arrow(b.launch_dir, b.launch_rot) }} {{ b.launch_short }}</span>{% endif %}
+    </span>
+    {% else %}<span class="cell empty" aria-hidden="true"></span>{% endif %}{% endfor %}
+  </summary>
+  <div class="detail">
+  <div class="dtscroll">
+  <table class="dt">
+  <colgroup><col class="dt-first">{% for _ in day.slots %}<col>{% endfor %}</colgroup>
+  <thead><tr><td></td>
+    {% for b in day.slots %}{% if b %}<th scope="col" class="pg-{{ b.verdict_pg }} hg-{{ b.verdict_hg }}"><span class="sr">{{ b.time }}: </span>{% for g in b.gl %}<a class="pill g g-{{ g.id }} {{ g.verdict }}" href="#guide-{{ '' if g.id == 'pg' else 'hg-' }}{{ g.verdict }}" data-grade="{{ g.verdict }}" title="{{ g.name }}: what does this grade mean?"><span class="ic">{{ g.icon }}</span> {{ g.label }}</a>{% endfor %}</th>{% else %}<th scope="col" class="empty" aria-hidden="true"></th>{% endif %}{% endfor %}
+  </tr></thead>
+  <tbody>
+    {% if day.has_launch %}<tr><th scope="row">Wind at launch <span class="nb">({{ launch_alt }}, {{ launch_unit }})</span></th>{% for b in day.slots %}<td>{% if b and b.launch %}<span class="clw">{{ arrow(b.launch_dir, b.launch_rot) }} {{ b.launch_short }}</span>{% endif %}</td>{% endfor %}</tr>{% endif %}
+    {% for label, key in detail_rows %}<tr><th scope="row">{{ label }}</th>{% for b in day.slots %}<td>{% if b %}{{ b[key] }}{% endif %}</td>{% endfor %}</tr>
+    {% endfor %}
+  </tbody>
+  </table>
+  </div>
+  <details class="whyd"><summary>Why this grade</summary>
+  <div class="whygrid">
+    {% for b in day.slots %}<div class="why">{% if b %}<strong class="whytime">{{ b.time }}</strong>{% for g in b.gl %}<ul class="reasons g g-{{ g.id }}">{% for r in g.reasons %}<li>{{ r }}</li>{% endfor %}</ul>{% endfor %}{% endif %}</div>{% endfor %}
+  </div>
+  </details>
+  </div>
+</details>
+{% endfor %}
+
+<h2>Days {{ outlook_range }} outlook</h2>
+<p class="banner">Low confidence. Forecasts this far out are rough: use them to plan, not to decide.</p>
+<div class="outlook">
+{% for o in outlook %}
+<section class="cell pg-{{ o.verdict_pg }} hg-{{ o.verdict_hg }}">
+  <span class="ctime">{{ o.label }}</span>
+  {% for g in o.gl %}<a class="cicon g g-{{ g.id }}" href="#guide-{{ '' if g.id == 'pg' else 'hg-' }}{{ g.verdict }}" data-grade="{{ g.verdict }}" title="{{ g.name }}: {{ g.label }}. What does this grade mean?" aria-label="{{ g.name }}: {{ g.label }}. What does this grade mean?">{{ g.icon }}</a>{% endfor %}
+  <span class="clw" title="Wind at launch altitude">{{ arrow(o.wind_dir, o.wind_rot) }} {{ o.wind }}</span>
+  {% if o.wet %}<span class="cwet">Rain or storms possible</span>{% endif %}
+</section>
+{% endfor %}
+</div>
+
+<details class="guide" id="guide">
+<summary><h2>Guide</h2><span class="muted">What the grades mean</span></summary>
+<p>Every block gets one grade. The worst problem found sets it, so a calm, well-aligned wind still grades Dangerous if a thunderstorm is likely. With no problems, the thermals decide between Poor, Ok, Good and Strong. The limits below are for <span class="g g-pg">paragliders</span><span class="g g-hg">hang gliders</span>; change glider in the settings menu.</p>
+{% for g in gliders %}<ul class="guide g g-{{ g.id }}">
+<li id="guide-{{ '' if g.id == 'pg' else 'hg-' }}ok" tabindex="-1"><span class="pill ok"><span aria-hidden="true">{{ icons.ok }}</span> Ok</span> Flyable, with decent thermals. The wind at launch is in the green direction (or no more than {{ legend.margin }} degrees outside it, which is marginally crossed: you can usually still get off, so it is noted but does not lower the grade) and below {{ limits[g.id].orange }}, gusts are below {{ legend.gust_orange }}, there is no rain or storm risk, and thermals are decent (quality at least {{ legend.quality }}%, reaching at least {{ legend.min_height }}).</li>
+<li id="guide-{{ '' if g.id == 'pg' else 'hg-' }}good" tabindex="-1"><span class="pill good"><span aria-hidden="true">{{ icons.good }}</span> Good</span> A time you definitely want to go flying. Strong, workable thermals (quality at least {{ legend.good_quality }}% and an updraft of {{ legend.a_good_updraft if uses_ausrasp else legend.good_updraft }} or more) and the wind comfortably below {{ limits[g.id].strong }}.</li>
+<li id="guide-{{ '' if g.id == 'pg' else 'hg-' }}strong" tabindex="-1"><span class="pill strong"><span aria-hidden="true">{{ icons.strong }}</span> Strong</span> Powerful, and it demands experience. Very strong thermals (an updraft of {{ legend.a_strong_updraft if uses_ausrasp else legend.strong_updraft }} or more), or strong thermals with a brisk wind of {{ limits[g.id].strong }} or more. Rewarding for experienced pilots; not a time for novices.</li>
+<li id="guide-{{ '' if g.id == 'pg' else 'hg-' }}poor" tabindex="-1"><span class="pill poor"><span aria-hidden="true">{{ icons.poor }}</span> Poor</span> Nothing dangerous, but not worth it, except maybe  for sleddies. The wind is too light (under {{ legend.green_from }}) or outside the green direction, thermals are weak or low (quality under {{ legend.quality }}%), or rain is expected ({{ legend.rain_light }} or more).</li>
+<li id="guide-{{ '' if g.id == 'pg' else 'hg-' }}turbulent" tabindex="-1"><span class="pill turbulent"><span aria-hidden="true">{{ icons.turbulent }}</span> Turbulent</span> Rough air likely. Wind of {{ limits[g.id].orange }} or more, gusts of {{ legend.gust_orange }} or more, or storm energy of {{ legend.cape_overdevelop }} J/kg or more.</li>
+<li id="guide-{{ '' if g.id == 'pg' else 'hg-' }}dangerous" tabindex="-1"><span class="pill dangerous"><span aria-hidden="true">{{ icons.dangerous }}</span> Dangerous</span> Do not fly. Wind of {{ limits[g.id].red }} or more, gusts of {{ legend.gust_red }} or more, strong wind well outside the green direction, heavy rain ({{ legend.rain_heavy }} or more), or a thunderstorm risk (storm energy of {{ legend.cape_storm }} J/kg or more, or {{ legend.cape_overdevelop }} J/kg or more with rain).</li>
+</ul>{% endfor %}
+<h3>What the grade takes into account</h3>
+<ul>
+<li><strong>Wind.</strong> Speed and direction at launch altitude ({{ launch_alt }}), and for speed also the stronger of the lower winds (10 m and 850 hPa). The green direction is from {{ legend.sector_from }} to {{ legend.sector_to }}. Speeds are averages. Hang gliders cope with more wind than paragliders, so the wind limits differ; everything else is the same.</li>
+<li><strong>Wind arrow.</strong> The triangle in each day shows where the launch wind is blowing: green inside the flyable direction, amber just outside it (marginally crossed: noted, but it does not lower the grade), red outside it.</li>
+<li><strong>Gusts.</strong> The model's forecast gust speed near the ground (about 10 m up) at its grid point, not at launch altitude, so the page shows it directly under the ground wind it goes with.</li>
+<li><strong>Rain and storms.</strong> Rain rate, and storm energy (CAPE), which shows how likely thunderstorms and strong gust fronts are.</li>
+<li><strong>Thermals.</strong> Strength and height, which separate Good from Poor.{% if uses_ausrasp %} Height and updraft are <a href="{{ links.ausrasp_vic }}">AUSRASP</a>'s forecast for {{ ausrasp_area }}. AUSRASP publishes the updraft in whole metres per second, so Good needs {{ legend.a_good_updraft }} or more and Strong {{ legend.a_strong_updraft }} or more.{% if some_estimate %} Where AUSRASP's figures are not available a block uses the page's own estimate from the global model, named in the line under the title; the estimate uses {{ legend.good_updraft }} and {{ legend.strong_updraft }}.{% endif %}{% else %} The height is where usable thermals reach, about half the depth of the boundary layer above launch (not the top of it), and is launch height when the updraft is below {{ legend.critical }}, because thermals that weak are not usable.{% endif %}</li>
+<li><strong>Turbulence is not measured.</strong> It is inferred from wind strength, gusts and storm energy. Wind shear (the difference between ground and upper wind) is shown in the details for information but does not change the grade.</li>
+<li><strong>Limitations.</strong> The grades come from computer models on a grid, not from measurements. It cannot see local ridge or valley effects, so check the live station chart and the Bureau of Meteorology warnings before you go. Days 5 to 7 use the same rules on rougher values.</li>
+</ul>
+</details>
+
+<details class="guide" id="method">
+<summary><h2>How the numbers are calculated</h2><span class="muted">Where the data comes from and how it is turned into thermal figures</span></summary>
+
+<h3>Where the data comes from</h3>
+<ul>
+<li><strong>Wind, gusts, rain, storms and temperature.</strong> {{ model }}, run {{ cycle_label }}. This is NOAA's GFS global weather model, published free by NOAA, on a grid of about 25 km. The page reads the grid point nearest the launch: wind at 10 m and at four pressure levels above it (interpolated to launch altitude), gusts, rain rate, storm energy (CAPE) and the temperature at 2 m. {% if not uses_ausrasp %}It also reads the height of the boundary layer (the layer of air stirred up by the ground's heat) and the heat flowing into the air from the ground, which give the thermal estimate below. {% endif %}Nothing in the forecast is measured: it is all model output.</li>
+{% if uses_ausrasp %}<li><strong>Thermal height and updraft.</strong> From <a href="{{ links.ausrasp }}">AUSRASP</a>'s <a href="{{ links.ausrasp_vic }}">Victoria forecast</a>, which runs a 4 km regional weather model (WRF) started from the same global model and works out thermal figures from it. The page reads two of AUSRASP's published values for {{ ausrasp_area }}: <em>thermalling height</em> (the lowest of the height where the average updraft falls to 225 feet a minute, cumulus cloudbase and overdevelopment cloudbase, in metres above sea level) and the thermal <em>updraft velocity</em> (W*), which AUSRASP publishes in whole metres per second. Each block uses the AUSRASP hour valid at its start time. The run{% if ausrasp_runs|length > 1 %}s{% endif %} behind this page started {{ ausrasp_runs|join(", ") }}; AUSRASP re-runs each day separately, and the page checks for new runs through the day. AUSRASP is not used for wind or rain. {% if some_estimate %}The days the line under the title says use the estimate are the ones AUSRASP could not supply (not available, incomplete or too old); they use the calculation below. {% endif %}The page shows AUSRASP's figures, not its maps; see them at <a href="{{ links.ausrasp_vic }}">ausrasp.com</a>.</li>{% endif %}
+<li><strong>Today at Mystic.</strong> Current conditions and today's hourly forecast come from <a href="{{ links.openmeteo }}">Open-Meteo</a>, loaded by your browser. They are a model estimate for the launch, not a measurement.</li>
+<li><strong>The weather station chart.</strong> This is the one measured source: wind recorded at the launch by the club's station and shown by <a href="{{ links.freeflightwx }}">FreeFlightWx</a>.</li>
+<li><strong>The grading limits.</strong> The wind bands and flyable direction come from the North East Victorian Hang Gliding Club's published Mystic site settings (set for an intermediate pilot on a low-end B paraglider).</li>
+<li><strong>Acknowledgement.</strong> AUSRASP's <a href="{{ links.ausrasp_vic }}">Victoria forecast</a> is supported by the <a href="{{ links.vhpa }}">Victorian Hang Gliding and Paragliding Association (VHPA)</a>, and AUSRASP is run on donations.{% if not uses_ausrasp %} The estimate's constants below were checked against AUSRASP forecasts.{% endif %}</li>
+</ul>
+
+<h3>How each thermal figure is worked out</h3>
+{% if uses_ausrasp %}<p>Steps 2 to 4 are the page's own estimate from the global model. They are used only for blocks AUSRASP does not cover; blocks with AUSRASP figures take height and updraft from AUSRASP and use the other steps as written.</p>{% endif %}
+<ol>
+<li><strong>Wind at launch ({{ launch_alt }}).</strong> The model gives the wind at the surface and at fixed pressure levels. The page interpolates between them to the launch altitude, ignoring any level below the model's own ground.</li>
+<li><strong>Heating at that hour.</strong> GFS reports the heat going into the air from the ground as an average since the last multiple of 6 hours. The page works out the value for each hour from two consecutive averages, so the late afternoon is not overstated and the morning not understated.</li>
+<li><strong>Updraft strength.</strong> The convective velocity scale: the cube root of (gravity divided by air temperature) times the heating (per unit of air density and heat capacity) times the boundary layer depth. Stronger heating and a deeper layer both make stronger thermals. It is the average strength of a dry thermal; clouds can make real thermals stronger. It is zero when the ground is not heating the air.</li>
+<li><strong>Thermal height.</strong> The height above sea level that usable thermals reach: launch height ({{ launch_alt }}) plus {{ legend.depth_pct }}% of the boundary layer depth, or launch height itself when the updraft is below {{ legend.critical }}, the critical value for a usable thermal. It is lower than the top of the boundary layer, which is how high smoke would rise rather than how high a glider can climb. Heights are shown rounded down to the nearest 100 m (or 100 ft in feet) because the forecast is not that precise.</li>
+<li><strong>Thermal quality.</strong> 100% at an updraft of {{ legend.quality_full }}, in proportion below that, minus {{ legend.penalty }} of wind above {{ legend.wind_threshold }} (the stronger of the 10 m and 850 hPa winds), because wind breaks thermals up. Rounded to the nearest 10%.{% if uses_ausrasp %} With AUSRASP's whole-number updraft, quality takes only a few values.{% endif %}</li>
+<li><strong>Temperature at thermal height.</strong> The ground temperature less 9.8 &deg;C for every kilometre climbed (the dry rate of cooling) from launch to the thermal height shown.</li>
+<li><strong>Rain, gusts and storm energy.</strong> Taken directly from the model's value for that hour.</li>
+</ol>
+
+<h3>Limitations</h3>
+<ul>
+<li>{% if uses_ausrasp %}The wind, gust, rain and temperature figures come from a global model with a grid of about 25 km, which{% else %}A 25 km grid{% endif %} cannot see individual ridges, valleys or the real ground height at the launch, so winds there are usually lighter {% if not uses_ausrasp %}and thermals less detailed {% endif %}than the real thing. Check the station chart on the day.</li>
+{% if not uses_ausrasp or some_estimate %}<li>The estimate's constants were fitted to a small comparison, so they are reasonable, not proven.</li>{% endif %}
+{% if uses_ausrasp %}<li>AUSRASP is an independent, volunteer-run service. Its figures are for 4 km grid cells over steep ground, so they can differ from what you find at the launch.{% if cell_radius %} The page takes the highest of the cells around the launch to get a better indication of the best thermal conditions over the mountain; the height and the updraft are each the highest in that block, which may be different cells.{% endif %} The page cannot tell you how old a run is beyond the time shown, and uses a run for at most 36 hours after it started.</li>{% endif %}
+<li>These are forecasts of average conditions. Individual thermals vary widely around them.</li>
+</ul>
+</details>
+
+<footer>
+<p>Official warnings: <a href="{{ links.bom_warnings }}">Bureau of Meteorology, Victoria</a>.</p>
+<p><strong>Advisory only.</strong> This is a computer forecast, not a safety guarantee. Check conditions on the day and use your own judgement.</p>
+<p class="muted">The wind speed and wind direction rules are based on the published Mystic site settings of the
+<a href="{{ links.nevhgc }}">North East Victorian Hang Gliding Club (NEVHGC)</a>, as shown on their
+<a href="{{ links.station }}">FreeFlightWx Mystic weather station</a>. The station chart comes from
+<a href="{{ links.freeflightwx }}">FreeFlightWx</a>.</p>
+<p class="muted">The "Today at Mystic" panel (current conditions and the hourly forecast for today) uses <a href="{{ links.openmeteo }}">Open-Meteo.com</a> model data
+(CC BY 4.0). Forecast data: NOAA GFS.</p>
+<p class="muted">{% if uses_ausrasp %}Thermal height and updraft are <a href="{{ links.ausrasp }}">AUSRASP</a>'s forecast for {{ ausrasp_area }} ({{ ausrasp_runs|join(", ") }}).{% else %}Thermal height, quality and updraft are estimated from the global model, calibrated against <a href="{{ links.ausrasp }}">AUSRASP</a> forecasts.{% endif %} AUSRASP's
+<a href="{{ links.ausrasp_vic }}">Victoria forecast</a> is supported by the
+<a href="{{ links.vhpa }}">Victorian Hang Gliding and Paragliding Association (VHPA)</a>, and AUSRASP is run on
+donations: please consider supporting it at <a href="{{ links.ausrasp }}">ausrasp.com</a>.</p>
+</footer>
+</main>
+<script id="enhance">
+(function(){
+var g=Date.parse("{{ generated_iso }}");
+if(g&&Date.now()-g>30*3600*1000){var e=document.getElementById("stale");if(e){e.hidden=false;}}
+// Tell the stylesheet how tall the pinned header is, so anything scrolled to stops below it.
+var st=document.getElementById("sticky");
+function setHdr(){if(st){document.documentElement.style.setProperty("--hdr",st.offsetHeight+"px");}}
+setHdr();window.addEventListener("resize",setHdr);
+if(window.ResizeObserver&&st){new ResizeObserver(setHdr).observe(st);}
+
+// Close the settings menu on an outside tap or Escape (without this it simply stays open until toggled).
+var menu=document.getElementById("menu");
+if(menu){document.addEventListener("click",function(e){if(menu.open&&!menu.contains(e.target)){menu.open=false;}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&menu.open){menu.open=false;var s=menu.querySelector("summary");if(s){s.focus();}}});}
+
+// Clicking a grade opens the Guide at that grade and highlights it. Without this script the
+// links still jump to the Guide (the browser opens it when it can).
+function chosenGlider(){var h=document.getElementById("gl-hg");return h&&h.checked?"hg":"pg";}
+function showGrade(g,gl){
+ gl=gl||chosenGlider();
+ var d=document.getElementById("guide"),li=document.getElementById("guide-"+(gl==="hg"?"hg-":"")+g);
+ if(!d||!li){return;}
+ d.open=true;
+ var all=d.querySelectorAll("li.hl");for(var i=0;i<all.length;i++){all[i].classList.remove("hl");}
+ li.classList.add("hl");
+ try{li.scrollIntoView({behavior:"smooth",block:"center"});}catch(x){li.scrollIntoView();}
+ li.focus({preventScroll:true});
+}
+document.addEventListener("click",function(e){
+ var a=e.target&&e.target.closest?e.target.closest("a[data-grade]"):null;
+ if(!a){return;}
+ e.preventDefault();e.stopPropagation(); // do not also expand or collapse the day row
+ showGrade(a.getAttribute("data-grade"));
+ try{history.replaceState(null,"",a.getAttribute("href"));}catch(x){} // keeps #guide-hg-... for hang gliders
+},true);
+function fromHash(){
+ var m=/^#guide-(hg-)?(ok|good|strong|poor|turbulent|dangerous)$/.exec(location.hash);
+ if(!m){return;}
+ var hg=document.getElementById("gl-hg");
+ if(m[1]&&hg){hg.checked=true;} // a link to the hang glider text means hang glider
+ showGrade(m[2],m[1]?"hg":chosenGlider());
+}
+window.addEventListener("hashchange",fromHash);fromHash();
+
+// Current conditions tile (optional): Open-Meteo model data for the launch, in every unit.
+function u(c,t){return '<span class="u '+c+'">'+t+'</span>';}
+function spd(k){return u("s-kts",Math.round(k/1.852)+" kts")+u("s-kph",Math.round(k)+" kph");}
+function tmp(c){return u("t-c",Math.round(c)+" \u00b0C")+u("t-f",Math.round(c*9/5+32)+" \u00b0F");}
+function rn(m){return u("a-m",m.toFixed(1)+" mm/h")+u("a-ft",(m/25.4).toFixed(2)+" in/h");}
+var COMPASS=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+function wx(c){
+ if(c>=95)return["\u26c8\ufe0f","Thunderstorm"];
+ if(c>=80)return["\ud83c\udf26\ufe0f","Showers"];
+ if(c>=71&&c<=77)return["\ud83c\udf28\ufe0f","Snow"];
+ if(c>=61)return["\ud83c\udf27\ufe0f","Rain"];
+ if(c>=51)return["\ud83c\udf27\ufe0f","Drizzle"];
+ if(c>=45)return["\ud83c\udf2b\ufe0f","Fog"];
+ if(c===3)return["\u2601\ufe0f","Overcast"];
+ if(c===2)return["\u26c5","Partly cloudy"];
+ if(c===1)return["\ud83c\udf24\ufe0f","Mostly clear"];
+ return["\u2600\ufe0f","Clear"];}
+var TABS={{ tabs_js|tojson }};
+function tile(tab){
+ var id=tab.id;
+ var url="https://api.open-meteo.com/v1/forecast?latitude="+tab.lat+"&longitude="+tab.lon+"&timezone={{ site.timezone|urlencode }}"
+  +(tab.elevation_m!==null?"&elevation="+tab.elevation_m:"")
+  +"&current=temperature_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cape&wind_speed_unit=kmh"
+  +"&hourly=temperature_2m,precipitation_probability,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,wind_direction_10m&forecast_days=1";
+ var ctl=window.AbortController?new AbortController():null;
+ var timer=setTimeout(function(){if(ctl){ctl.abort();}},15000);
+ fetch(url,ctl?{signal:ctl.signal}:{}).then(function(r){return r.json();}).then(function(d){
+  clearTimeout(timer);var c=d.current;if(!c){return;}
+  var w=wx(c.weather_code);
+  document.getElementById("now-icon-"+id).textContent=w[0];
+  document.getElementById("now-text-"+id).textContent=w[1];
+  document.getElementById("now-temp-"+id).innerHTML=tmp(c.temperature_2m);
+  document.getElementById("now-wind-"+id).innerHTML=COMPASS[Math.round(c.wind_direction_10m/22.5)%16]+" "+spd(c.wind_speed_10m);
+  document.getElementById("now-gust-"+id).innerHTML=spd(c.wind_gusts_10m);
+  document.getElementById("now-rain-"+id).innerHTML=c.precipitation>=0.05?rn(c.precipitation):"none";
+  var H=d.hourly,body=document.getElementById("today-rows-"+id);body.innerHTML="";
+  if(H&&H.time){for(var i=0;i<H.time.length;i++){var hr=parseInt(H.time[i].slice(11,13),10);
+   if(hr<6||hr>20||hr%2){continue;}
+   var tr=document.createElement("tr");
+   if(H.time[i]<(c.time||"").slice(0,13)+":00"){tr.className="past";}
+   else if(H.time[i].slice(0,13)===(c.time||"").slice(0,13)){tr.className="nowrow";}
+   var p=H.precipitation_probability?H.precipitation_probability[i]:null,mm=H.precipitation[i];
+   tr.innerHTML="<td>"+H.time[i].slice(11,16)+"</td><td aria-hidden=\"true\">"+wx(H.weather_code[i])[0]+"</td><td>"+tmp(H.temperature_2m[i])+"</td><td>"+(p===null?"":p+"%")+(mm>=0.1?" "+rn(mm):"")+"</td><td>"+COMPASS[Math.round(H.wind_direction_10m[i]/22.5)%16]+" "+spd(H.wind_speed_10m[i])+" ("+spd(H.wind_gusts_10m[i])+")</td>";
+   body.appendChild(tr);}}
+  var t=(c.time||"").replace("T"," ");
+  document.getElementById("now-note-"+id).textContent="Model estimate for "+tab.label+" at "+t+" local time, not a measurement."+(c.cape>=1000?" High storm energy: check the BoM warnings.":"");
+  document.getElementById("now").hidden=false;
+ }).catch(function(){clearTimeout(timer);});
+}
+function tiles(){for(var i=0;i<TABS.length;i++){tile(TABS[i]);}}
+tiles();setInterval(tiles,10*60*1000);
+
+// Keep the station chart fresh: refresh the visible one every 5 minutes and when the period is changed.
+function freshen(){var imgs=document.querySelectorAll("img.history");
+ for(var i=0;i<imgs.length;i++){var im=imgs[i];
+  if(im.offsetParent!==null){var base=im.getAttribute("data-src");im.src=base+(base.indexOf("?")>-1?"&":"?")+"rand="+Date.now();}}}
+if(window.ffApplyPrefs){window.ffApplyPrefs();} // the saved period first, so the right chart is the one loaded
+freshen(); // load the chosen period now: no chart is in the page until it is wanted
+setInterval(freshen,5*60*1000);
+var per=document.querySelectorAll("input[name=st]");
+for(var i=0;i<per.length;i++){per[i].addEventListener("change",freshen);}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Install: copy to ~/Library/LaunchAgents/au.ffforecast.plist, edit the path below, then
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/au.ffforecast.plist
+  Two runs a day. GFS 12Z is ready about 02:30 AEDT, so 05:30 gives the morning forecast; GFS 00Z
+  is ready about 14:30 AEDT, so 15:30 gives the evening planning forecast. launchd runs a
+  missed calendar job when the Mac wakes (to be confirmed on the iMac; see tasks T032).
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>au.ffforecast</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/CHANGE_ME/workspace/pg/scripts/run-on-host.sh</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict><key>Hour</key><integer>5</integer><key>Minute</key><integer>30</integer></dict>
+    <dict><key>Hour</key><integer>15</integer><key>Minute</key><integer>30</integer></dict>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict><key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string></dict>
+  <key>StandardOutPath</key><string>/tmp/ffforecast.log</string>
+  <key>StandardErrorPath</key><string>/tmp/ffforecast.err</string>
+</dict>
+</plist>
