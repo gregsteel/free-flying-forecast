@@ -26,6 +26,8 @@ from .units import (
 
 # Glider types. The first is the default. Each is rendered side by side and CSS shows the chosen one.
 GLIDERS = (("pg", "Paraglider", "PG"), ("hg", "Hang glider", "HG"))
+
+
 def clock12(hour: int, minute: int = 0) -> str:
     """A 12-hour clock time without am/pm, e.g. 13:00 -> '1:00' (the flying day makes it obvious)."""
     return f"{hour % 12 or 12}:{minute:02d}"
@@ -271,7 +273,7 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
                 "ground": _wind_num(b.wind_ground),
                 "aloft": _wind_num(b.wind_aloft),
                 "shear": b.shear,
-                "hour": str(start.hour % 12 or 12),
+                "hour": clock12(start.hour),
                 "thermal_height": _height_num(b.thermal_height_m),
                 "thermal_height_short": height_down(b.thermal_height_m, short=True),
                 "launch_short": _wind_short(b.wind_launch) if b.wind_launch else None,
@@ -354,7 +356,9 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
         "launch_unit": Markup(_U_SPD),
         "detailed_days": DETAILED_DAYS,
         "slot_count": len(BLOCK_HOURS),
-        "slot_labels": [str(h % 12 or 12) for h in BLOCK_HOURS],  # hour label of each column, for blank tiles
+        "slot_labels": [
+            clock12(h) for h in BLOCK_HOURS
+        ],  # hour label of each column, for blank tiles
         "first_hour": clock12(BLOCK_HOURS[0]),
         "last_hour": clock12(BLOCK_HOURS[-1]),
         "outlook_range": f"{DETAILED_DAYS + 1} to {DETAILED_DAYS + OUTLOOK_DAYS}",

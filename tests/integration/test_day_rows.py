@@ -30,8 +30,9 @@ def test_row_header_has_nine_hourly_columns_from_ten_to_six(fixture_path, site, 
     row = days(page(fixture_path, site, rules))[0]
     summary = summary_of(row)
     assert summary.count('class="cell ') == 9
-    assert re.findall(r'<span class="ctime">(\d+)</span>', summary) == [
-        str(h % 12 or 12) for h in range(10, 19)  # 12-hour clock: 10, 11, 12, 1, 2 ... 6
+    assert re.findall(r'<span class="ctime">(\d+:00)</span>', summary) == [
+        f"{h % 12 or 12}:00"
+        for h in range(10, 19)  # 12-hour clock: 10:00, 11:00, 12:00, 1:00 ... 6:00
     ]
 
 
@@ -82,11 +83,11 @@ def test_missing_block_keeps_columns_aligned(site, rules, fixture_path):
     row = days(html)[0]
     summary = summary_of(row)
     assert summary.count('class="cell ') == 9 and 'class="cell empty"' in summary
-    # the blank tile still shows its hour, so the row reads 10, 11, 12, 1 ... 6 with no gap
-    assert re.findall(r'<span class="ctime">(\d+)</span>', summary) == [
-        str(h % 12 or 12) for h in range(10, 19)
+    # the blank tile still shows its hour, so the row reads 10:00, 11:00, 12:00, 1:00 ... 6:00 with no gap
+    assert re.findall(r'<span class="ctime">(\d+:00)</span>', summary) == [
+        f"{h % 12 or 12}:00" for h in range(10, 19)
     ]
-    assert re.search(r'class="cell empty"[^>]*><span class="ctime">\d+</span>', summary)
+    assert re.search(r'class="cell empty"[^>]*><span class="ctime">\d+:00</span>', summary)
 
 
 def test_outlook_columns_match_the_number_of_outlook_days(fixture_path, site, rules):
@@ -126,9 +127,9 @@ def test_the_hours_that_stay_are_ten_twelve_fourteen_sixteen_and_eighteen(
     """The CSS hides child 3, 5, 7 and 9 of the row (child 1 is the day label or row heading)."""
     row = days(page(fixture_path, site, rules))[0]
     summary = summary_of(row)
-    hours = re.findall(r'<span class="ctime">(\d+)</span>', summary)
-    assert hours == [str(h % 12 or 12) for h in range(10, 19)]
+    hours = re.findall(r'<span class="ctime">(\d+:00)</span>', summary)
+    assert hours == [f"{h % 12 or 12}:00" for h in range(10, 19)]
     children = [hours[i] for i in range(9)]  # the cells are children 2 to 10 of the summary
     hidden = [children[c - 2] for c in (3, 5, 7, 9)]
-    assert hidden == ["11", "1", "3", "5"]  # 11:00, 13:00, 15:00 and 17:00
-    assert [children[i] for i in (0, 2, 4, 6, 8)] == ["10", "12", "2", "4", "6"]
+    assert hidden == ["11:00", "1:00", "3:00", "5:00"]  # 11:00, 13:00, 15:00 and 17:00
+    assert [children[i] for i in (0, 2, 4, 6, 8)] == ["10:00", "12:00", "2:00", "4:00", "6:00"]

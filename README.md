@@ -18,19 +18,6 @@ VIC. It builds one static, phone-friendly web page from free NOAA weather data -
   `[[weather_tabs]]` in `config/site.mystic.toml`.
 - **FreeFlight WX**: the Mystic station's wind chart (FreeFlightWx) with a Current / 1 / 4 / 12 hour / Day toggle.
 
-## Status
-
-| Part | State |
-|------|-------|
-| GFS-only forecast (`--model gfs`) | Works; ran end to end against live NOAA data |
-| Page, grading, Guide, settings, cookie | Built and tested (`uv run pytest`: 460 pass, 2 skipped), and checked in a real browser |
-| Thermal height and updraft from AUSRASP | Built and tested; read live and ran end to end (see `specs/003-ausrasp-thermal-source/`). The GFS estimate is the fallback; wind and rain always come from GFS |
-| Public hosting | **GitHub Pages**: the git publisher is built and tested against a local repository; it still needs your real repository (see below). Firebase (`specs/002-firebase-hosting-deploy/`) was set aside |
-| WRF regional model (`--model wrf`) | Dockerfile and namelists written, **not yet built or run**; needs the iMac. `run --model wrf` and the `fetch`, `wrf`, `diagnose` and `publish` commands exit with code 3 until it is wired up |
-| launchd schedules | Written (forecast run at 05:30 and 15:30 local, AUSRASP poll every 20 minutes), **not yet tried** on the iMac |
-
-See `specs/001-free-flying-forecast/` for the spec, plan and task list, and `docs/benchmarks.md`.
-
 ## Run it
 
 ```bash
@@ -47,7 +34,7 @@ Output is `out/index.html` and `out/forecast.json`. Add `--publish-remote <git u
 settings, set GitHub Pages to deploy from the `gh-pages` branch. (A free GitHub Pages site needs a public
 repository. The deploy key lives outside the project, and nothing secret is committed.)
 
-## On the iMac (Colima)
+## On a Mac with Colima
 
 ```bash
 colima start --cpu 8 --memory 10 --disk 80 --vm-type vz
@@ -69,7 +56,7 @@ The poll windows are a first guess: after a week, compare them with
 After forking, run `python3 scripts/update_readme_url.py` to point the page link at your own GitHub Pages
 address. It reads the owner and repository from `FFFORECAST_PROJECT` or the `origin` remote.
 
-## Docker image and Portainer
+## Using a Docker image and Portainer
 
 `.github/workflows/docker.yml` runs the tests, then builds `docker/Dockerfile.gfs` (GFS-only, no WRF) for
 arm64 (on GitHub's native arm64 runners) and pushes it to `ghcr.io/<username>/free-flying-forecast` (`latest` on main, plus a
