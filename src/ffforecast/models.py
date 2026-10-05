@@ -5,15 +5,18 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-Verdict = str  # "ok" | "good" | "strong" | "poor" | "turbulent" | "dangerous"
+Verdict = str  # "ok" | "good" | "strong" | "poor" | "bad"
 # Listed in the order the Guide shows them. Strong is powerful, not simply "better": it demands experience.
-VERDICTS = ("ok", "good", "strong", "poor", "turbulent", "dangerous")
+VERDICTS = ("ok", "good", "strong", "poor", "bad")
 SHEAR_CLASSES = ("light", "moderate", "strong")
 # 2: grades renamed Good/Great/Pumping to Ok/Good/Strong (2026-10-04)
 # 3: estimated gusts, AUSRASP wind and sunshine added (2026-10-05); older files still read
-SCHEMA_VERSION = 3
+# 4: Turbulent and Dangerous became one grade, Bad (2026-10-05); older files still read
+SCHEMA_VERSION = 4
 # Verdict names used by forecast files made with schema 1
 LEGACY_VERDICTS = {"good": "ok", "great": "good", "pumping": "strong"}
+# Verdict names used by forecast files made before schema 4
+MERGED_VERDICTS = {"turbulent": "bad", "dangerous": "bad"}
 DETAILED_DAYS = 4  # days 1 to 4: 2-hour blocks
 OUTLOOK_DAYS = 3  # days 5 to 7: one low-confidence summary per day
 
@@ -85,7 +88,7 @@ class Forecast:
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> Forecast:
-        if d.get("schema", 1) < 2:  # an older file: translate its grade names
+        if d.get("schema", 1) < SCHEMA_VERSION:  # an older file: translate its grade names
             d = _modernise(d)
         blocks = [
             ForecastBlock(
@@ -112,14 +115,19 @@ class Forecast:
 
 
 def _modernise(d: dict[str, Any]) -> dict[str, Any]:
-    """A copy of a schema 1 forecast with its grades under the current names."""
+    """A copy of an older forecast with its grades under the current names: schema 1 used Good, Great
+    and Pumping for what are now Ok, Good and Strong, and before schema 4 Turbulent and Dangerous were
+    two grades where there is now one, Bad."""
+    names = dict(MERGED_VERDICTS)
+    if d.get("schema", 1) < 2:
+        names.update(LEGACY_VERDICTS)
 
     def fix(row: dict[str, Any], keys: tuple[str, ...]) -> dict[str, Any]:
-        return {**row, **{k: LEGACY_VERDICTS.get(row[k], row[k]) for k in keys if k in row}}
+        return {**row, **{k: names.get(row[k], row[k]) for k in keys if k in row}}
 
     return {
         **d,
         "blocks": [fix(b, ("verdict_pg", "verdict_hg")) for b in d.get("blocks", [])],
         "outlook": [fix(o, ("verdict", "verdict_hg")) for o in d.get("outlook", [])],
-        "schema": 2,
+        "schema": SCHEMA_VERSION,
     }

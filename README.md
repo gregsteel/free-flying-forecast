@@ -5,7 +5,7 @@ VIC. It builds one static, phone-friendly web page from free NOAA weather data -
 
 - **Days 1 to 4**: detailed hourly blocks (10:00 to 18:00 local) with wind, estimated gusts at launch and
   at thermal height, shear, thermal height and quality, updraft, sun reaching the ground, temperature and a grade for paragliders and hang gliders: Ok,
-  Good ("definitely go flying"), Strong (powerful, demands experience), Poor, Turbulent or Dangerous.
+  Good ("definitely go flying"), Strong (powerful, demands experience), Poor or Bad (rough air or dangerous: do not fly).
 - **Days 5 to 7**: a low-confidence daily outlook.
 - **Glider type**: a PG / HG toggle in the header (paraglider by default).
 - **Settings** (hamburger menu): units (knots, metres and Celsius by default; km/h, feet and Fahrenheit

@@ -13,7 +13,7 @@ def test_footer_has_sources_and_credits(fixture_path, site, rules):
     assert "Rules version" not in html  # the version number is kept in forecast.json only
     assert (
         "Generated " not in footer and "Cycle " not in footer
-    )  # the run details are in the header
+    )  # the run details are in the update line
     assert "NOAA GFS" in footer
     assert "FreeFlightWx" in footer and "NEVHGC" in footer
     # the station page, FreeFlightWx itself and the club; the period pages and the gauge are linked
@@ -56,7 +56,7 @@ def test_the_acknowledgement_links_come_from_the_site_config(site):
     assert site.links["vhpa"].startswith("https://") and "ausrasp" in site.links["ausrasp_vic"]
 
 
-def test_the_header_carries_the_model_run_and_update_time_in_one_line(fixture_path, site, rules):
+def test_the_footer_carries_the_model_run_and_update_time_in_one_line(fixture_path, site, rules):
     import re
 
     fc = Forecast.from_dict(json.loads(fixture_path.read_text()))
@@ -66,26 +66,25 @@ def test_the_header_carries_the_model_run_and_update_time_in_one_line(fixture_pa
     line = m.group(1)
     assert line.startswith("Updated Sat 03 Oct 2026 13:00 AEST. Model: NOAA GFS")
     assert ", run 2026-10-03T00Z." in line and "Thermals:" in line
-    assert html.index(line) < html.index('<div class="top">')  # in the pinned header
+    assert html.index(line) > html.index("<footer>")  # in the footer, not the pinned header
+    pinned = html[html.index('<div class="sticky" id="sticky">') : html.index("Next 4 days")]
+    assert "Updated " not in pinned
 
 
-def test_the_rules_source_line_is_not_shown_on_the_page(fixture_path, site, rules):
+def test_the_footer_ends_with_the_own_use_statement(fixture_path, site, rules):
     fc = Forecast.from_dict(json.loads(fixture_path.read_text()))
     html = render_page(fc, site, rules)
-    assert "Rules source" not in html and rules.source not in html  # it stays in rules.toml only
-
-
-def test_the_header_ends_with_the_own_use_statement(fixture_path, site, rules):
-    fc = Forecast.from_dict(json.loads(fixture_path.read_text()))
-    html = render_page(fc, site, rules)
-    pinned = html[html.index('<div class="sticky" id="sticky">') : html.index('<div class="top">')]
+    footer = html[html.index("<footer>") : html.index("</footer>")]
     statement = (
         "This page was made for my own use, you are welcome to use it (but don't complain). "
         "Or fork the project and make your own."
     )
-    plain = re.sub(r"<[^>]+>", "", pinned)
+    plain = re.sub(r"<[^>]+>", "", footer)
     assert statement in re.sub(r"\s+", " ", plain)
-    assert pinned.rindex("This page was made for my own use") > pinned.rindex('id="stale"')  # last
+    assert footer.rindex("This page was made for my own use") > footer.rindex(
+        "Advisory only"
+    )  # last
+    assert "This page was made" not in html[: html.index("<footer>")]  # nowhere in the header
 
 
 def test_the_fork_the_project_words_link_to_github_once_it_is_configured(fixture_path, site, rules):

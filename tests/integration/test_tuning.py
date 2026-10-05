@@ -19,6 +19,6 @@ def test_changing_rules_changes_verdict_and_legend(site, rules):
     assert 'g g-pg good"' in before and '<span class="u s-kph">19 kph</span>' in before
     tuned = dataclasses.replace(rules, speed_orange_from_mph=8, version=2)
     after = render_page(forecast_with(tuned), site, tuned)
-    assert 'g g-pg turbulent"' in after
+    assert 'g g-pg bad"' in after
     assert '<span class="u s-kph">13 kph</span>' in after
     assert "Rules version" not in after

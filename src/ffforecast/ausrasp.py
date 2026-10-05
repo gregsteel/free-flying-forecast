@@ -36,8 +36,9 @@ DAY_KEYS = tuple(f"OUT+{n}" for n in range(7))
 HEIGHT, UPDRAFT = "hglider", "wstar"
 # Read for the days the page shows hour by hour: the 10 m wind, the wind at the top of the thermals
 # (the boundary layer) and the share of possible sunshine that reaches the ground.
-SFC_WIND, TOP_WIND, SUN = "sfcwindspd", "bltopwindspd", "sfcsunpct"
-EXTRAS = (SFC_WIND, TOP_WIND, SUN)
+SFC_WIND, TOP_WIND, SUN, BL_CLOUD = "sfcwindspd", "bltopwindspd", "sfcsunpct", "blcloudpct"
+EXTRAS = (SFC_WIND, TOP_WIND, SUN, BL_CLOUD)
+EXTRAS_VERSION = 2  # 2: boundary layer cloud cover added
 EXTRAS_DAYS = 4  # OUT+0 to OUT+3
 # The quantity named inside a wind file differs from the file's name
 HEADER_PARAM = {SFC_WIND: "sfcwindSpeed", TOP_WIND: "bltopwindSpeed"}
@@ -47,6 +48,7 @@ QUANTITIES = {  # name -> (unit in the file header, smallest and largest believa
     SFC_WIND: ("m/s", 0.0, 60.0),
     TOP_WIND: ("m/s", 0.0, 80.0),
     SUN: ("%", 0.0, 100.0),
+    BL_CLOUD: ("%", 0.0, 100.0),
 }
 # A full refresh is 126 files for height and updraft (seven days, nine hours) and 108 more for the
 # wind and sun of the four detailed days; one day's refresh is 18 or 45 files.
@@ -377,7 +379,7 @@ def fetch_day(
                     if grid.valid_utc != valid or grid.run != run:
                         raise AusraspError(f"{key}: {param} is not from the same run and hour")
                     # the strongest wind in the block (a ridge launch), the average sunshine
-                    pick = block_mean if param == SUN else block_max
+                    pick = block_mean if param in (SUN, BL_CLOUD) else block_max
                     entry[_EXTRA_KEYS[param]] = pick(grid.values, cell["row"], cell["col"], radius)
             except AusraspError as e:
                 if client_blocked(e):
@@ -395,11 +397,17 @@ def fetch_day(
         "fetched_at": _iso(now),
         "radius": radius,
         "extras": have_extras,
+        "extras_v": EXTRAS_VERSION,
         "values": values,
     }
 
 
-_EXTRA_KEYS = {SFC_WIND: "sfc_wind_ms", TOP_WIND: "top_wind_ms", SUN: "sun_pct"}
+_EXTRA_KEYS = {
+    SFC_WIND: "sfc_wind_ms",
+    TOP_WIND: "top_wind_ms",
+    SUN: "sun_pct",
+    BL_CLOUD: "bl_cloud_pct",
+}
 
 
 def block_mean(values: np.ndarray, row: int, col: int, radius: int) -> float:
@@ -467,9 +475,12 @@ def refresh(cfg: AusraspConfig, site: Site, cache_dir: Path, session, **client_k
             stored
             and stored.get("stamp") == stamp
             and stored.get("radius") == cfg.cell_radius
+            # a day stored without the current extras is fetched again; a stored false waits for the next stamp
             and (
-                not want_extras or "extras" in stored
-            )  # a stored false is not retried until the stamp changes
+                not want_extras
+                or stored.get("extras") is False
+                or stored.get("extras_v") == EXTRAS_VERSION
+            )
         ):
             continue
         try:
@@ -563,6 +574,7 @@ def thermal_lookup(
                     v.get("sfc_wind_ms"),
                     v.get("top_wind_ms"),
                     v.get("sun_pct"),
+                    v.get("bl_cloud_pct"),
                 )
     if not held:
         notes.append("no AUSRASP data has been fetched yet")

@@ -26,30 +26,18 @@ def test_crossed_and_in_the_sector_grade_the_same(rules):
     assert a == b == "good"
 
 
-def test_beyond_the_margin_is_still_poor_or_dangerous(rules):
+def test_beyond_the_margin_is_still_poor_or_bad(rules):
     assert grade_block(BEYOND, 8, 8, 100, 1900, rules, updraft_ms=3.0)[0] == "poor"
-    assert grade_block(BEYOND, 22, 22, 100, 1900, rules, updraft_ms=3.0)[0] in (
-        "turbulent",
-        "dangerous",
-    )
+    assert grade_block(BEYOND, 22, 22, 100, 1900, rules, updraft_ms=3.0)[0] == "bad"
 
 
 def test_other_problems_still_win_over_a_crossed_launch(rules):
-    assert grade_block(CROSSED, 25, 25, 100, 1900, rules, updraft_ms=3.0)[0] in (
-        "turbulent",
-        "dangerous",
-    )  # strong wind
-    assert (
-        grade_block(CROSSED, 8, 8, 100, 1900, rules, gust_kph=30.0, updraft_ms=3.0)[0]
-        == "turbulent"
-    )
-    assert (
-        grade_block(CROSSED, 8, 8, 100, 1900, rules, rain_mm_h=2.0, updraft_ms=3.0)[0]
-        == "dangerous"
-    )
+    assert grade_block(CROSSED, 25, 25, 100, 1900, rules, updraft_ms=3.0)[0] == "bad"  # strong wind
+    assert grade_block(CROSSED, 8, 8, 100, 1900, rules, gust_kph=30.0, updraft_ms=3.0)[0] == "bad"
+    assert grade_block(CROSSED, 8, 8, 100, 1900, rules, rain_mm_h=2.0, updraft_ms=3.0)[0] == "bad"
 
 
-def test_the_guide_no_longer_lists_direction_under_turbulent(fixture_path, site, rules):
+def test_the_guide_no_longer_lists_a_crossed_launch_under_bad(fixture_path, site, rules):
     import json
     import re
 
@@ -57,9 +45,9 @@ def test_the_guide_no_longer_lists_direction_under_turbulent(fixture_path, site,
     from ffforecast.render import render_page
 
     html = render_page(Forecast.from_dict(json.loads(fixture_path.read_text())), site, rules)
-    m = re.search(r'<li id="guide-turbulent".*?</li>', html, flags=re.S)
+    m = re.search(r'<li id="guide-bad".*?</li>', html, flags=re.S)
     assert m is not None
-    assert "direction" not in m.group(0)
+    assert "marginally" not in m.group(0)  # only a strong wind well outside the sector is named
 
 
 def test_the_reason_and_the_guide_both_say_marginally_crossed(rules, fixture_path, site):

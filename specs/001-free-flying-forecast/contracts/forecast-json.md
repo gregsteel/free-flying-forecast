@@ -26,8 +26,8 @@ the page, the tests and any future consumer share one structure. Last reviewed a
       "thermal_run": "",
       "temp_ground_c": 14,
       "temp_air_c": 6.9,
-      "verdict_pg": "dangerous",
-      "verdict_hg": "dangerous",
+      "verdict_pg": "bad",
+      "verdict_hg": "bad",
       "reasons": ["Wind 8 kph is in the green band.", "Rain expected (0.9 mm/h)."],
       "reasons_hg": ["Wind 8 kph is in the green band.", "Rain expected (0.9 mm/h)."],
       "rain_mm_h": 0.92,
@@ -49,7 +49,7 @@ the page, the tests and any future consumer share one structure. Last reviewed a
 }
 ```
 
-Values are illustrative. A real file has 16 blocks (4 days of 4) and 3 outlook days. `verdict_pg`, `verdict_hg` and the outlook `verdict` and `verdict_hg` are one of `ok`, `good`, `strong`, `poor`, `turbulent`, `dangerous`. Forecasts made before 2026-10-03 only ever hold `good` for what is now Ok, Good or Strong, and still render.
+Values are illustrative. A real file has 16 blocks (4 days of 4) and 3 outlook days. `verdict_pg`, `verdict_hg` and the outlook `verdict` and `verdict_hg` are one of `ok`, `good`, `strong`, `poor`, `bad` (schema 4). Forecasts made before 2026-10-03 only ever hold `good` for what is now Ok, Good or Strong, and those made before 2026-10-05 hold `turbulent` and `dangerous` for what is now Bad; they are translated when read and still render.
 
 Compatibility: `thermal_source` (`ausrasp` or `gfs`) and `thermal_run` (the AUSRASP model start, ISO UTC, empty for `gfs`) were added by [003](../../003-ausrasp-thermal-source/spec.md); outlook days carry `thermal_source` too; files without them read as `gfs`. `wind_launch`, `reasons_hg`, `verdict_hg`, `rain_mm_h`, `cape_j_kg` and `gust_kph` were
 added after the first version. A file without them still renders: missing hang glider values fall

@@ -4,7 +4,7 @@ import re
 from ffforecast.models import Forecast
 from ffforecast.render import render_page
 
-GRADES = ("ok", "good", "strong", "poor", "turbulent", "dangerous")
+GRADES = ("ok", "good", "strong", "poor", "bad")
 
 
 def load(fixture_path):
@@ -66,12 +66,10 @@ def test_expanded_view_has_one_pill_and_reasons_per_glider(fixture_path, site, r
 
 
 def test_a_block_graded_differently_for_each_glider(fixture_path, site, rules):
-    # the fixture's third slot is 20 kph: orange for paragliders; for hang gliders it is a brisk but
-    # green wind with strong thermals, so powerful: Strong
+    # the fixture's third slot is 20 kph: Bad for paragliders (over their limit); for hang gliders it is
+    # a green wind with strong thermals: Good
     html = page(fixture_path, site, rules)
-    assert (
-        '<th scope="col" class="pg-turbulent hg-strong">' in html
-    )  # the column carries both grades
+    assert '<th scope="col" class="pg-bad hg-good">' in html  # the column carries both grades
     cells = re.findall(r'<div class="why">(.*?)</div>', html, flags=re.S)
     mine = [c for c in cells if "novice pilots" in c]
     assert mine, "the paraglider reasons should mention the novice limit"
@@ -81,10 +79,10 @@ def test_a_block_graded_differently_for_each_glider(fixture_path, site, rules):
         assert pg is not None and hg is not None
         assert "novice pilots" in pg.group(1)  # the paraglider limit
         assert "novice pilots" not in hg.group(1)  # does not apply to hang gliders
-    col = re.search(r'<th scope="col" class="pg-turbulent hg-strong">(.*?)</th>', html, flags=re.S)
+    col = re.search(r'<th scope="col" class="pg-bad hg-good">(.*?)</th>', html, flags=re.S)
     assert col is not None
-    assert re.search(r'g g-pg turbulent"[^>]*>.*?Turbulent</a>', col.group(1), flags=re.S)
-    assert re.search(r'g g-hg strong"[^>]*>.*?Strong</a>', col.group(1), flags=re.S)
+    assert re.search(r'g g-pg bad"[^>]*>.*?Bad</a>', col.group(1), flags=re.S)
+    assert re.search(r'g g-hg good"[^>]*>.*?Good</a>', col.group(1), flags=re.S)
 
 
 def test_colours_follow_the_chosen_glider(fixture_path, site, rules):
@@ -96,16 +94,16 @@ def test_colours_follow_the_chosen_glider(fixture_path, site, rules):
     assert (
         "body:has(#gl-hg:checked) table.dt thead th{border-top-color:var(--hgc,transparent)" in html
     )
-    assert 'class="cell pg-turbulent hg-good"' in html  # both grades are carried by the cell
+    assert 'class="cell pg-bad hg-good"' in html  # both grades are carried by the cell
 
 
 def test_outlook_shows_the_chosen_gliders_grade(fixture_path, site, rules):
     html = page(fixture_path, site, rules)
     out = html[html.index('<div class="outlook">') : html.index('<details class="guide"')]
-    # the middle day is Turbulent for paragliders and Good for hang gliders
-    cell = re.search(r'<section class="cell pg-turbulent hg-good">.*?</section>', out, flags=re.S)
+    # the middle day is Bad for paragliders and Good for hang gliders
+    cell = re.search(r'<section class="cell pg-bad hg-good">.*?</section>', out, flags=re.S)
     assert cell is not None
-    assert 'class="cicon g g-pg"' in cell.group(0) and "Paraglider: Turbulent" in cell.group(0)
+    assert 'class="cicon g g-pg"' in cell.group(0) and "Paraglider: Bad" in cell.group(0)
     assert 'class="cicon g g-hg"' in cell.group(0) and "Hang glider: Good" in cell.group(0)
 
 
@@ -145,7 +143,7 @@ def test_guide_says_whose_limits_it_shows_and_no_longer_lists_both(fixture_path,
 def test_script_picks_the_chosen_glider_and_understands_hg_links(fixture_path, site, rules):
     html = page(fixture_path, site, rules)
     assert "function chosenGlider()" in html and 'gl==="hg"?"hg-":""' in html
-    assert "#guide-(hg-)?(ok|good|strong|poor|turbulent|dangerous)" in html
+    assert "#guide-(hg-)?(ok|good|strong|poor|bad)" in html
 
 
 def test_address_keeps_the_glider_when_a_grade_is_clicked(fixture_path, site, rules):

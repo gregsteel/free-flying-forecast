@@ -16,12 +16,21 @@ tz = timezone(timedelta(hours=11))  # AEDT starts 2026-10-04
 cases = {
     "ok": (350, 12, 10, 14, 1200, 90, 15),  # decent thermals, updraft about 1.5 m/s
     "good": (350, 12, 10, 14, 1500, 380, 16),  # strong thermals, updraft about 2.6 m/s
-    "strong": (350, 12, 10, 14, 2200, 700, 18),  # very strong thermals, updraft about 3.6 m/s
+    "strong": (350, 12, 10, 14, 2500, 950, 18),  # very strong thermals, updraft about 4.2 m/s
     "poor": (350, 12, 10, 14, 100, 20, 14),
-    "turbulent": (350, 20, 10, 20, 1600, 380, 15),
+    "turbulent": (
+        350,
+        17.5,
+        10,
+        20,
+        1600,
+        380,
+        15,
+    ),  # launch 19.5 kph: over the paraglider limit only
     "dangerous": (200, 30, 220, 38, 1200, 180, 12),
 }
-# (rain mm/h, CAPE J/kg, gust kph) per case; the dangerous case is also a wet storm
+# (rain mm/h, CAPE J/kg, gust kph) per case; the dangerous case is also a wet storm. Both the turbulent
+# and the dangerous case are graded Bad: they only differ in how bad the reasons say it is
 weather = {
     "dangerous": (2.3, 900, 40),
     "turbulent": (0, 0, 20),
@@ -62,12 +71,12 @@ fc = Forecast(
         DailyOutlook(
             "2026-10-08",
             Wind(200, 25),
-            "dangerous",
+            "bad",
             rain_mm_h=2.0,
             cape_j_kg=900,
-            verdict_hg="dangerous",
+            verdict_hg="bad",
         ),
-        DailyOutlook("2026-10-09", Wind(10, 22), "turbulent", verdict_hg="good"),
+        DailyOutlook("2026-10-09", Wind(10, 22), "bad", verdict_hg="good"),
         DailyOutlook("2026-10-10", Wind(340, 8), "poor", verdict_hg="poor"),
     ],
 )

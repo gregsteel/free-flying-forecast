@@ -98,9 +98,7 @@ class Rules:
     quality_wind_penalty_per_kph: float = 2.5
     thermal_good_quality_pct: float = 70.0
     thermal_good_updraft_ms: float = 2.5
-    thermal_strong_updraft_ms: float = 3.5
-    strong_wind_from_mph: float = 9.0
-    hg_strong_wind_from_mph: float = 11.0
+    thermal_strong_updraft_ms: float = 4.0
     # Good and Strong updraft limits when the updraft is AUSRASP's, which is published in whole m/s
     ausrasp_good_updraft_ms: float = 3.0
     ausrasp_strong_updraft_ms: float = 4.0
@@ -110,6 +108,7 @@ class Rules:
     gust_aloft_red_from_mph: float = 34.0
     gust_mix_fraction: float = 0.5
     gust_aloft_factor: float = 1.25
+    gust_factor_floor: float = 1.5
     # When AUSRASP's 10 m wind is stronger than the global model's wind at launch, grade on it
     ausrasp_wind_counts: bool = True
     # Sunshine: below sun_full_pct thermal quality is scaled down; below sun_shaded_pct the shading is
@@ -119,6 +118,7 @@ class Rules:
     cloud_low_blocks: float = 0.9
     cloud_mid_blocks: float = 0.6
     cloud_high_blocks: float = 0.25
+    cumulus_shade: float = 0.6
 
 
 def _read(path: Path) -> dict[str, Any]:
@@ -317,10 +317,13 @@ def _weather(section: dict[str, Any], where: str) -> dict[str, float]:
         "gust_aloft_red_from_mph",
         "gust_mix_fraction",
         "gust_aloft_factor",
+        "gust_factor_floor",
     )
     out = {k: float(section[k]) for k in keys if k in section}
     if not 0 <= out.get("gust_mix_fraction", 0.5) <= 1:
         raise ConfigError(f"{where}: gust_mix_fraction must be from 0 to 1")
+    if out.get("gust_factor_floor", 1.5) < 1:
+        raise ConfigError(f"{where}: gust_factor_floor must be at least 1")
     if out.get("gust_aloft_factor", 1.25) < 1:
         raise ConfigError(f"{where}: gust_aloft_factor must be at least 1")
     if out.get("gust_aloft_orange_from_mph", 28) > out.get("gust_aloft_red_from_mph", 34):
@@ -342,11 +345,12 @@ def _sun(section: dict[str, Any], where: str) -> dict[str, float]:
         "low_cloud_blocks": "cloud_low_blocks",
         "mid_cloud_blocks": "cloud_mid_blocks",
         "high_cloud_blocks": "cloud_high_blocks",
+        "cumulus_shade": "cumulus_shade",
     }
     out = {field: float(section[key]) for key, field in keys.items() if key in section}
     if not 0 < out.get("sun_shaded_pct", 40.0) <= out.get("sun_full_pct", 70.0) <= 100:
         raise ConfigError(f"{where}: [sun] needs 0 < shaded_pct <= full_pct <= 100")
-    for field in ("cloud_low_blocks", "cloud_mid_blocks", "cloud_high_blocks"):
+    for field in ("cloud_low_blocks", "cloud_mid_blocks", "cloud_high_blocks", "cumulus_shade"):
         if not 0 <= out.get(field, 0.5) <= 1:
             raise ConfigError(
                 f"{where}: [sun] {field.split('_')[1]}_cloud_blocks must be from 0 to 1"
@@ -386,8 +390,6 @@ def _tiers(
         "good_quality_pct": "thermal_good_quality_pct",
         "good_updraft_ms": "thermal_good_updraft_ms",
         "strong_updraft_ms": "thermal_strong_updraft_ms",
-        "strong_wind_from_mph": "strong_wind_from_mph",
-        "hg_strong_wind_from_mph": "hg_strong_wind_from_mph",
     }
     out = {field: float(thermal[key]) for key, field in keys.items() if key in thermal}
     ok = float(thermal.get("ok_quality_pct", 40))
@@ -395,7 +397,7 @@ def _tiers(
     if not ok <= good_q <= 100:
         raise ConfigError(f"{where}: good_quality_pct must be between ok_quality_pct and 100")
     good_u = out.get("thermal_good_updraft_ms", 2.5)
-    pump_u = out.get("thermal_strong_updraft_ms", 3.5)
+    pump_u = out.get("thermal_strong_updraft_ms", 4.0)
     if not 0 < good_u < pump_u:
         raise ConfigError(f"{where}: good_updraft_ms must be above 0 and below strong_updraft_ms")
     a_good = float(ausrasp.get("good_updraft_ms", 3.0))
@@ -406,18 +408,6 @@ def _tiers(
         )
     out["ausrasp_good_updraft_ms"] = a_good
     out["ausrasp_strong_updraft_ms"] = a_pump
-    orange = float(wind.get("speed_orange_from_mph", 12))
-    hg_orange = float(wind.get("hg_speed_orange_from_mph", orange))
-    pw = out.get("strong_wind_from_mph", 9.0)
-    hpw = out.get("hg_strong_wind_from_mph", 11.0)
-    if not 0 < pw < orange:
-        raise ConfigError(
-            f"{where}: strong_wind_from_mph must be above 0 and below the orange band"
-        )
-    if not 0 < hpw < hg_orange:
-        raise ConfigError(
-            f"{where}: hg_strong_wind_from_mph must be above 0 and below the hang glider orange band"
-        )
     return out
 
 

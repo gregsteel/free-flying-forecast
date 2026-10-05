@@ -87,22 +87,13 @@ def claim_cases(r):
             "strong",
         ),
         (
-            "Strong: strong thermals with a brisk wind",
-            dict(
-                thermal_quality_pct=80,
-                updraft_ms=2.7,
-                ground_kph=mph_to_kph(r.strong_wind_from_mph),
-                aloft_kph=mph_to_kph(r.strong_wind_from_mph),
-            ),
-            "strong",
+            "Good: strong thermals with a brisk wind are still only Good",
+            dict(thermal_quality_pct=80, updraft_ms=3.0, ground_kph=18, aloft_kph=18),
+            "good",
         ),
         (
-            "Good: the wind is below the brisk wind",
-            dict(
-                thermal_quality_pct=90,
-                updraft_ms=2.7,
-                ground_kph=mph_to_kph(r.strong_wind_from_mph) - 1,
-            ),
+            "Good: strong thermals in a light wind",
+            dict(thermal_quality_pct=90, updraft_ms=2.7, ground_kph=8),
             "good",
         ),
         (
@@ -118,7 +109,7 @@ def claim_cases(r):
         (
             "Strong never hides a thunderstorm risk",
             dict(thermal_quality_pct=100, updraft_ms=3.0, cape_j_kg=r.cape_storm_j_kg),
-            "dangerous",
+            "bad",
         ),
         ("Poor: too light", dict(ground_kph=0.5, aloft_kph=0.5), "poor"),
         ("Poor: off direction (light wind)", dict(ground_dir=180), "poor"),
@@ -126,14 +117,14 @@ def claim_cases(r):
         ("Poor: low thermals", dict(thermal_height_m=r.thermal_min_height_m - 1), "poor"),
         ("Poor: rain", dict(rain_mm_h=r.rain_light_mm_h), "poor"),
         (
-            "Turbulent: wind at the orange band",
+            "Bad (turbulent): wind at the orange band",
             dict(
                 ground_kph=mph_to_kph(r.speed_orange_from_mph),
                 aloft_kph=mph_to_kph(r.speed_orange_from_mph),
             ),
-            "turbulent",
+            "bad",
         ),
-        ("Turbulent: gusts", dict(gust_kph=mph_to_kph(r.gust_orange_from_mph)), "turbulent"),
+        ("Bad (turbulent): gusts", dict(gust_kph=mph_to_kph(r.gust_orange_from_mph)), "bad"),
         (
             "Crossed (just off direction) does not cap the grade",
             dict(ground_dir=r.sector_half_width_deg + 5),
@@ -144,31 +135,31 @@ def claim_cases(r):
             dict(ground_dir=r.sector_half_width_deg + r.marginal_margin_deg + 5),
             "poor",
         ),
-        ("Turbulent: storm energy, no rain", dict(cape_j_kg=r.cape_overdevelop_j_kg), "turbulent"),
+        ("Bad (turbulent): storm energy, no rain", dict(cape_j_kg=r.cape_overdevelop_j_kg), "bad"),
         (
-            "Dangerous: wind at the red band",
+            "Bad (dangerous): wind at the red band",
             dict(
                 ground_kph=mph_to_kph(r.speed_red_from_mph),
                 aloft_kph=mph_to_kph(r.speed_red_from_mph),
             ),
-            "dangerous",
+            "bad",
         ),
-        ("Dangerous: gusts", dict(gust_kph=mph_to_kph(r.gust_red_from_mph)), "dangerous"),
+        ("Bad (dangerous): gusts", dict(gust_kph=mph_to_kph(r.gust_red_from_mph)), "bad"),
         (
-            "Dangerous: strong wind well off direction",
+            "Bad (dangerous): strong wind well off direction",
             dict(
                 ground_dir=180,
                 ground_kph=mph_to_kph(r.speed_orange_from_mph),
                 aloft_kph=mph_to_kph(r.speed_orange_from_mph),
             ),
-            "dangerous",
+            "bad",
         ),
-        ("Dangerous: heavy rain", dict(rain_mm_h=r.rain_heavy_mm_h), "dangerous"),
-        ("Dangerous: storm energy alone", dict(cape_j_kg=r.cape_storm_j_kg), "dangerous"),
+        ("Bad (dangerous): heavy rain", dict(rain_mm_h=r.rain_heavy_mm_h), "bad"),
+        ("Bad (dangerous): storm energy alone", dict(cape_j_kg=r.cape_storm_j_kg), "bad"),
         (
-            "Dangerous: moderate storm energy with rain",
+            "Bad (dangerous): moderate storm energy with rain",
             dict(cape_j_kg=r.cape_overdevelop_j_kg, rain_mm_h=r.rain_light_mm_h),
-            "dangerous",
+            "bad",
         ),
     ], base
 
@@ -182,16 +173,18 @@ def test_every_claim_in_the_guide_is_what_the_grading_does(rules):
 
 
 def test_worst_problem_sets_the_grade(rules):
-    # calm, aligned wind but a thunderstorm risk: Dangerous, as the Guide says
+    # calm, aligned wind but a thunderstorm risk: Bad, as the Guide says
     v, _ = grade_block(0, 3, 3, 90, 2000, rules, cape_j_kg=rules.cape_storm_j_kg)
-    assert v == "dangerous"
+    assert v == "bad"
 
 
 def test_hang_glider_limits_are_the_ones_the_guide_quotes(rules):
     kph = mph_to_kph(rules.hg_speed_orange_from_mph)
-    assert grade_block(0, kph, kph, 70, 1800, rules, "hg")[0] == "turbulent"
+    assert grade_block(0, kph, kph, 70, 1800, rules, "hg")[0] == "bad"
+    just_under = mph_to_kph(rules.hg_speed_orange_from_mph) - 3  # and a gust-safe wind is not
+    assert grade_block(0, just_under, just_under, 70, 1800, rules, "hg")[0] != "bad"
     kph = mph_to_kph(rules.hg_speed_red_from_mph)
-    assert grade_block(0, kph, kph, 70, 1800, rules, "hg")[0] == "dangerous"
+    assert grade_block(0, kph, kph, 70, 1800, rules, "hg")[0] == "bad"
 
 
 def test_shear_really_does_not_change_the_grade(rules):
@@ -205,7 +198,7 @@ def test_shear_really_does_not_change_the_grade(rules):
     assert calm.verdict_pg == sheared.verdict_pg  # shown, not graded
 
 
-@pytest.mark.parametrize("word", ["Ok", "Good", "Strong", "Poor", "Turbulent", "Dangerous"])
+@pytest.mark.parametrize("word", ["Ok", "Good", "Strong", "Poor", "Bad"])
 def test_each_grade_is_explained(fixture_path, site, rules, word):
     html = guide_html(fixture_path, site, rules)
     assert re.search(rf'<span class="pill {word.lower()}">.*?{word}</span>', html)

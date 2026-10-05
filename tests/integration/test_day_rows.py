@@ -19,11 +19,17 @@ def days(html):
     return re.findall(r'<details class="day"[^>]*>.*?</details>', html, flags=re.S)
 
 
-def test_one_expandable_row_per_day_first_open(fixture_path, site, rules):
+def test_one_expandable_row_per_day_all_collapsed(fixture_path, site, rules):
     rows = days(page(fixture_path, site, rules))
     assert len(rows) == DETAILED_DAYS == 4
-    assert rows[0].startswith('<details class="day" open>')
-    assert all(r.startswith('<details class="day">') for r in rows[1:])
+    assert all(r.startswith('<details class="day">') for r in rows)  # none has the open attribute
+
+
+def test_the_four_days_come_before_the_current_observations(fixture_path, site, rules):
+    html = page(fixture_path, site, rules)
+    assert html.index("Next 4 days") < html.index('<section id="now"')
+    assert html.index("Next 4 days") < html.index('<section aria-label="Weather station">')
+    assert html.index('<div class="sticky"') < html.index("Next 4 days")  # still below the header
 
 
 def test_row_header_has_nine_hourly_columns_from_ten_to_six(fixture_path, site, rules):
@@ -61,7 +67,7 @@ def test_header_shows_only_the_grade_icon(fixture_path, site, rules):
     summary = summary_of(row)
     assert summary.count('class="cicon g g-pg"') == 9 and summary.count('class="cicon g g-hg"') == 9
     text = visible_text(summary)
-    for word in ("PG", "HG", "Good", "Poor", "Turbulent", "Dangerous"):
+    for word in ("PG", "HG", "Good", "Poor", "Bad"):
         assert word not in text  # no label and no grade word on screen
     # both gliders, labelled, are in the expanded view
     assert len(re.findall(r'class="pill g g-pg ', row)) == 9  # a pill per glider; CSS shows one
@@ -71,7 +77,7 @@ def test_header_shows_only_the_grade_icon(fixture_path, site, rules):
 
 def test_header_icon_still_has_the_grade_as_text_for_screen_readers(fixture_path, site, rules):
     summary = summary_of(days(page(fixture_path, site, rules))[0])
-    for word in ("Good", "Poor", "Turbulent", "Dangerous"):
+    for word in ("Good", "Poor", "Bad"):
         assert f"Paraglider: {word}" in summary  # hidden text and tooltip
     assert 'title="Paraglider: ' in summary
 

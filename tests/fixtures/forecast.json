@@ -3,7 +3,7 @@
   "model": "NOAA GFS, WRF 4.6 (fixture)",
   "cycle": "2026-10-03T00Z",
   "generated_at": "2026-10-03T14:00:00+11:00",
-  "rules_version": 1,
+  "rules_version": 3,
   "blocks": [
     {
       "start": "2026-10-04T10:00:00+11:00",
@@ -42,7 +42,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -86,7 +86,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -130,7 +130,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -176,7 +176,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -220,7 +220,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -231,7 +231,7 @@
       "start": "2026-10-04T15:00:00+11:00",
       "wind_ground": {
         "dir_deg": 350,
-        "kph": 20
+        "kph": 18
       },
       "wind_aloft": {
         "dir_deg": 10,
@@ -243,29 +243,30 @@
       "updraft_ms": 2.66,
       "temp_ground_c": 15,
       "temp_air_c": 7.5,
-      "verdict_pg": "turbulent",
-      "verdict_hg": "strong",
+      "verdict_pg": "bad",
+      "verdict_hg": "good",
       "reasons": [
-        "Wind 22 kph is above 19 kph: may not suit novice pilots.",
+        "Wind 20 kph is above 19 kph: may not suit novice pilots.",
         "Wind from the N is inside the green sector.",
+        "Gusts to 29 kph: rough air likely.",
         "Some cloud shading (60% of the possible sun): thermals are a little weaker."
       ],
       "reasons_hg": [
-        "Wind 22 kph is in the green band.",
+        "Wind 20 kph is in the green band.",
         "Wind from the N is inside the green sector.",
         "Some cloud shading (60% of the possible sun): thermals are a little weaker.",
-        "Strong thermals (2.7 m/s) with a brisk wind of 22 kph: powerful and demanding. Experienced pilots only."
+        "Strong, workable thermals and no problems: a time to go flying."
       ],
       "rain_mm_h": 0,
       "cape_j_kg": 0,
       "gust_kph": 20,
       "wind_launch": {
         "dir_deg": 355,
-        "kph": 22
+        "kph": 20
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 22,
+      "gust_launch_kph": 29,
       "gust_aloft_kph": 25,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -309,7 +310,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -332,14 +333,14 @@
       "updraft_ms": 1.89,
       "temp_ground_c": 12,
       "temp_air_c": 6.4,
-      "verdict_pg": "dangerous",
-      "verdict_hg": "dangerous",
+      "verdict_pg": "bad",
+      "verdict_hg": "bad",
       "reasons": [
         "Wind 32 kph is at or above 23 kph: likely unsuitable for flying.",
         "Strong wind from the SSW is well outside the green sector.",
         "Heavy rain expected (2.3 mm/h).",
         "Thunderstorm risk (storm energy 900 J/kg).",
-        "Gusts to 40 kph: likely unsuitable for flying.",
+        "Gusts to 48 kph: likely unsuitable for flying.",
         "Gusts to 48 kph at thermal height: rough air aloft."
       ],
       "reasons_hg": [
@@ -347,8 +348,7 @@
         "Strong wind from the SSW is well outside the green sector.",
         "Heavy rain expected (2.3 mm/h).",
         "Thunderstorm risk (storm energy 900 J/kg).",
-        "Gusts to 40 kph: likely unsuitable for flying.",
-        "Gusts to 48 kph at thermal height: rough air aloft."
+        "Gusts to 48 kph: likely unsuitable for flying."
       ],
       "rain_mm_h": 2.3,
       "cape_j_kg": 900,
@@ -359,7 +359,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 40,
+      "gust_launch_kph": 48,
       "gust_aloft_kph": 48,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -403,7 +403,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -447,7 +447,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -491,7 +491,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -535,7 +535,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -579,7 +579,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -623,7 +623,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -641,22 +641,22 @@
         "kph": 14
       },
       "shear": "light",
-      "thermal_height_m": 1841,
+      "thermal_height_m": 1985,
       "thermal_quality_pct": 100,
-      "updraft_ms": 3.61,
+      "updraft_ms": 4.17,
       "temp_ground_c": 18,
-      "temp_air_c": 7.7,
+      "temp_air_c": 6.2,
       "verdict_pg": "strong",
       "verdict_hg": "strong",
       "reasons": [
         "Wind 14 kph is in the green band.",
         "Wind from the N is inside the green sector.",
-        "Powerful thermals (3.6 m/s): rewarding but demanding. Experienced pilots only."
+        "Powerful thermals (4.2 m/s): rewarding but demanding. Experienced pilots only."
       ],
       "reasons_hg": [
         "Wind 14 kph is in the green band.",
         "Wind from the N is inside the green sector.",
-        "Powerful thermals (3.6 m/s): rewarding but demanding. Experienced pilots only."
+        "Powerful thermals (4.2 m/s): rewarding but demanding. Experienced pilots only."
       ],
       "rain_mm_h": 0,
       "cape_j_kg": 0,
@@ -667,7 +667,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -711,7 +711,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -757,7 +757,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -801,7 +801,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -845,7 +845,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -863,22 +863,22 @@
         "kph": 14
       },
       "shear": "light",
-      "thermal_height_m": 1841,
+      "thermal_height_m": 1985,
       "thermal_quality_pct": 100,
-      "updraft_ms": 3.61,
+      "updraft_ms": 4.17,
       "temp_ground_c": 18,
-      "temp_air_c": 7.7,
+      "temp_air_c": 6.2,
       "verdict_pg": "strong",
       "verdict_hg": "strong",
       "reasons": [
         "Wind 14 kph is in the green band.",
         "Wind from the N is inside the green sector.",
-        "Powerful thermals (3.6 m/s): rewarding but demanding. Experienced pilots only."
+        "Powerful thermals (4.2 m/s): rewarding but demanding. Experienced pilots only."
       ],
       "reasons_hg": [
         "Wind 14 kph is in the green band.",
         "Wind from the N is inside the green sector.",
-        "Powerful thermals (3.6 m/s): rewarding but demanding. Experienced pilots only."
+        "Powerful thermals (4.2 m/s): rewarding but demanding. Experienced pilots only."
       ],
       "rain_mm_h": 0,
       "cape_j_kg": 0,
@@ -889,7 +889,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -933,7 +933,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -977,7 +977,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -1021,7 +1021,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -1032,7 +1032,7 @@
       "start": "2026-10-06T15:00:00+11:00",
       "wind_ground": {
         "dir_deg": 350,
-        "kph": 20
+        "kph": 18
       },
       "wind_aloft": {
         "dir_deg": 10,
@@ -1044,29 +1044,30 @@
       "updraft_ms": 2.66,
       "temp_ground_c": 15,
       "temp_air_c": 7.5,
-      "verdict_pg": "turbulent",
-      "verdict_hg": "strong",
+      "verdict_pg": "bad",
+      "verdict_hg": "good",
       "reasons": [
-        "Wind 22 kph is above 19 kph: may not suit novice pilots.",
+        "Wind 20 kph is above 19 kph: may not suit novice pilots.",
         "Wind from the N is inside the green sector.",
+        "Gusts to 29 kph: rough air likely.",
         "Some cloud shading (60% of the possible sun): thermals are a little weaker."
       ],
       "reasons_hg": [
-        "Wind 22 kph is in the green band.",
+        "Wind 20 kph is in the green band.",
         "Wind from the N is inside the green sector.",
         "Some cloud shading (60% of the possible sun): thermals are a little weaker.",
-        "Strong thermals (2.7 m/s) with a brisk wind of 22 kph: powerful and demanding. Experienced pilots only."
+        "Strong, workable thermals and no problems: a time to go flying."
       ],
       "rain_mm_h": 0,
       "cape_j_kg": 0,
       "gust_kph": 20,
       "wind_launch": {
         "dir_deg": 355,
-        "kph": 22
+        "kph": 20
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 22,
+      "gust_launch_kph": 29,
       "gust_aloft_kph": 25,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -1110,7 +1111,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -1133,14 +1134,14 @@
       "updraft_ms": 1.89,
       "temp_ground_c": 12,
       "temp_air_c": 6.4,
-      "verdict_pg": "dangerous",
-      "verdict_hg": "dangerous",
+      "verdict_pg": "bad",
+      "verdict_hg": "bad",
       "reasons": [
         "Wind 32 kph is at or above 23 kph: likely unsuitable for flying.",
         "Strong wind from the SSW is well outside the green sector.",
         "Heavy rain expected (2.3 mm/h).",
         "Thunderstorm risk (storm energy 900 J/kg).",
-        "Gusts to 40 kph: likely unsuitable for flying.",
+        "Gusts to 48 kph: likely unsuitable for flying.",
         "Gusts to 48 kph at thermal height: rough air aloft."
       ],
       "reasons_hg": [
@@ -1148,8 +1149,7 @@
         "Strong wind from the SSW is well outside the green sector.",
         "Heavy rain expected (2.3 mm/h).",
         "Thunderstorm risk (storm energy 900 J/kg).",
-        "Gusts to 40 kph: likely unsuitable for flying.",
-        "Gusts to 48 kph at thermal height: rough air aloft."
+        "Gusts to 48 kph: likely unsuitable for flying."
       ],
       "rain_mm_h": 2.3,
       "cape_j_kg": 900,
@@ -1160,7 +1160,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 40,
+      "gust_launch_kph": 48,
       "gust_aloft_kph": 48,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -1204,7 +1204,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -1248,7 +1248,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -1292,7 +1292,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -1336,7 +1336,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -1380,7 +1380,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -1424,7 +1424,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -1470,7 +1470,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -1514,7 +1514,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -1532,22 +1532,22 @@
         "kph": 14
       },
       "shear": "light",
-      "thermal_height_m": 1841,
+      "thermal_height_m": 1985,
       "thermal_quality_pct": 100,
-      "updraft_ms": 3.61,
+      "updraft_ms": 4.17,
       "temp_ground_c": 18,
-      "temp_air_c": 7.7,
+      "temp_air_c": 6.2,
       "verdict_pg": "strong",
       "verdict_hg": "strong",
       "reasons": [
         "Wind 14 kph is in the green band.",
         "Wind from the N is inside the green sector.",
-        "Powerful thermals (3.6 m/s): rewarding but demanding. Experienced pilots only."
+        "Powerful thermals (4.2 m/s): rewarding but demanding. Experienced pilots only."
       ],
       "reasons_hg": [
         "Wind 14 kph is in the green band.",
         "Wind from the N is inside the green sector.",
-        "Powerful thermals (3.6 m/s): rewarding but demanding. Experienced pilots only."
+        "Powerful thermals (4.2 m/s): rewarding but demanding. Experienced pilots only."
       ],
       "rain_mm_h": 0,
       "cape_j_kg": 0,
@@ -1558,7 +1558,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -1602,7 +1602,7 @@
       },
       "thermal_source": "gfs",
       "thermal_run": "",
-      "gust_launch_kph": 14,
+      "gust_launch_kph": 21,
       "gust_aloft_kph": 18,
       "wind_ausrasp_kph": null,
       "wind_top_kph": null,
@@ -1617,11 +1617,11 @@
         "dir_deg": 200,
         "kph": 25
       },
-      "verdict": "dangerous",
+      "verdict": "bad",
       "confidence": "low",
       "rain_mm_h": 2.0,
       "cape_j_kg": 900,
-      "verdict_hg": "dangerous",
+      "verdict_hg": "bad",
       "thermal_source": "gfs"
     },
     {
@@ -1630,7 +1630,7 @@
         "dir_deg": 10,
         "kph": 22
       },
-      "verdict": "turbulent",
+      "verdict": "bad",
       "confidence": "low",
       "rain_mm_h": 0.0,
       "cape_j_kg": 0.0,
@@ -1651,5 +1651,5 @@
       "thermal_source": "gfs"
     }
   ],
-  "schema": 3
+  "schema": 4
 }

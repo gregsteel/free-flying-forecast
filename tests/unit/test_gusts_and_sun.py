@@ -22,9 +22,10 @@ def block(rules, *, thermal=None, ground=10, aloft=14, launch=12, gust=0, sun=No
 # ---- estimating gusts
 
 
-def test_the_launch_gust_is_at_least_the_model_gust_and_the_launch_wind(rules):
-    assert estimate_gusts(30, 20, 20, rules)[0] == 30  # the model's gust is larger
-    assert estimate_gusts(0, 20, 20, rules)[0] == 20  # no extra wind aloft: the launch wind
+def test_the_launch_gust_is_at_least_the_model_gust_and_a_multiple_of_the_launch_wind(rules):
+    assert estimate_gusts(40, 20, 20, rules)[0] == 40  # the model's gust is larger
+    # no extra wind aloft and no model gust: the floor, a multiple of the launch wind
+    assert estimate_gusts(0, 20, 20, rules)[0] == pytest.approx(20 * rules.gust_factor_floor)
 
 
 def test_faster_air_at_the_top_of_the_thermals_raises_the_launch_gust(rules):
@@ -34,7 +35,15 @@ def test_faster_air_at_the_top_of_the_thermals_raises_the_launch_gust(rules):
 
 
 def test_slower_air_aloft_never_lowers_the_launch_gust(rules):
-    assert estimate_gusts(10, 20, 5, rules)[0] == 20
+    assert estimate_gusts(10, 20, 5, rules)[0] == pytest.approx(20 * rules.gust_factor_floor)
+
+
+def test_monday_noon_gusts_reach_what_the_station_measured(rules):
+    """2026-10-05 12:00: AUSRASP 18 kph at 10 m and 32 kph at the top of the thermals; the station
+    measured gusts of 29 to 31 kph. The estimate had been 25 kph, a kph under the Turbulent limit."""
+    launch_gust, _ = estimate_gusts(15, 18, 32, rules)
+    assert launch_gust >= 27
+    assert grade_weather(0, 0, launch_gust, rules)[0][0] == "turbulent"
 
 
 # ---- grading on gusts aloft
@@ -84,7 +93,7 @@ def test_no_sun_figure_leaves_the_block_alone(rules):
 def test_a_stronger_ausrasp_wind_is_graded_on_and_says_so(rules):
     t = Thermal(1800, 2, "r", sfc_wind_ms=8.0, top_wind_ms=10.0, sun_pct=90.0)  # 29 kph at 10 m
     b = block(rules, thermal=t, launch=8)
-    assert b.verdict_pg in ("turbulent", "dangerous")
+    assert b.verdict_pg == "bad"
     assert any("AUSRASP's regional model" in r for r in b.reasons)
     assert b.wind_ausrasp_kph == 29 and b.wind_top_kph == 36
 
@@ -105,7 +114,7 @@ def test_a_block_with_a_big_wind_aloft_is_called_rough_even_with_a_light_surface
     t = Thermal(1800, 2, "r", sfc_wind_ms=2.0, top_wind_ms=16.0, sun_pct=90.0)  # 58 kph aloft
     b = block(rules, thermal=t, ground=5, aloft=14, launch=6)
     assert b.gust_aloft_kph == round(16 * 3.6 * rules.gust_aloft_factor)
-    assert b.verdict_pg == "dangerous" and any("thermal height" in r for r in b.reasons)
+    assert b.verdict_pg == "bad" and any("thermal height" in r for r in b.reasons)
 
 
 # ---- the rules file
@@ -138,3 +147,35 @@ def test_bad_gust_and_sun_values_are_refused(tmp_path):
         text = ok.replace(bad, f"{bad.split(' =')[0]} = {value}")
         with pytest.raises(ConfigError, match=match):
             load_rules(write(tmp_path, text))
+
+
+# ---- hang gliders cope with more gust, as they do with more wind
+
+
+def test_hang_glider_gust_limits_are_scaled_by_their_wind_bands(rules):
+    from ffforecast.grading import gust_limits_mph
+
+    pg = gust_limits_mph(rules, "pg")
+    hg = gust_limits_mph(rules, "hg")
+    assert pg[:2] == (rules.gust_orange_from_mph, rules.gust_red_from_mph)
+    assert hg[0] == pytest.approx(rules.gust_orange_from_mph * 14 / 12)
+    assert hg[1] == pytest.approx(rules.gust_red_from_mph * 20 / 14)
+    assert all(h > p for h, p in zip(hg, pg, strict=True))
+
+
+def test_a_gust_that_is_bad_for_a_paraglider_can_be_fine_for_a_hang_glider(rules):
+    gust_kph = 28.0  # 17.4 mph: over the paraglider limit (16), under the hang glider's (18.7)
+    assert grade_weather(0, 0, gust_kph, rules, glider="pg")[0][0] == "turbulent"
+    assert grade_weather(0, 0, gust_kph, rules, glider="hg") == []
+
+
+def test_the_floor_does_not_make_a_hang_glider_wind_band_meaningless(rules):
+    """The gust floor (1.5 x the wind) passes the paraglider gust limit below the paraglider wind
+    limit; scaling the hang glider's limits keeps its higher wind tolerance."""
+    wind = (
+        19.5  # kph: just over the paraglider wind limit (12 mph), well under the hang glider's (14)
+    )
+    b = build_block(
+        START, Wind(350, wind), Wind(10, wind), 1500, 380, 16, 785, rules, launch=Wind(350, wind)
+    )
+    assert b.verdict_pg == "bad" and b.verdict_hg != "bad"

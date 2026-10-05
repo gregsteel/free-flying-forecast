@@ -27,4 +27,4 @@ def test_strong_wind_is_not_good(rules):
     out = outlook_from_samples(
         [sample(2, v=-12.0)], rules, "Australia/Melbourne", 785, "2026-10-07"
     )  # 43 kph northerly
-    assert out[0].verdict == "dangerous"
+    assert out[0].verdict == "bad"

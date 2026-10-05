@@ -14,7 +14,7 @@ What is scored, forecast minus measured (so a positive bias means the forecast w
 - thermal height against the cumulus base the station works out (meaningful only when the forecast
   height is near it, so only blocks within 300 m below it or above are counted);
 - wind direction at launch (only when the wind was at least 5 kph);
-- "rough air": whether the forecast and the measurement were each at or over the Turbulent wind or gust
+- "rough air": whether the forecast and the measurement were each at or over the Bad wind or gust
   limit, as hits, false alarms, misses and quiet days.
 """
 
@@ -266,7 +266,7 @@ def format_report(result: dict, show_blocks: bool = False) -> str:
         )
         r = s["rough_air"]
         lines.append(
-            f"  Rough air (wind or gust at the Turbulent limit): {r['hit']} hits, "
+            f"  Rough air (wind or gust at the Bad limit): {r['hit']} hits, "
             f"{r['false_alarm']} false alarms, {r['miss']} misses, {r['quiet']} quiet"
         )
         if s["coarse_blocks"]:

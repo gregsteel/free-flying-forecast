@@ -96,7 +96,7 @@ def test_only_thermals_wind_and_sun_are_asked_of_ausrasp(setup):
     run_all(build(), tmp / "staging")
     asked = {p.split("/FCST/")[1].split(".")[0] for p, _ in world.requests if "/FCST/" in p}
     # nothing about rain, cape or temperature; its wind only feeds the gust estimate
-    assert asked == {"hglider", "wstar", "sfcwindspd", "bltopwindspd", "sfcsunpct"}
+    assert asked == {"hglider", "wstar", "sfcwindspd", "bltopwindspd", "sfcsunpct", "blcloudpct"}
 
 
 def test_the_wind_and_sun_files_can_be_switched_off(setup, site):

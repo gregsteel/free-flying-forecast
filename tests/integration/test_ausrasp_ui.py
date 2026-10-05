@@ -38,18 +38,21 @@ def guide(html, glider="pg"):
 
 
 def header(html):
-    start = html.index('<div class="sticky" id="sticky">')
-    return text(html[start : html.index('<div class="top">')])
+    """The update line, which sits at the top of the footer."""
+    m = re.search(r'<p class="muted">(Updated .*?)</p>', html, flags=re.S)
+    assert m is not None
+    assert html.index(m.group(0)) > html.index("<footer>")
+    return text(m.group(1))
 
 
-def test_the_header_names_the_thermal_source_and_the_run(fixture_path, site, rules):
+def test_the_update_line_names_the_thermal_source_and_the_run(fixture_path, site, rules):
     h = header(page(fixture_path, site, rules, all_ausrasp))
     assert "Updated " in h and "Model: " in h and ", run " in h
     assert "Thermals: AUSRASP, run Fri 2 Oct 22:00 AEST." in h
     assert "estimate" not in h
 
 
-def test_the_header_says_estimate_when_there_is_no_ausrasp(fixture_path, site, rules):
+def test_the_update_line_says_estimate_when_there_is_no_ausrasp(fixture_path, site, rules):
     h = header(page(fixture_path, site, rules))
     assert "Thermals: estimate from the global model." in h
 
@@ -100,7 +103,7 @@ def test_the_guide_quotes_the_whole_number_limits_when_ausrasp_is_the_source(
 
 def test_the_guide_keeps_the_estimate_limits_when_there_is_no_ausrasp(fixture_path, site, rules):
     pg = guide(page(fixture_path, site, rules))
-    assert "2.5 m/s" in pg and "3.5 m/s" in pg
+    assert "2.5 m/s" in pg and "4.0 m/s" in pg
 
 
 def test_a_mixed_page_explains_both_sets_of_limits(fixture_path, site, rules):

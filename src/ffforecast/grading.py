@@ -6,13 +6,19 @@ from .config import Rules
 from .units import angle_diff, deg_to_compass, kph_to_mph, mph_to_kph
 
 # Worse problems have higher rank. "ok" means no problem was found; the thermals then decide
-# between Ok, Good and Strong (or Poor).
+# between Ok, Good and Strong (or Poor). "turbulent" and "dangerous" are how bad a problem is: the
+# grade a block gets for either is Bad (see `_grade`), and the reasons keep the difference.
 _RANK = {"ok": 0, "poor": 1, "turbulent": 2, "dangerous": 3}
 
 
 def _ms(v: float) -> str:
     """An updraft for a sentence: whole numbers (AUSRASP's) without a false decimal."""
     return f"{v:.0f}" if float(v).is_integer() else f"{v:.1f}"
+
+
+def _grade(state: str) -> str:
+    """The grade for a problem state: Turbulent and Dangerous are both Bad."""
+    return "bad" if state in ("turbulent", "dangerous") else state
 
 
 def worst(a: str, b: str) -> str:
@@ -70,12 +76,30 @@ def grade_direction(
     return "poor", f"Wind from the {name} is outside the green sector."
 
 
+def gust_limits_mph(rules: Rules, glider: str = "pg") -> tuple[float, float, float, float]:
+    """(gust at launch: orange, red; gust at thermal height: orange, red), in mph. Hang gliders cope
+    with more gust as they do with more wind: their limits are the paraglider's scaled by the ratio of
+    the two wind bands."""
+    if glider == "hg":
+        o = rules.hg_speed_orange_from_mph / rules.speed_orange_from_mph
+        r = rules.hg_speed_red_from_mph / rules.speed_red_from_mph
+    else:
+        o = r = 1.0
+    return (
+        rules.gust_orange_from_mph * o,
+        rules.gust_red_from_mph * r,
+        rules.gust_aloft_orange_from_mph * o,
+        rules.gust_aloft_red_from_mph * r,
+    )
+
+
 def grade_weather(
     rain_mm_h: float,
     cape_j_kg: float,
     gust_kph: float,
     rules: Rules,
     gust_aloft_kph: float = 0.0,
+    glider: str = "pg",
 ) -> list[tuple[str, str]]:
     """Rain, storm and gust states as (state, reason) pairs; only problems are reported.
     States use the same vocabulary as the wind grades ('poor', 'turbulent', 'dangerous')."""
@@ -89,20 +113,21 @@ def grade_weather(
         out.append(("dangerous", f"Thunderstorm risk (storm energy {cape_j_kg:.0f} J/kg)."))
     elif cape_j_kg >= rules.cape_overdevelop_j_kg:
         out.append(("turbulent", f"Overdevelopment risk (storm energy {cape_j_kg:.0f} J/kg)."))
+    orange, red, aloft_orange, aloft_red = gust_limits_mph(rules, glider)
     gust_mph = kph_to_mph(gust_kph)
-    if gust_mph >= rules.gust_red_from_mph:
+    if gust_mph >= red:
         out.append(("dangerous", f"Gusts to {gust_kph:.0f} kph: likely unsuitable for flying."))
-    elif gust_mph >= rules.gust_orange_from_mph:
+    elif gust_mph >= orange:
         out.append(("turbulent", f"Gusts to {gust_kph:.0f} kph: rough air likely."))
     aloft_mph = kph_to_mph(gust_aloft_kph)
-    if aloft_mph >= rules.gust_aloft_red_from_mph:
+    if aloft_mph >= aloft_red:
         out.append(
             (
                 "dangerous",
                 f"Gusts to {gust_aloft_kph:.0f} kph at thermal height: violent air aloft.",
             )
         )
-    elif aloft_mph >= rules.gust_aloft_orange_from_mph:
+    elif aloft_mph >= aloft_orange:
         out.append(
             ("turbulent", f"Gusts to {gust_aloft_kph:.0f} kph at thermal height: rough air aloft.")
         )
@@ -111,10 +136,6 @@ def grade_weather(
 
 def _to_verdict(state: str) -> str:
     return state
-
-
-def strong_wind_mph(rules: Rules, glider: str) -> float:
-    return rules.hg_strong_wind_from_mph if glider == "hg" else rules.strong_wind_from_mph
 
 
 def grade_block(
@@ -163,7 +184,9 @@ def grade_block(
         verdict = worst(verdict, _to_verdict(state))
         reasons.append(reason)
 
-    for state, reason in grade_weather(rain_mm_h, cape_j_kg, gust_kph, rules, gust_aloft_kph):
+    for state, reason in grade_weather(
+        rain_mm_h, cape_j_kg, gust_kph, rules, gust_aloft_kph, glider
+    ):
         verdict = worst(verdict, _to_verdict(state))
         reasons.append(reason)
 
@@ -177,7 +200,7 @@ def grade_block(
         )
 
     if verdict != "ok":
-        return verdict, reasons
+        return _grade(verdict), reasons
 
     if (
         thermal_quality_pct < rules.thermal_ok_quality_pct
@@ -190,17 +213,10 @@ def grade_block(
         return "poor", reasons
 
     strong = updraft_ms is not None and updraft_ms >= good_u
-    brisk = kph_to_mph(ground_kph) >= strong_wind_mph(rules, glider)
     if updraft_ms is not None and updraft_ms >= strong_u:
         reasons.append(
             f"Powerful thermals ({_ms(updraft_ms)} m/s): rewarding but demanding. "
             "Experienced pilots only."
-        )
-        return "strong", reasons
-    if strong and brisk and thermal_quality_pct >= rules.thermal_good_quality_pct:
-        reasons.append(
-            f"Strong thermals ({_ms(updraft_ms or 0.0)} m/s) with a brisk wind of {ground_kph:.0f} kph: "
-            "powerful and demanding. Experienced pilots only."
         )
         return "strong", reasons
     if thermal_quality_pct >= rules.thermal_good_quality_pct and (updraft_ms is None or strong):

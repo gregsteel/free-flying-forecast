@@ -72,9 +72,9 @@ def test_ausrasp_good_needs_three_not_two_and_a_half(rules):
 
 def test_wind_still_wins_over_ausrasp_thermals(rules, site):
     b = block(rules, site, Thermal(2200.0, 5.0, RUN), wind=40.0)
-    assert b.verdict_pg in ("turbulent", "dangerous")
+    assert b.verdict_pg == "bad"
     r = block(rules, site, Thermal(2200.0, 5.0, RUN), rain_mm_h=2.0)
-    assert r.verdict_pg == "dangerous"
+    assert r.verdict_pg == "bad"
 
 
 def sample(day, hour_utc):

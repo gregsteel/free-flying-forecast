@@ -14,6 +14,7 @@ from markupsafe import Markup, escape
 
 from .config import Rules, Site
 from .gfs import BLOCK_HOURS
+from .grading import gust_limits_mph
 from .models import DETAILED_DAYS, OUTLOOK_DAYS, Forecast, Wind
 from .units import (
     FT_PER_M,
@@ -38,18 +39,33 @@ ICONS = {
     "ok": "\U0001f44c",  # OK hand
     "good": "\U0001f44d",  # thumbs up
     "strong": "\U0001f525",
-    "poor": "\U0001f7e1",
-    "turbulent": "\U0001f7e0",
-    "dangerous": "⛔",
+    # Poor is the thumbs-up turned on its side (there is no sideways thumb emoji): the same picture as
+    # the others, so it matches them in every font. The page's CSS does the turning.
+    "poor": Markup('<span class="sideways">\U0001f44d</span>'),
+    "bad": "\U0001f44e",  # thumbs down: rough air and dangerous conditions are one grade
 }
 LABELS = {
     "ok": "Ok",
     "good": "Good",
     "strong": "Strong",
     "poor": "Poor",
-    "turbulent": "Turbulent",
-    "dangerous": "Dangerous",
+    "bad": "Bad",
 }
+# Sunshine reaching the ground: how much of the sun a block gets, as an icon and a few words
+SUN_SUNNY, SUN_PARTLY, SUN_SHADED = "\u2600\ufe0f", "\u26c5", "\u2601\ufe0f"
+
+
+def sun_indicator(sun_pct: int | None, rules: Rules) -> tuple[str, str]:
+    """(icon, words) for a block's sunshine, or ('', '') when it is not known."""
+    if sun_pct is None:
+        return "", ""
+    if sun_pct >= rules.sun_full_pct:
+        return SUN_SUNNY, f"Sunny: {sun_pct}% of the possible sun reaches the ground"
+    if sun_pct >= rules.sun_shaded_pct:
+        return SUN_PARTLY, f"Some cloud shading: {sun_pct}% of the possible sun reaches the ground"
+    return SUN_SHADED, f"Mostly shaded: only {sun_pct}% of the possible sun reaches the ground"
+
+
 TEMPLATE_DIR = Path(__file__).resolve().parents[2] / "templates"
 
 
@@ -198,6 +214,16 @@ def _wind(w: Wind) -> Markup:
     return Markup(f"{deg_to_compass(w.dir_deg)} ") + spd(w.kph)
 
 
+def _gust_limits(rules: Rules, glider: str) -> dict[str, Markup]:
+    o, r, ao, ar = gust_limits_mph(rules, glider)
+    return {
+        "gust_orange": spd(mph_to_kph(o)),
+        "gust_red": spd(mph_to_kph(r)),
+        "gust_aloft_orange": spd(mph_to_kph(ao)),
+        "gust_aloft_red": spd(mph_to_kph(ar)),
+    }
+
+
 def _label(verdict: str) -> str:
     return LABELS[verdict]
 
@@ -243,6 +269,7 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
                 "blocks": [],
             },
         )
+        sun_icon, sun_words = sun_indicator(b.sun_pct, rules)
         day["blocks"].append(
             {
                 "time": start.strftime("%H:%M"),  # 24-hour key for the slot lookup
@@ -292,7 +319,11 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
                 "gusts": spd_short(b.gust_kph) if b.gust_kph > 0 else Markup("not available"),
                 "gusts_launch": _est(b.gust_launch_kph),
                 "gusts_aloft": _est(b.gust_aloft_kph),
-                "sun": f"{b.sun_pct}%" if b.sun_pct is not None else Markup("not available"),
+                "sun": f"{sun_icon} {b.sun_pct}%"
+                if b.sun_pct is not None
+                else Markup("not available"),
+                "sun_icon": sun_icon,
+                "sun_title": sun_words,
                 "storm": b.cape_j_kg >= rules.cape_overdevelop_j_kg,
                 "reasons": [unitise(r) for r in b.reasons],
             }
@@ -375,14 +406,14 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
         "icons": ICONS,
         "limits": {
             "pg": {
-                "strong": spd(mph_to_kph(rules.strong_wind_from_mph)),
                 "orange": spd(mph_to_kph(rules.speed_orange_from_mph)),
                 "red": spd(mph_to_kph(rules.speed_red_from_mph)),
+                **_gust_limits(rules, "pg"),
             },
             "hg": {
-                "strong": spd(mph_to_kph(rules.hg_strong_wind_from_mph)),
                 "orange": spd(mph_to_kph(rules.hg_speed_orange_from_mph)),
                 "red": spd(mph_to_kph(rules.hg_speed_red_from_mph)),
+                **_gust_limits(rules, "hg"),
             },
         },
         "station_charts": site.station_charts,

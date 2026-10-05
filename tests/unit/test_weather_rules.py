@@ -39,7 +39,7 @@ def test_gust_bands(rules):
 def test_todays_real_case_is_not_good(rules):
     # GFS at the launch at 11:00 on 3 Oct 2026: 2.3 mm/h, CAPE 648, light wind in the sector.
     v, reasons = grade_block(350, 5, 8, 60, 1500, rules, rain_mm_h=2.3, cape_j_kg=648, gust_kph=7)
-    assert v == "dangerous"
+    assert v == "bad"
     assert any("Heavy rain" in r for r in reasons) and any("Thunderstorm" in r for r in reasons)
 
 
@@ -50,7 +50,7 @@ def test_rain_beats_ok_thermals(rules):
 
 def test_hang_gliders_also_stop_for_storms(rules):
     v, _ = grade_block(0, 10, 10, 90, 2000, rules, "hg", cape_j_kg=1500)
-    assert v == "dangerous"
+    assert v == "bad"
 
 
 def test_thresholds_are_tunable(rules):

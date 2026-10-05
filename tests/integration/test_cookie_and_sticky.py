@@ -68,20 +68,20 @@ def test_every_setting_is_covered_by_the_cookie(fixture_path, site, rules):
 # ---- pinned header ------------------------------------------------------------------------------
 
 
-def test_title_settings_update_time_and_alert_are_pinned(fixture_path, site, rules):
+def test_title_settings_and_alerts_are_pinned_and_the_update_time_is_not(fixture_path, site, rules):
     html = page(fixture_path, site, rules)
     start = html.index('<div class="sticky" id="sticky">')
-    end = html.index('<div class="top">')
+    end = html.index("<h2>Next 4 days</h2>")  # the content starts here
     pinned = html[start:end]
     for part in (
         "<h1>",
         'class="glider"',
         '<details class="menu"',
-        "Updated ",
-        'role="alert"',
         'id="stale"',
     ):
         assert part in pinned
+    assert "Updated " not in pinned  # the update line is in the footer
+    assert "This page was made for my own use" not in pinned
     assert "Next 4 days" not in pinned and 'id="now"' not in pinned  # the content scrolls
     assert "position:sticky;top:0" in html and "z-index:30" in html
 

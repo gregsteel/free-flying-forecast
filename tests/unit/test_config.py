@@ -6,7 +6,7 @@ from ffforecast.config import ConfigError, load_rules, load_site
 
 
 def test_loads_real_files(rules, site):
-    assert rules.version == 2
+    assert rules.version == 3
     assert rules.speed_orange_from_mph == 12 and rules.speed_red_from_mph == 14
     assert rules.sector_center_deg == 0 and rules.sector_half_width_deg == 40
     assert site.lat == pytest.approx(-36.7584099)
@@ -86,8 +86,8 @@ def test_old_rules_without_the_calibration_still_load(tmp_path):
 
 def test_tier_thresholds_loaded(rules):
     assert rules.thermal_ok_quality_pct == 40 and rules.thermal_good_quality_pct == 70
-    assert rules.thermal_good_updraft_ms == 2.5 and rules.thermal_strong_updraft_ms == 3.5
-    assert rules.strong_wind_from_mph == 9 and rules.hg_strong_wind_from_mph == 11
+    assert rules.thermal_good_updraft_ms == 2.5 and rules.thermal_strong_updraft_ms == 4.0
+    assert not hasattr(rules, "strong_wind_from_mph")  # a brisk wind no longer makes a block Strong
 
 
 @pytest.mark.parametrize(
@@ -96,9 +96,7 @@ def test_tier_thresholds_loaded(rules):
         ("good_quality_pct = 70", "good_quality_pct = 30", "good_quality_pct"),
         ("good_quality_pct = 70", "good_quality_pct = 120", "good_quality_pct"),
         ("good_updraft_ms = 2.5", "good_updraft_ms = 4.0", "good_updraft_ms"),
-        ("strong_updraft_ms = 3.5", "strong_updraft_ms = 1.0", "strong_updraft_ms"),
-        ("\nstrong_wind_from_mph = 9", "\nstrong_wind_from_mph = 13", "strong_wind_from_mph"),
-        ("hg_strong_wind_from_mph = 11", "hg_strong_wind_from_mph = 15", "hg_strong_wind"),
+        ("\nstrong_updraft_ms = 4\n", "\nstrong_updraft_ms = 1.0\n", "strong_updraft_ms"),
     ],
 )
 def test_tier_thresholds_must_be_in_a_sensible_order(tmp_path, old, new, match):
@@ -113,14 +111,12 @@ def test_tier_thresholds_must_be_in_a_sensible_order(tmp_path, old, new, match):
 def test_rules_without_the_tier_thresholds_use_the_defaults(tmp_path):
     text = Path(__file__).resolve().parents[2].joinpath("config/rules.toml").read_text()
     text = "\n".join(
-        line
-        for line in text.splitlines()
-        if not line.startswith(("good_", "strong_updraft", "strong_wind", "hg_strong_"))
+        line for line in text.splitlines() if not line.startswith(("good_", "strong_updraft"))
     )
     p = tmp_path / "r.toml"
     p.write_text(text)
     r = load_rules(p)
-    assert r.thermal_good_quality_pct == 70 and r.thermal_strong_updraft_ms == 3.5
+    assert r.thermal_good_quality_pct == 70 and r.thermal_strong_updraft_ms == 4.0
 
 
 SITE = Path(__file__).resolve().parents[2].joinpath("config/site.mystic.toml")

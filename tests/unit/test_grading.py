@@ -40,14 +40,14 @@ def test_weak_thermals_make_poor(rules):
 
 def test_aloft_wind_counts(rules):
     v, reasons = grade_block(0, 10, mph_to_kph(15), 90, 2000, rules)
-    assert v == "dangerous" and any(r.startswith("Aloft") for r in reasons)
+    assert v == "bad" and any(r.startswith("Aloft") for r in reasons)
 
 
 def test_hang_gliders_graded_separately(rules):
-    kph = mph_to_kph(16)
+    kph = mph_to_kph(13)  # over the paraglider limit (12 mph), under the hang glider's (14)
     pg, _ = grade_block(0, kph, kph, 90, 2000, rules, "pg")
     hg, _ = grade_block(0, kph, kph, 90, 2000, rules, "hg")
-    assert pg == "dangerous" and hg == "turbulent"
+    assert pg == "bad" and hg == "good"
 
 
 def test_reasons_always_present(rules):
@@ -58,4 +58,4 @@ def test_reasons_always_present(rules):
 def test_threshold_change_changes_verdict(rules):
     stricter = dataclasses.replace(rules, speed_orange_from_mph=5, speed_red_from_mph=20)
     assert grade_block(0, 12, 12, 90, 2000, rules)[0] == "good"
-    assert grade_block(0, 12, 12, 90, 2000, stricter)[0] == "turbulent"
+    assert grade_block(0, 12, 12, 90, 2000, stricter)[0] == "bad"

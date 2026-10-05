@@ -20,7 +20,7 @@ def test_page_small_and_complete(fixture_path, site, rules):
 
 def test_every_verdict_has_text_not_just_colour(fixture_path, site, rules):
     html = render_page(load(fixture_path), site, rules)
-    for label in ("Good", "Poor", "Turbulent", "Dangerous"):
+    for label in ("Good", "Poor", "Bad"):
         assert f"{label}</a>" in html  # the grade word appears on the grade pills
 
 

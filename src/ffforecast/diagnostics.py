@@ -68,10 +68,12 @@ def estimate_gusts(
 
     The global model gives a gust only 10 m above the ground. At launch the gusts are at least that,
     and thermals mix some of the faster air from the top of the boundary layer down: so the launch
-    gust is the launch wind plus a fraction of the difference. At the top of the thermals the gust
+    gust is the launch wind plus a fraction of the difference, and never less than a fixed multiple of
+    the launch wind (daytime gusts run well above the average). At the top of the thermals the gust
     is the mean wind there times a gust factor. These are rules of thumb, not model output."""
     mix = max(top_kph - launch_kph, 0.0) * rules.gust_mix_fraction
-    return max(gust10_kph, launch_kph + mix), top_kph * rules.gust_aloft_factor
+    floor = launch_kph * rules.gust_factor_floor
+    return max(gust10_kph, launch_kph + mix, floor), top_kph * rules.gust_aloft_factor
 
 
 def sun_from_cloud(low: float, mid: float, high: float, rules: Rules) -> float:
@@ -131,7 +133,9 @@ def build_block(
     rasp_ground = thermal.sfc_wind_ms * 3.6 if thermal and thermal.sfc_wind_ms is not None else None
     rasp_top = thermal.top_wind_ms * 3.6 if thermal and thermal.top_wind_ms is not None else None
     if thermal is not None and thermal.sun_pct is not None:
-        sun, sun_source = thermal.sun_pct, "ausrasp"
+        # AUSRASP's sunshine leaves out the cumulus it forecasts in the thermals: take that shade off
+        cover = (thermal.bl_cloud_pct or 0.0) / 100
+        sun, sun_source = thermal.sun_pct * (1 - rules.cumulus_shade * cover), "ausrasp"
     elif sun_pct_gfs is not None:
         sun, sun_source = sun_pct_gfs, "gfs"
     else:

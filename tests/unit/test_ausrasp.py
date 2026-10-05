@@ -123,8 +123,8 @@ def test_first_refresh_stores_every_day_and_the_lookup_returns_the_cell_values(
     assert r.changed == [f"OUT+{n}" for n in range(7)] and not r.reason
     paths = [p for p, _ in world.requests]
     assert paths[:2] == ["latlon2d.json", "version.json"]
-    # nine hours: two quantities for seven days, and three more (wind, wind aloft, sun) for four
-    assert len(paths) == 2 + 7 * 2 * HOURS + 4 * 3 * HOURS
+    # nine hours: two quantities for seven days, and four more (wind, wind aloft, sun, cloud) for four
+    assert len(paths) == 2 + 7 * 2 * HOURS + 4 * 4 * HOURS
     lookup, notes = thermal_lookup(tmp_path, cfg, NOW)
     t = lookup[datetime(2026, 10, 4, 4, tzinfo=UTC)]  # local 15:00 on the 4th
     assert (t.height_m, t.updraft_ms) == (1800, 2) and t.run == "2026-10-02T12:00:00Z"
@@ -147,7 +147,7 @@ def test_only_the_day_whose_stamp_changed_is_fetched(site, cfg, tmp_path, world)
     r = run_refresh(cfg, site, tmp_path, world, LATER)
     assert r.changed == ["OUT+2"]
     paths = [p for p, _ in world.requests]
-    assert len(paths) == 1 + 5 * HOURS and all(p.startswith("OUT+2/") for p in paths[1:])
+    assert len(paths) == 1 + 6 * HOURS and all(p.startswith("OUT+2/") for p in paths[1:])
     lookup, _ = thermal_lookup(tmp_path, cfg, NOW)
     assert lookup[datetime(2026, 10, 5, 4, tzinfo=UTC)].height_m == 1500
 
@@ -534,6 +534,7 @@ def test_a_day_stored_before_the_extras_existed_is_fetched_again(site, cfg, tmp_
     path = ausrasp.day_path(store_dir(tmp_path), "OUT+1")
     day = json.loads(path.read_text())
     day.pop("extras")
+    day.pop("extras_v")
     for v in day["values"].values():
         for k in ("sfc_wind_ms", "top_wind_ms", "sun_pct"):
             v.pop(k, None)
@@ -541,4 +542,33 @@ def test_a_day_stored_before_the_extras_existed_is_fetched_again(site, cfg, tmp_
     world.requests.clear()
     r = run_refresh(cfg, site, tmp_path, world, LATER)
     assert r.changed == ["OUT+1"]
-    assert len([p for p, _ in world.requests]) == 1 + 5 * HOURS
+    assert len([p for p, _ in world.requests]) == 1 + 6 * HOURS
+
+
+def test_a_day_stored_with_the_first_extras_is_fetched_again_for_the_cloud_cover(
+    site, cfg, tmp_path, world
+):
+    run_refresh(cfg, site, tmp_path, world)
+    path = ausrasp.day_path(store_dir(tmp_path), "OUT+1")
+    day = json.loads(path.read_text())
+    day["extras_v"] = 1  # wind and sun, but not yet the boundary layer cloud
+    path.write_text(json.dumps(day))
+    world.requests.clear()
+    assert run_refresh(cfg, site, tmp_path, world, LATER).changed == ["OUT+1"]
+
+
+def test_cumulus_cover_is_stored_and_shades_the_sun(site, cfg, tmp_path, world, rules):
+    from ffforecast.diagnostics import build_block
+    from ffforecast.models import Wind
+
+    world.sun = lambda key, hhmm: 98.0
+    world.bl_cloud = lambda key, hhmm: 80.0
+    run_refresh(cfg, site, tmp_path, world)
+    lookup, _ = thermal_lookup(tmp_path, cfg, NOW)
+    t = lookup[datetime(2026, 10, 4, 4, tzinfo=UTC)]
+    assert t.bl_cloud_pct == 80.0
+    b = build_block(
+        datetime(2026, 10, 4, 15, tzinfo=UTC), Wind(350, 8), Wind(10, 10), 1500, 300, 16, 785, rules,
+        launch=Wind(350, 9), thermal=t,
+    )  # fmt: skip
+    assert b.sun_pct == round(98 * (1 - rules.cumulus_shade * 0.8))  # 51%: mostly shaded

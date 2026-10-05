@@ -1,4 +1,4 @@
-version = 2
+version = 3
 source = "Mytic Site Guide, FreeFlightWx Mystic site settings"
 
 [wind]
@@ -14,7 +14,7 @@ hg_speed_red_from_mph = 20
 sector_center_deg = 0
 sector_half_width_deg = 40
 # How far outside the sector still counts as marginal: a marginally crossed launch that can still be flown. It is noted
-# (amber arrow, a reason) but does not lower the grade. Further out is Poor, or Dangerous with strong wind.
+# (amber arrow, a reason) but does not lower the grade. Further out is Poor, or Bad (dangerous) with strong wind.
 marginal_margin_deg = 30
 
 [shear]
@@ -28,14 +28,12 @@ strong_from_kph = 16
 #   Ok       decent thermals: quality at least ok_quality_pct
 #   Good     strong thermals: quality at least good_quality_pct AND updraft at least good_updraft_ms (2.5 m/s,
 #            the owner's figure: an updraft of 1.7 m/s is only Ok). A time you definitely want to go flying.
-#   Strong   powerful: updraft at least strong_updraft_ms, OR Good-strength thermals with a brisk (still green)
-#            wind of strong_wind_from_mph or more. It demands experience.
+#   Strong   powerful: updraft at least strong_updraft_ms (4 m/s, the owner's figure) and no problem with the wind,
+#            gusts, rain or storms. Nothing else makes a block Strong. It demands experience.
 ok_quality_pct = 40
 good_quality_pct = 70
 good_updraft_ms = 2.5
-strong_updraft_ms = 3.5
-strong_wind_from_mph = 9
-hg_strong_wind_from_mph = 11
+strong_updraft_ms = 4
 # A block whose usable thermals do not reach this height (m above sea level) is "poor".
 min_height_m = 900
 
@@ -61,11 +59,11 @@ strong_updraft_ms = 4
 [weather]
 # Rain, storms and gusts. Starting values are judgement calls: tune against real days.
 rain_light_mm_h = 0.1       # at or above: rain, caps the verdict at "poor"
-rain_heavy_mm_h = 1.0       # at or above: heavy rain, "dangerous"
-cape_overdevelop_j_kg = 400 # storm energy: with no rain, "turbulent" (overdevelopment risk)
-cape_storm_j_kg = 1000      # storm energy: "dangerous" on its own; also with any rain from 400
-gust_orange_from_mph = 16   # gusts, turbulent from here (about 26 kph)
-gust_red_from_mph = 20      # gusts, dangerous from here (about 32 kph)
+rain_heavy_mm_h = 1.0       # at or above: heavy rain, Bad (dangerous)
+cape_overdevelop_j_kg = 400 # storm energy: with no rain, Bad (overdevelopment risk)
+cape_storm_j_kg = 1000      # storm energy: Bad (dangerous) on its own; also with any rain from 400
+gust_orange_from_mph = 16   # gusts, Bad (turbulent) from here (about 26 kph)
+gust_red_from_mph = 20      # gusts, Bad (dangerous) from here (about 32 kph)
 # GFS gives a gust only 10 m above the ground. The gust a pilot meets at launch, and at the top of the
 # thermals, are estimated (judgement calls, to be tuned against what pilots actually flew: see
 # docs/verification.md).
@@ -74,7 +72,11 @@ gust_red_from_mph = 20      # gusts, dangerous from here (about 32 kph)
 gust_mix_fraction = 0.5
 #   gust at the top of the thermals = the mean wind there times this
 gust_aloft_factor = 1.25
-#   rough air up there: turbulent from here (about 45 kph), dangerous from here (about 55 kph)
+#   a gust is never less than this multiple of the launch wind. The station measured gusts of 1.7 to 1.9
+#   times the average on the afternoon of 2026-10-05 (29 kph in a 16 kph wind); the model's gust and the
+#   mixing estimate above came out lower
+gust_factor_floor = 1.5
+#   rough air up there: Bad (turbulent) from here (about 45 kph), Bad (dangerous) from here (about 55 kph)
 gust_aloft_orange_from_mph = 28
 gust_aloft_red_from_mph = 34
 # AUSRASP's 10 m wind (4 km regional model) often reads stronger than GFS on the ridge. When it is, the
@@ -90,3 +92,7 @@ shaded_pct = 40
 low_cloud_blocks = 0.9
 mid_cloud_blocks = 0.6
 high_cloud_blocks = 0.25
+# AUSRASP's sunshine figure leaves out the cumulus cloud it forecasts in the thermals (its "BL cloud cover").
+# Shade from it is taken off the sunshine: sun x (1 - cumulus_shade x cover). 0.6 means a sky fully covered
+# by cumulus stops 60% of the sun that got that far.
+cumulus_shade = 0.6

@@ -13,7 +13,7 @@ def test_station_left_weather_right_on_wide_screens_and_weather_first_on_phones(
     fixture_path, site, rules
 ):
     html = page(fixture_path, site, rules)
-    top = html[html.index('<div class="top">') : html.index("<h2>Next 4 days</h2>")]
+    top = html[html.index('<div class="top">') : html.index("<h2>Days 5 to 7 outlook</h2>")]
     assert top.index('id="now"') < top.index(
         "FreeFlight WX"
     )  # in the page order the weather is first

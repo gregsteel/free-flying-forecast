@@ -48,6 +48,7 @@ EXTRA_FILES = {
     "sfcwindspd": ("sfcwindSpeed", "m/s", "sfc_wind"),
     "bltopwindspd": ("bltopwindSpeed", "m/s", "top_wind"),
     "sfcsunpct": ("sfcsunpct", "%", "sun"),
+    "blcloudpct": ("blcloudpct", "%", "bl_cloud"),
 }
 
 
@@ -81,6 +82,7 @@ class World:
         self.sfc_wind = lambda key, hhmm: 4.0
         self.top_wind = lambda key, hhmm: 9.0
         self.sun = lambda key, hhmm: 80.0
+        self.bl_cloud = lambda key, hhmm: 0.0
         self.clock: dict[
             str, int
         ] = {}  # force a day's clock (10 = AES, 11 = AED); default follows the stamp
