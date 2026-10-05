@@ -70,7 +70,8 @@ deploy key by bind-mounting the key file. Keep `cache`, `state`, `out` and
 
 Every run keeps each day's forecast in `state/history/<date>.jsonl` (`/app/state/history` in the
 container), so it can later be compared with what happened. How that comparison could be made, and
-which flight and weather sources were checked, is in `docs/verification.md`.
+which flight and weather sources were checked, is in `docs/verification.md`. The measured wind from the Mystic
+station is downloaded once a day (`observe`) and `uv run ffforecast compare` lines it up against the saved forecasts.
 
 ## Tuning
 

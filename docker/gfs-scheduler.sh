@@ -1,6 +1,7 @@
 #!/bin/bash
 # Long-running loop for the container: a forecast run at each time in FFFORECAST_RUN_TIMES (local
-# time, TZ is Australia/Melbourne) and `poll --if-due` every tick. Publishing is on when
+# time, TZ is Australia/Melbourne), `poll --if-due` every tick, and `observe --if-due` (the station's
+# measured wind, daily: the time is [observations] run_time in the site config). Publishing is on when
 # FFFORECAST_PUBLISH_REMOTE is set; FFFORECAST_DEPLOY_KEY is the path of a mounted SSH deploy key.
 set -u
 
@@ -41,6 +42,8 @@ while true; do
       due=1
     fi
   done
+  # the station's measured wind: once a day after the flying, or at once after a missed day
+  ffforecast observe --if-due || echo "scheduler: observe failed ($?)"
   if [ "$due" = 1 ]; then
     ffforecast run --model "${FFFORECAST_MODEL:-gfs}" ${ARGS[@]+"${ARGS[@]}"} || echo "scheduler: run failed ($?)"
   else

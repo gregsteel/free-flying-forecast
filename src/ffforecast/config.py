@@ -41,6 +41,17 @@ class AusraspConfig:
 
 
 @dataclass(frozen=True)
+class ObservationsConfig:
+    """Where the measured wind comes from: the station's own downloadable log (CSV)."""
+
+    enabled: bool = False
+    url: str = ""  # the station's table page; ?h=<hours>&download=csv is added
+    run_time: str = "21:30"  # local time of the daily download
+    # A reading older than this means a day was missed, and the next check catches up at once
+    max_age_h: float = 30.0
+
+
+@dataclass(frozen=True)
 class Site:
     id: str
     name: str
@@ -53,6 +64,7 @@ class Site:
     station_charts: tuple[dict[str, str], ...] = ()
     station_default: str = ""
     ausrasp: AusraspConfig = AusraspConfig(enabled=False)
+    observations: ObservationsConfig = ObservationsConfig()
     # The tabs of the "Today" weather panel. Each is {id, label, heading, lat, lon, elevation_m, note}.
     weather_tabs: tuple[dict[str, Any], ...] = ()
 
@@ -253,6 +265,23 @@ def _links(d: dict[str, Any]) -> dict[str, str]:
     return links
 
 
+def _observations(d: dict[str, Any], where: str) -> ObservationsConfig:
+    o = d.get("observations")
+    if not o:
+        return ObservationsConfig()
+    url = str(o.get("url", "")).strip()
+    if o.get("enabled", True) and not url.startswith("https://"):
+        raise ConfigError(f"{where}: [observations] url must be an https address")
+    run_time = str(o.get("run_time", "21:30"))
+    _clock_min(run_time, f"{where}: [observations] run_time")
+    return ObservationsConfig(
+        enabled=bool(o.get("enabled", True)),
+        url=url,
+        run_time=run_time,
+        max_age_h=float(o.get("max_age_h", 30.0)),
+    )
+
+
 def load_site(path: Path) -> Site:
     d = _read(path)
     w = str(path)
@@ -270,6 +299,7 @@ def load_site(path: Path) -> Site:
         links=_links(d),
         domain={k: dict(v) for k, v in d.get("domain", {}).items()},
         ausrasp=_ausrasp(d, w),
+        observations=_observations(d, w),
         weather_tabs=_weather_tabs(d, lat, lon, w),
         **_station(d, w),
     )

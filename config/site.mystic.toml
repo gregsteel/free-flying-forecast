@@ -32,6 +32,13 @@ every_min = 20
 [ausrasp.poll_default]
 every_min = 180
 
+# The measured wind, to check the forecast against. The station publishes a log you can download as CSV; it is
+# fetched once a day (a missed day is caught up from the 2, 7 or 30 day log) and kept as 5 minute summaries.
+[observations]
+enabled = true
+url = "https://www.freeflightwx.com/mystic/table.php"
+run_time = "21:30"   # local time of the daily download, after the day's flying
+
 [domain.d01]
 resolution_km = 12
 size_km = 1200
