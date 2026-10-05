@@ -44,7 +44,8 @@ def test_row_header_has_nine_hourly_columns_from_ten_to_six(fixture_path, site, 
 
 def test_collapsed_header_shows_only_grade_and_thermal_height(fixture_path, site, rules):
     row = days(page(fixture_path, site, rules))[0]
-    summary = summary_of(row)
+    # the reasons tooltip sits in the tile too, but stays hidden until the pointer is over it
+    summary = re.sub(r'<span class="tip .*?</ul></span>', "", summary_of(row), flags=re.S)
     assert "cicon" in summary and "cht" in summary  # grade icon and thermal height
     first = json.loads(fixture_path.read_text())["blocks"][0]["thermal_height_m"]
     rounded = int(first // 100 * 100)  # heights are shown rounded down to 100 m
@@ -80,8 +81,8 @@ def test_header_shows_only_the_grade_as_a_word_or_an_icon(fixture_path, site, ru
 def test_header_icon_still_has_the_grade_as_text_for_screen_readers(fixture_path, site, rules):
     summary = summary_of(days(page(fixture_path, site, rules))[0])
     for word in ("Good", "Poor", "Bad"):
-        assert f"Paraglider: {word}" in summary  # hidden text and tooltip
-    assert 'title="Paraglider: ' in summary
+        assert f"Paraglider: {word}" in summary  # the accessible name; the tooltip is the reasons
+    assert 'title="' not in summary  # no other hover text on the tiles: only the reasons appear
 
 
 def test_missing_block_keeps_columns_aligned(site, rules, fixture_path):
@@ -141,3 +142,51 @@ def test_the_hours_that_stay_are_ten_twelve_fourteen_sixteen_and_eighteen(
     hidden = [children[c - 2] for c in (3, 5, 7, 9)]
     assert hidden == ["11:00", "1:00", "3:00", "5:00"]  # 11:00, 13:00, 15:00 and 17:00
     assert [children[i] for i in (0, 2, 4, 6, 8)] == ["10:00", "12:00", "2:00", "4:00", "6:00"]
+
+
+# ---- the reasons for a grade appear as a tooltip over the hour (owner, 2026-10-06) ---------------
+
+
+def tips(summary):
+    return re.findall(
+        r'<span class="tip g g-(pg|hg)([^"]*)" role="tooltip">(.*?)</span>', summary, flags=re.S
+    )
+
+
+def test_every_hour_has_a_reasons_tooltip_for_each_glider(fixture_path, site, rules):
+    summary = summary_of(days(page(fixture_path, site, rules))[0])
+    found = tips(summary)
+    assert len(found) == 18 and {g for g, _, _ in found} == {"pg", "hg"}
+    glider, _, body = found[0]
+    assert "<strong>10:00: " in body and "<li>" in body  # the hour, the grade and its reasons
+    assert "Wind" in body  # the reasons, in the user's units
+
+
+def test_the_tooltip_shows_on_hover_or_focus_and_follows_the_glider(fixture_path, site, rules):
+    html = page(fixture_path, site, rules)
+    assert ".cell:hover .tip,.cell:focus-within .tip{display:block}" in html
+    assert ".tip{display:none;position:absolute;top:100%" in html  # hidden until then
+    assert "pointer-events:none" in html.split(".tip{display:none")[1].split("}")[0]
+    # the glider rules hide the other glider's tooltip, whatever the hover rule says
+    assert "body:has(#gl-hg:checked) .g-pg{display:none}" in html
+
+
+def test_tooltips_near_the_edges_open_inwards(fixture_path, site, rules):
+    summary = summary_of(days(page(fixture_path, site, rules))[0])
+    pg = [cls for g, cls, _ in tips(summary) if g == "pg"]
+    assert [c.strip() for c in pg] == ["tl"] * 3 + [""] * 3 + ["tr"] * 3
+
+
+def test_the_old_why_this_grade_list_is_for_touch_screens_only(fixture_path, site, rules):
+    html = page(fixture_path, site, rules)
+    assert "@media (hover:hover){details.whyd{display:none}}" in html
+    assert "Why this grade" in html  # still there for screens that cannot hover
+
+
+def test_no_other_hover_text_is_left_on_the_tiles(fixture_path, site, rules):
+    html = page(fixture_path, site, rules)
+    # the four days and the outlook (not the gauge, whose frame needs a title to be named at all)
+    body = html[html.index("<h2>Next 4 days</h2>") : html.index('<div class="top">')]
+    body += html[html.index("<h2>Days 5 to 7 outlook</h2>") : html.index('<details class="guide"')]
+    assert ' title="' not in body  # the grade links, sun icons, wind arrows and table pills
+    assert 'aria-label="Paraglider: ' in body  # screen readers still get the grade's name

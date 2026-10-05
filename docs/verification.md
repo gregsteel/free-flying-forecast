@@ -21,7 +21,8 @@ Read it with `ffforecast.history.read_day(Path("state/history"), "2026-10-06")`.
 | The Mystic weather station (FreeFlightWx) | Measured wind (average, gust, lull), direction, temperature, humidity and a calculated cumulus base, a reading about every 11 seconds | **Built.** See the next section. The best check for wind and gusts at the launch |
 | SkyLines (`skylines.aero/api/flights/...`) | A working public JSON API: flights by date with takeoff and landing times, distance and an IGC file name | Checked 5 Oct 2026: **3 flights in the whole world on 4 Oct, all in Belgium.** No Australian use, so no Mystic flights |
 | LiveTrack24 | API v2 (manual: `livetrack24.com/doc/api/api.zip`). Reads: users last seen within a radius of a point (op 30), waypoints near a point (op 3), live tracks in range (`liveList`), and the track points of given users or tracks (`getTrackPoints`: time, position, altitude, speed, vario) | **Chosen**, because FlySkyHy and others feed it. Needs an **application key and secret** (free, from LiveTrack24 on request) plus a user login; keys are **tied to the IP address** the calls come from (the manual's demo key is refused: "No access for this appKey from IP"). There is no "all flights at this site yesterday" call, so the plan is: ask for users seen near the launch in the last day, then fetch their tracks. The XCSoar client only uploads and is not a guide |
-| XContest | Where most Australian pilots upload | Not checked. Has the best chance of covering Mystic; terms of use need reading first |
+| kk7 Thermal Database (`thermal.kk7.ch`) | A long-term map built from millions of flights (XContest, DHV-XC, Syride and others): skyways, thermal probability, thermal hotspots, with a time-of-year/day filter. Downloads as KML, GPX, CUP, WPT and CSV; map tiles with a `src=<your hostname>` parameter | **Not a daily check.** It is a climatology: it says where and when thermals usually are, and its own page says it was last updated 2026-03-07. It cannot tell us what happened on a given Tuesday. It could later give a sanity check on typical thermal heights and the time of day they start. Terms: CC BY-NC-SA 4.0 (attribute it, non-commercial, share alike), and commercial use needs the author's agreement. Its flights come largely from XContest, which shows the data is there, but it does not replace asking XContest for permission |
+| XContest | Where many Australian pilots upload after flying. Public flight pages show launch, times, distance and the track | **Wanted, but not usable yet.** It publishes no API and no terms for automated use. Its `robots.txt` (read 2026-10-06) disallows the flight search pages, the track downloads (`/track.php`, `/trackml.php`, `/trackmz.php`) and every address with a query string, and disallows AI crawlers outright. Its rules page says an uploaded track "becomes the public property" but says nothing about automated access. So nothing may be read from it by program until XContest agrees: the next step is to ask them (what we would read, how often, that only daily totals are kept), and to ask whether they have an API or feed |
 
 ## The station's wind: how it is collected and compared
 
@@ -60,6 +61,21 @@ the global model's 10 m and launch-height wind, AUSRASP's 10 m wind and the spee
 and the estimated gust at launch; for ground temperature; for thermal height against the cumulus base; for wind
 direction; and rough air as hits, false alarms, misses and quiet hours. **It needs saved forecasts, which start when
 the new image is deployed, so the first report is possible the day after.**
+
+## Two flight sources, one daily summary
+
+Pilots use LiveTrack24, XContest or both (the same flight can be in each), so the daily summary is to be built
+from whichever sources are available and must not count a flight twice.
+
+- Each source is a reader that returns, for one local date, the flights that launched at Mystic: launch time,
+  launch position, highest altitude, best climb rate and landing time. Nothing else is kept from it: no
+  pilot names, ids or tracks.
+- **De-duplication:** two flights are the same flight when they launch within 5 minutes of each other and
+  within 1 km. This needs no names. The merged flight takes the larger of each value.
+- The saved summary says how many flights each source supplied and how many were in both, so a day with only
+  one source working is not mistaken for a quiet day.
+- A source that is not set up, refused or down is skipped and noted. The summary never fails the run.
+- LiveTrack24 has a reader (below). XContest has none until it agrees to automated access.
 
 ## What to compute from flights, once a source is chosen
 
@@ -100,5 +116,5 @@ the daily summary (count, highest altitude, best climb) is written against that 
 
 ## Not done yet
 
-The daily flight summary from LiveTrack24 and scoring flights against the forecast. Nothing is tuned from
+The daily flight summary (LiveTrack24 first, XContest if it agrees) and scoring flights against the forecast. Nothing is tuned from
 the wind comparison yet: it needs a few weeks of both halves first.

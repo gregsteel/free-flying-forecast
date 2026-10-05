@@ -15,7 +15,7 @@ tz = timezone(timedelta(hours=11))  # AEDT starts 2026-10-04
 # (ground dir, kph, aloft dir, kph, pblh, hfx, t2)
 cases = {
     "ok": (350, 12, 10, 14, 1200, 90, 15),  # decent thermals, updraft about 1.5 m/s
-    "good": (350, 12, 10, 14, 1500, 380, 16),  # strong thermals, updraft about 2.6 m/s
+    "good": (350, 12, 10, 14, 1500, 380, 16),  # good thermals, updraft about 2.6 m/s
     "strong": (350, 12, 10, 14, 2500, 950, 18),  # very strong thermals, updraft about 4.2 m/s
     "poor": (350, 12, 10, 14, 100, 20, 14),
     "turbulent": (

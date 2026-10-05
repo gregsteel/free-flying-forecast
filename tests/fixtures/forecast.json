@@ -70,12 +70,12 @@
       "reasons": [
         "Wind 14 kph is in the green band.",
         "Wind from the N is inside the green sector.",
-        "Strong, workable thermals and no problems: a time to go flying."
+        "Good, workable thermals and no problems: a time to go flying."
       ],
       "reasons_hg": [
         "Wind 14 kph is in the green band.",
         "Wind from the N is inside the green sector.",
-        "Strong, workable thermals and no problems: a time to go flying."
+        "Good, workable thermals and no problems: a time to go flying."
       ],
       "rain_mm_h": 0,
       "cape_j_kg": 0,
@@ -255,7 +255,7 @@
         "Wind 20 kph is in the green band.",
         "Wind from the N is inside the green sector.",
         "Some cloud shading (60% of the possible sun): thermals are a little weaker.",
-        "Strong, workable thermals and no problems: a time to go flying."
+        "Good, workable thermals and no problems: a time to go flying."
       ],
       "rain_mm_h": 0,
       "cape_j_kg": 0,
@@ -563,12 +563,12 @@
       "reasons": [
         "Wind 14 kph is in the green band.",
         "Wind from the N is inside the green sector.",
-        "Strong, workable thermals and no problems: a time to go flying."
+        "Good, workable thermals and no problems: a time to go flying."
       ],
       "reasons_hg": [
         "Wind 14 kph is in the green band.",
         "Wind from the N is inside the green sector.",
-        "Strong, workable thermals and no problems: a time to go flying."
+        "Good, workable thermals and no problems: a time to go flying."
       ],
       "rain_mm_h": 0,
       "cape_j_kg": 0,
@@ -1056,7 +1056,7 @@
         "Wind 20 kph is in the green band.",
         "Wind from the N is inside the green sector.",
         "Some cloud shading (60% of the possible sun): thermals are a little weaker.",
-        "Strong, workable thermals and no problems: a time to go flying."
+        "Good, workable thermals and no problems: a time to go flying."
       ],
       "rain_mm_h": 0,
       "cape_j_kg": 0,
@@ -1276,12 +1276,12 @@
       "reasons": [
         "Wind 14 kph is in the green band.",
         "Wind from the N is inside the green sector.",
-        "Strong, workable thermals and no problems: a time to go flying."
+        "Good, workable thermals and no problems: a time to go flying."
       ],
       "reasons_hg": [
         "Wind 14 kph is in the green band.",
         "Wind from the N is inside the green sector.",
-        "Strong, workable thermals and no problems: a time to go flying."
+        "Good, workable thermals and no problems: a time to go flying."
       ],
       "rain_mm_h": 0,
       "cape_j_kg": 0,

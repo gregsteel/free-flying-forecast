@@ -390,12 +390,6 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
         "days": list(days.values()),
         "outlook": outlook,
         "launch_alt": alt(site.elevation_m),
-        "dir_titles": {
-            "ok": "Inside the flyable direction",
-            "marginal": "Just outside the flyable direction",
-            "off": "Outside the flyable direction",
-            "": "",
-        },
         "weather_tabs": list(site.weather_tabs),
         # only what the script needs to ask for each place's weather
         "tabs_js": [

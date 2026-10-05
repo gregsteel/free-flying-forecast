@@ -220,7 +220,7 @@ def grade_block(
         )
         return "strong", reasons
     if thermal_quality_pct >= rules.thermal_good_quality_pct and (updraft_ms is None or strong):
-        reasons.append("Strong, workable thermals and no problems: a time to go flying.")
+        reasons.append("Good, workable thermals and no problems: a time to go flying.")
         return "good", reasons
     reasons.append("Decent thermals and no problems.")
     return "ok", reasons

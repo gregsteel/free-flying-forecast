@@ -1,4 +1,4 @@
-{% macro arrow(cls, rot) -%}<span class="dir {{ cls }}" title="{{ dir_titles[cls] }}" aria-hidden="true"><svg viewBox="0 0 20 20" width="100%" height="100%" aria-hidden="true" focusable="false" style="transform:rotate({{ rot }}deg)"><path d="M10 18.5 3.5 3.5h13z" fill="currentColor"/></svg></span>{%- endmacro %}
+{% macro arrow(cls, rot) -%}<span class="dir {{ cls }}" aria-hidden="true"><svg viewBox="0 0 20 20" width="100%" height="100%" aria-hidden="true" focusable="false" style="transform:rotate({{ rot }}deg)"><path d="M10 18.5 3.5 3.5h13z" fill="currentColor"/></svg></span>{%- endmacro %}
 <!doctype html>
 <html lang="en-AU">
 <head>
@@ -105,7 +105,7 @@ body:has(#st-{{ c.id }}:checked) p.st-{{ c.id }}{display:block}
 .units input:focus-visible+label,.glider input:focus-visible+label{outline:3px solid var(--link);outline-offset:2px}
 
 /* Days as rows: heading at the left, one column per hour ({{ first_hour }} to {{ last_hour }}). */
-details.day{--lw:3.4rem;background:var(--card);border:1px solid var(--line);border-radius:8px;margin:.5rem 0;overflow:hidden}
+details.day{--lw:3.4rem;background:var(--card);border:1px solid var(--line);border-radius:8px;margin:.5rem 0}
 details.day>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:var(--lw) repeat({{ slot_count }},minmax(0,1fr));gap:.1rem;align-items:stretch;padding:.3rem}
 details.day>summary::-webkit-details-marker{display:none}
 details.day>summary:focus-visible{outline:3px solid var(--link);outline-offset:-3px}
@@ -122,6 +122,14 @@ body:has(#gl-hg:checked) .cell{border-top-color:var(--hgc,transparent);backgroun
 .cicon{font-size:1.7rem;line-height:1.15}
 .sideways{display:inline-block;transform:rotate(-90deg)}  /* the thumbs-up on its side, for Poor */
 .csun{font-size:.85rem;line-height:1}
+/* The reasons for a grade appear when the pointer is over an hour (or the tile has focus). Touch screens,
+   which cannot hover, keep the "Why this grade" list in the expanded day instead. */
+.cell{position:relative}
+.tip{display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);z-index:40;width:max-content;max-width:min(19rem,80vw);margin-top:.3rem;padding:.45rem .65rem;text-align:left;white-space:normal;font-size:.8rem;font-weight:400;line-height:1.35;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.45);pointer-events:none}
+.tip.tl{left:0;transform:none}.tip.tr{left:auto;right:0;transform:none}
+.tip ul{margin:.25rem 0 0;padding-left:1rem}
+.cell:hover .tip,.cell:focus-within .tip{display:block}
+@media (hover:hover){details.whyd{display:none}}
 .est{font-size:.72em;font-weight:400;color:var(--muted)}  /* a thermal figure that is our estimate, not AUSRASP's */
 /* The grade shows as a word until the menu asks for icons (.gi-w the word, .gi-i the icon) */
 .gi-i{display:none}.gi-w{font-size:.85rem;font-weight:700;line-height:1.3}
@@ -279,13 +287,14 @@ Check the <a href="{{ links.bom_warnings }}">Bureau of Meteorology Victorian war
 <details class="day">
   <summary>
     <span class="daylabel"><strong>{{ day.short_day }}</strong><span>{{ day.short_date }}</span></span>
-    {% for b in day.slots %}{% if b %}
+    {% for b in day.slots %}{% if b %}{% set pos = loop.index0 %}
     <span class="cell pg-{{ b.verdict_pg }} hg-{{ b.verdict_hg }}">
       <span class="ctime">{{ b.hour }}</span>
-      {% if b.sun_icon %}<span class="csun" title="{{ b.sun_title }}" role="img" aria-label="{{ b.sun_title }}">{{ b.sun_icon }}</span>{% endif %}
-      {% for g in b.gl %}<a class="cicon g g-{{ g.id }}" href="#guide-{{ '' if g.id == 'pg' else 'hg-' }}{{ g.verdict }}" data-grade="{{ g.verdict }}" title="{{ g.name }}: {{ g.label }}. What does this grade mean?" aria-label="{{ g.name }}: {{ g.label }}. What does this grade mean?"><span class="gi-i">{{ g.icon }}</span><span class="gi-w">{{ g.label }}</span></a>{% endfor %}
+      {% if b.sun_icon %}<span class="csun" role="img" aria-label="{{ b.sun_title }}">{{ b.sun_icon }}</span>{% endif %}
+      {% for g in b.gl %}<a class="cicon g g-{{ g.id }}" href="#guide-{{ '' if g.id == 'pg' else 'hg-' }}{{ g.verdict }}" data-grade="{{ g.verdict }}" aria-label="{{ g.name }}: {{ g.label }}. What does this grade mean?"><span class="gi-i">{{ g.icon }}</span><span class="gi-w">{{ g.label }}</span></a>{% endfor %}
       <span class="cht">{{ b.thermal_height_short }}{% if b.est %}<small class="est"> est</small>{% endif %}</span>
-      {% if b.launch %}<span class="clw" title="Wind at launch altitude">{{ arrow(b.launch_dir, b.launch_rot) }} {{ b.launch_short }}</span>{% endif %}
+      {% if b.launch %}<span class="clw">{{ arrow(b.launch_dir, b.launch_rot) }} {{ b.launch_short }}</span>{% endif %}
+      {% for g in b.gl %}<span class="tip g g-{{ g.id }}{{ ' tl' if pos < 3 else (' tr' if pos >= slot_count - 3 else '') }}" role="tooltip"><strong>{{ b.clock }}: {{ g.label }}</strong><ul>{% for r in g.reasons %}<li>{{ r }}</li>{% endfor %}</ul></span>{% endfor %}
     </span>
     {% else %}<span class="cell empty" aria-hidden="true"><span class="ctime">{{ slot_labels[loop.index0] }}</span><span class="cht">&ndash;</span></span>{% endif %}{% endfor %}
   </summary>
@@ -294,7 +303,7 @@ Check the <a href="{{ links.bom_warnings }}">Bureau of Meteorology Victorian war
   <table class="dt">
   <colgroup><col class="dt-first">{% for _ in day.slots %}<col>{% endfor %}</colgroup>
   <thead><tr><td></td>
-    {% for b in day.slots %}{% if b %}<th scope="col" class="pg-{{ b.verdict_pg }} hg-{{ b.verdict_hg }}"><span class="sr">{{ b.clock }}: </span>{% for g in b.gl %}<a class="pill g g-{{ g.id }} {{ g.verdict }}" href="#guide-{{ '' if g.id == 'pg' else 'hg-' }}{{ g.verdict }}" data-grade="{{ g.verdict }}" title="{{ g.name }}: what does this grade mean?"><span class="ic">{{ g.icon }}</span> {{ g.label }}</a>{% endfor %}</th>{% else %}<th scope="col" class="empty" aria-hidden="true"></th>{% endif %}{% endfor %}
+    {% for b in day.slots %}{% if b %}<th scope="col" class="pg-{{ b.verdict_pg }} hg-{{ b.verdict_hg }}"><span class="sr">{{ b.clock }}: </span>{% for g in b.gl %}<a class="pill g g-{{ g.id }} {{ g.verdict }}" href="#guide-{{ '' if g.id == 'pg' else 'hg-' }}{{ g.verdict }}" data-grade="{{ g.verdict }}"><span class="ic">{{ g.icon }}</span> {{ g.label }}</a>{% endfor %}</th>{% else %}<th scope="col" class="empty" aria-hidden="true"></th>{% endif %}{% endfor %}
   </tr></thead>
   <tbody>
     {% if day.has_launch %}<tr><th scope="row">Wind at launch <span class="nb">({{ launch_alt }}, {{ launch_unit }})</span></th>{% for b in day.slots %}<td>{% if b and b.launch %}<span class="clw">{{ arrow(b.launch_dir, b.launch_rot) }} {{ b.launch_short }}</span>{% endif %}</td>{% endfor %}</tr>{% endif %}
@@ -354,8 +363,8 @@ Check the <a href="{{ links.bom_warnings }}">Bureau of Meteorology Victorian war
 {% for o in outlook %}
 <section class="cell pg-{{ o.verdict_pg }} hg-{{ o.verdict_hg }}">
   <span class="ctime">{{ o.label }}</span>
-  {% for g in o.gl %}<a class="cicon g g-{{ g.id }}" href="#guide-{{ '' if g.id == 'pg' else 'hg-' }}{{ g.verdict }}" data-grade="{{ g.verdict }}" title="{{ g.name }}: {{ g.label }}. What does this grade mean?" aria-label="{{ g.name }}: {{ g.label }}. What does this grade mean?"><span class="gi-i">{{ g.icon }}</span><span class="gi-w">{{ g.label }}</span></a>{% endfor %}
-  <span class="clw" title="Wind at launch altitude">{{ arrow(o.wind_dir, o.wind_rot) }} {{ o.wind }}</span>
+  {% for g in o.gl %}<a class="cicon g g-{{ g.id }}" href="#guide-{{ '' if g.id == 'pg' else 'hg-' }}{{ g.verdict }}" data-grade="{{ g.verdict }}" aria-label="{{ g.name }}: {{ g.label }}. What does this grade mean?"><span class="gi-i">{{ g.icon }}</span><span class="gi-w">{{ g.label }}</span></a>{% endfor %}
+  <span class="clw">{{ arrow(o.wind_dir, o.wind_rot) }} {{ o.wind }}</span>
   {% if o.wet %}<span class="cwet">Rain or storms possible</span>{% endif %}
 </section>
 {% endfor %}
@@ -366,7 +375,7 @@ Check the <a href="{{ links.bom_warnings }}">Bureau of Meteorology Victorian war
 <p>Every block gets one grade. The worst problem found sets it, so a calm, well-aligned wind still grades Bad if a thunderstorm is likely. With no problems, the thermals decide between Poor, Ok, Good and Strong. The limits below are for <span class="g g-pg">paragliders</span><span class="g g-hg">hang gliders</span>; change glider in the settings menu.</p>
 {% for g in gliders %}<ul class="guide g g-{{ g.id }}">
 <li id="guide-{{ '' if g.id == 'pg' else 'hg-' }}ok" tabindex="-1"><span class="pill ok"><span class="gi-i" aria-hidden="true">{{ icons.ok }}</span> Ok</span> Flyable, with decent thermals. The wind at launch is in the green direction (or no more than {{ legend.margin }} degrees outside it, which is marginally crossed: you can usually still get off, so it is noted but does not lower the grade) and below {{ limits[g.id].orange }}, gusts are below {{ legend.gust_orange }}, there is no rain or storm risk, and thermals are decent (quality at least {{ legend.quality }}%, reaching at least {{ legend.min_height }}).</li>
-<li id="guide-{{ '' if g.id == 'pg' else 'hg-' }}good" tabindex="-1"><span class="pill good"><span class="gi-i" aria-hidden="true">{{ icons.good }}</span> Good</span> A time you definitely want to go flying. Strong, workable thermals (quality at least {{ legend.good_quality }}% and an updraft of {{ legend.a_good_updraft if uses_ausrasp else legend.good_updraft }} or more) and no problem with the wind, gusts, rain or storms.</li>
+<li id="guide-{{ '' if g.id == 'pg' else 'hg-' }}good" tabindex="-1"><span class="pill good"><span class="gi-i" aria-hidden="true">{{ icons.good }}</span> Good</span> A time you definitely want to go flying. Good, workable thermals (quality at least {{ legend.good_quality }}% and an updraft of {{ legend.a_good_updraft if uses_ausrasp else legend.good_updraft }} or more) and no problem with the wind, gusts, rain or storms.</li>
 <li id="guide-{{ '' if g.id == 'pg' else 'hg-' }}strong" tabindex="-1"><span class="pill strong"><span class="gi-i" aria-hidden="true">{{ icons.strong }}</span> Strong</span> Powerful, and it demands experience. Very strong thermals (an updraft of {{ legend.a_strong_updraft if uses_ausrasp else legend.strong_updraft }} or more) and no problem with the wind, gusts, rain or storms. Nothing else makes a block Strong. Rewarding for experienced pilots; not a time for novices.</li>
 <li id="guide-{{ '' if g.id == 'pg' else 'hg-' }}poor" tabindex="-1"><span class="pill poor"><span class="gi-i" aria-hidden="true">{{ icons.poor }}</span> Poor</span> Nothing dangerous, but not worth it, except maybe  for sleddies. The wind is too light (under {{ legend.green_from }}) or outside the green direction, thermals are weak or low (quality under {{ legend.quality }}%), or rain is expected ({{ legend.rain_light }} or more).</li>
 <li id="guide-{{ '' if g.id == 'pg' else 'hg-' }}bad" tabindex="-1"><span class="pill bad"><span class="gi-i" aria-hidden="true">{{ icons.bad }}</span> Bad</span> Rough air is likely, and at its worst conditions are dangerous: do not fly. Any one of these makes a block Bad: wind of {{ limits[g.id].orange }} or more (dangerous from {{ limits[g.id].red }}); gusts at launch of {{ limits[g.id].gust_orange }} or more (dangerous from {{ limits[g.id].gust_red }}); gusts at thermal height of {{ limits[g.id].gust_aloft_orange }} or more (dangerous from {{ limits[g.id].gust_aloft_red }}); strong wind well outside the green direction; heavy rain ({{ legend.rain_heavy }} or more); or storm energy of {{ legend.cape_overdevelop }} J/kg or more (a thunderstorm risk, and dangerous, from {{ legend.cape_storm }} J/kg, or {{ legend.cape_overdevelop }} J/kg with rain). The reasons under the grade say which, and how bad.</li>

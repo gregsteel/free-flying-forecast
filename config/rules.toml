@@ -26,7 +26,7 @@ strong_from_kph = 16
 # A block with no problems from wind, gusts, rain or storms is graded by how good the thermals are:
 #   Poor     thermals weak or low (quality under ok_quality_pct, or not reaching min_height_m)
 #   Ok       decent thermals: quality at least ok_quality_pct
-#   Good     strong thermals: quality at least good_quality_pct AND updraft at least good_updraft_ms (2.5 m/s,
+#   Good     good, workable thermals (not "strong": only Strong is): quality at least good_quality_pct AND updraft at least good_updraft_ms (2.5 m/s,
 #            the owner's figure: an updraft of 1.7 m/s is only Ok). A time you definitely want to go flying.
 #   Strong   powerful: updraft at least strong_updraft_ms (4 m/s, the owner's figure) and no problem with the wind,
 #            gusts, rain or storms. Nothing else makes a block Strong. It demands experience.

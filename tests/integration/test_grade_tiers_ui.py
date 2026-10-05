@@ -138,7 +138,7 @@ def test_the_guide_does_not_say_as_ok(fixture_path, site, rules):
     for glider in ("pg", "hg"):
         t = text(guide_list(html, glider))
         assert (
-            "A time you definitely want to go flying. Strong, workable thermals (quality at least"
+            "A time you definitely want to go flying. Good, workable thermals (quality at least"
             in t
         )
         assert "Powerful, and it demands experience. Very strong thermals (an updraft of" in t
@@ -190,7 +190,9 @@ def test_each_hourly_tile_shows_its_sun_or_shade(fixture_path, site, rules):
     html = page(fixture_path, site, rules)
     first = re.search(r'<details class="day">.*?</summary>', html, flags=re.S)
     assert first is not None
-    tiles = re.findall(r'<span class="csun" title="([^"]+)"[^>]*>(.)', first.group(0))
+    tiles = re.findall(
+        r'<span class="csun" role="img" aria-label="([^"]+)"[^>]*>(.)', first.group(0)
+    )
     assert len(tiles) == 9  # one under each hour
     kinds = " ".join(t for t, _ in tiles)
     assert (

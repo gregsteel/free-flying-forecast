@@ -77,7 +77,7 @@ def claim_cases(r):
             "ok",
         ),
         (
-            "Good: strong thermals, nothing wrong",
+            "Good: good thermals, nothing wrong",
             dict(thermal_quality_pct=90, updraft_ms=2.7),
             "good",
         ),
@@ -87,12 +87,12 @@ def claim_cases(r):
             "strong",
         ),
         (
-            "Good: strong thermals with a brisk wind are still only Good",
+            "Good: good thermals with a brisk wind are still only Good",
             dict(thermal_quality_pct=80, updraft_ms=3.0, ground_kph=18, aloft_kph=18),
             "good",
         ),
         (
-            "Good: strong thermals in a light wind",
+            "Good: good thermals in a light wind",
             dict(thermal_quality_pct=90, updraft_ms=2.7, ground_kph=8),
             "good",
         ),
