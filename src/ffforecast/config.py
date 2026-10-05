@@ -33,7 +33,7 @@ class AusraspConfig:
     # Cells around the nearest one that are also read: 1 means a block of 3 by 3, 0 the nearest cell
     # alone. The highest value in the block is used (the launch sits on a mountain).
     cell_radius: int = 1
-    max_age_h: float = 36.0
+    max_age_h: float = 60.0
     # Also read AUSRASP's wind and sunshine for the four detailed days (about twice the downloads)
     extras: bool = True
     windows: tuple[PollWindow, ...] = ()
@@ -239,7 +239,7 @@ def _ausrasp(d: dict[str, Any], where: str) -> AusraspConfig:
     if not 0 <= radius <= 3:
         raise ConfigError(f"{where}: ausrasp.cell_radius must be from 0 to 3")
     max_cell = float(a.get("max_cell_km", 3.0))
-    max_age = float(a.get("max_age_h", 36.0))
+    max_age = float(a.get("max_age_h", 60.0))
     if max_cell <= 0 or max_age <= 0:
         raise ConfigError(f"{where}: ausrasp.max_cell_km and max_age_h must be above 0")
     return AusraspConfig(

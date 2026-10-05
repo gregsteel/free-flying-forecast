@@ -18,7 +18,10 @@ max_cell_km = 3
 # The highest value among the nearest cell and the ring of cells around it (1 = a block of 3 by 3, about
 # 12 km square; 0 = the nearest cell alone). The launch is on a mountain, so one cell can read low.
 cell_radius = 1
-max_age_h = 36
+# How old (hours since the model run started) a day's AUSRASP figures may be and still be used. AUSRASP re-runs the
+# days at different times, so some lag: 36 left Wednesday and Saturday on our own estimate while its site still
+# showed them. 60 (the owner's choice, 2026-10-06) keeps them; the page marks anything not from AUSRASP "est".
+max_age_h = 60
 # When to check AUSRASP's manifest (UTC). AUSRASP re-runs each day from the 00Z and 12Z global-model cycles;
 # the windows bracket when those runs were seen to finish (one day's observation: see spec 003 FR-012/FR-013).
 [[ausrasp.poll]]

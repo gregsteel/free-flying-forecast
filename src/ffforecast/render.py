@@ -224,6 +224,13 @@ def _gust_limits(rules: Rules, glider: str) -> dict[str, Markup]:
     }
 
 
+def _estimated(value: Markup | str, source: str) -> Markup:
+    """A thermal figure, followed by "est" when it is our own estimate and not AUSRASP's."""
+    if source == "ausrasp":
+        return Markup(value)
+    return Markup(value) + Markup('<small class="est"> est</small>')
+
+
 def _label(verdict: str) -> str:
     return LABELS[verdict]
 
@@ -306,12 +313,15 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
                 "aloft": _wind_num(b.wind_aloft),
                 "shear": b.shear,
                 "hour": clock12(start.hour),
-                "thermal_height": _height_num(b.thermal_height_m),
+                "est": b.thermal_source != "ausrasp",  # the thermal figures are our estimate
+                "thermal_height": _estimated(_height_num(b.thermal_height_m), b.thermal_source),
                 "thermal_height_short": height_down(b.thermal_height_m, short=True),
                 "launch_short": _wind_short(b.wind_launch) if b.wind_launch else None,
-                "quality": f"{b.thermal_quality_pct}%",
+                "quality": _estimated(f"{b.thermal_quality_pct}%", b.thermal_source),
                 "thermal_quality_pct": b.thermal_quality_pct,
-                "updraft": _rate_num(b.updraft_ms, whole=b.thermal_source == "ausrasp"),
+                "updraft": _estimated(
+                    _rate_num(b.updraft_ms, whole=b.thermal_source == "ausrasp"), b.thermal_source
+                ),
                 "thermal_ausrasp": b.thermal_source == "ausrasp",
                 "temp_ground": _temp_num(b.temp_ground_c),
                 "temp_air": _temp_num(b.temp_air_c, 1),
@@ -441,6 +451,7 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
         "temp_units": TEMP_UNITS,
         "thermal_summary": _thermal_summary(fc, zone),
         "uses_ausrasp": bool(ausrasp_runs),
+        "ausrasp_max_age_h": f"{site.ausrasp.max_age_h:g}",
         "cell_radius": site.ausrasp.cell_radius,
         "ausrasp_area": (
             f"the highest value in the block of {2 * site.ausrasp.cell_radius + 1} by "

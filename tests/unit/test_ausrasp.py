@@ -291,8 +291,12 @@ def test_the_first_full_refresh_of_seven_days_stays_within_the_budget(site, cfg,
 
 def test_old_runs_are_left_out_with_a_reason(site, cfg, tmp_path, world):
     run_refresh(cfg, site, tmp_path, world)
-    lookup, notes = thermal_lookup(tmp_path, cfg, NOW + timedelta(hours=40))
-    assert lookup == {} and all("older than 36 hours" in n for n in notes) and len(notes) == 7
+    assert cfg.max_age_h == 60  # the owner's limit (2026-10-06)
+    stale = NOW + timedelta(hours=72)  # the runs started at NOW - 6 h
+    lookup, notes = thermal_lookup(tmp_path, cfg, stale)
+    assert lookup == {} and all("older than 60 hours" in n for n in notes) and len(notes) == 7
+    lookup, notes = thermal_lookup(tmp_path, cfg, NOW + timedelta(hours=40))  # 46 h old: now used
+    assert len(lookup) == 7 * HOURS and not notes
 
 
 def test_status_records_success_days_and_fallback(site, cfg, tmp_path, world):

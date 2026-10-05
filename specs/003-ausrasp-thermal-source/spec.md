@@ -71,7 +71,7 @@ If AUSRASP's files cannot be reached, are missing for a day, are older than allo
 
 1. **Given** AUSRASP cannot be reached, **When** the page is built, **Then** thermal figures come from the global-model estimate, are labelled as such, and the run succeeds.
 2. **Given** one day is missing or unreadable but others are fine, **When** the page is built, **Then** AUSRASP values are used for the good days and the estimate for the bad day, and each day says which it is.
-3. **Given** a day's AUSRASP run is older than the allowed age (default 36 hours of model start time), **When** the page is built, **Then** the page uses the estimate for that day and says why.
+3. **Given** a day's AUSRASP run is older than the allowed age (default 60 hours of model start time: raised from 36 on 2026-10-06 because AUSRASP re-runs days at different times and some lag), **When** the page is built, **Then** the page uses the estimate for that day and says why.
 4. **Given** AUSRASP's grid description or file format no longer matches what the system expects (for example a different grid size or unit), **When** a file is read, **Then** the file is rejected, the estimate is used, and the problem is recorded for the owner.
 5. **Given** the fallback is in use, **When** the owner views the owner-only status, **Then** the reason and the time it began are visible.
 
@@ -162,7 +162,7 @@ The system asks AUSRASP for as little as it can, identifies itself, can be switc
 **Fallback and staleness**
 
 - **FR-016**: Where AUSRASP values are not available for a block (unreachable, incomplete, rejected, too old, source turned off), the system MUST use the existing global-model estimate for that block, MUST label the block as an estimate, and MUST still complete the run successfully.
-- **FR-017**: AUSRASP data whose model start time is older than a configured age (default 36 hours) MUST NOT be used.
+- **FR-017**: AUSRASP data whose model start time is older than a configured age (default 60 hours; was 36) MUST NOT be used.
 - **FR-018**: Each file read MUST be checked for the expected grid size, the expected quantity and unit, and a believable value range (height between 0 and 5,000 m; updraft between 0 and 10 m/s). A file that fails MUST be rejected whole, recorded, and treated as unavailable.
 - **FR-019**: The owner-only status (001/002) MUST show, for AUSRASP: the stamp and model start time held for each day, the time of the last successful and last attempted check, whether the fallback is in use and why.
 

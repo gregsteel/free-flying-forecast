@@ -168,3 +168,46 @@ def test_the_25_km_grid_is_only_blamed_for_what_comes_from_it(fixture_path, site
         "A 25 km grid cannot see individual ridges" in estimate
         and "and thermals less detailed" in estimate
     )
+
+
+# ---- "est" marks the thermal figures that are not AUSRASP's (owner, 2026-10-06) ------------------
+
+
+def day_tile_heights(html):
+    first = re.search(r'<details class="day">.*?</summary>', html, flags=re.S)
+    assert first is not None
+    return re.findall(r'<span class="cht">([^\n]*)', first.group(0))
+
+
+def test_estimated_thermals_are_marked_est_everywhere_they_are_shown(fixture_path, site, rules):
+    html = page(fixture_path, site, rules)  # the fixture has no AUSRASP: all estimates
+    tiles = day_tile_heights(html)
+    assert len(tiles) == 9 and all('<small class="est"> est</small>' in t for t in tiles)
+    table = re.search(r'<table class="dt">.*?</table>', html, flags=re.S)
+    assert table is not None
+    for label in ("Thermal height", "Thermal quality", "Updraft"):
+        row = re.search(rf'<th scope="row">{label}.*?</th>(.*?)</tr>', table.group(0), flags=re.S)
+        assert row is not None
+        cells = re.findall(r"<td>(.*?)</td>", row.group(1), flags=re.S)
+        assert cells and all("est</small>" in c for c in cells), label
+
+
+def test_ausrasp_thermals_carry_no_est(fixture_path, site, rules):
+    html = page(fixture_path, site, rules, all_ausrasp)
+    body = html[html.index("<h2>Next 4 days</h2>") : html.index("<h2>Days 5 to 7 outlook</h2>")]
+    assert "est</small>" not in body  # not in the tiles, and not in the detail tables
+
+
+def test_a_mixed_page_marks_only_the_estimated_hours(fixture_path, site, rules):
+    html = page(fixture_path, site, rules, some_ausrasp)
+    first = re.search(r'<details class="day">.*?</summary>', html, flags=re.S)
+    assert first is not None
+    tiles = re.findall(r'<span class="cht">([^\n]*)', first.group(0))
+    marked = [("est</small>" in t) for t in tiles]
+    assert marked == [n % 2 != 0 for n in range(9)]  # the even blocks are AUSRASP's
+
+
+def test_the_page_explains_the_est_marker_and_quotes_the_age_limit(fixture_path, site, rules):
+    t = text(page(fixture_path, site, rules, some_ausrasp))
+    assert "their thermal figures are marked est" in t
+    assert "uses a run for at most 60 hours after it started" in t

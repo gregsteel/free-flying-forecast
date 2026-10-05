@@ -231,7 +231,9 @@ def test_the_units_are_in_the_row_labels_and_the_cells_hold_only_numbers(fixture
 def test_thermal_quality_keeps_its_percent_sign_and_has_no_unit_label(fixture_path, site, rules):
     t = tables(page(fixture_path, site, rules))[0]
     assert '<th scope="row">Thermal quality</th>' in t
-    assert all(re.fullmatch(r"\d+%", c) for c in cells_of(t, "Thermal quality"))
+    # (the fixture's thermals are our own estimate, so each figure also says "est")
+    plain = [re.sub(r"<[^>]+>", "", c) for c in cells_of(t, "Thermal quality")]
+    assert all(re.fullmatch(r"\d+% est", c) for c in plain)
 
 
 def test_words_stay_words_in_the_table(fixture_path, site, rules):

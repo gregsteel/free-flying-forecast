@@ -151,7 +151,8 @@ def test_a_rebuild_uses_stored_values_without_any_request(setup, site):
 
 def test_stored_values_that_have_become_too_old_are_not_used(setup, site):
     world, build, tmp = setup
-    world.runs = {k: r - timedelta(hours=24) for k, r in world.runs.items()}  # 42 hours old at NOW
+    # 66 hours old at NOW: over the 60 hour limit (a run 42 hours old is still used)
+    world.runs = {k: r - timedelta(hours=48) for k, r in world.runs.items()}
     ausrasp.refresh(
         dataclasses.replace(site.ausrasp, base_url=BASE), site, tmp / "cache", world,
         now=lambda: NOW, sleep=lambda s: None,
