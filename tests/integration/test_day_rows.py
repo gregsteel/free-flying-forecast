@@ -62,13 +62,15 @@ def visible_text(html: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", no_sr))
 
 
-def test_header_shows_only_the_grade_icon(fixture_path, site, rules):
+def test_header_shows_only_the_grade_as_a_word_or_an_icon(fixture_path, site, rules):
     row = days(page(fixture_path, site, rules))[0]
     summary = summary_of(row)
     assert summary.count('class="cicon g g-pg"') == 9 and summary.count('class="cicon g g-hg"') == 9
+    assert summary.count('class="gi-w"') == 18 and summary.count('class="gi-i"') == 18
     text = visible_text(summary)
-    for word in ("PG", "HG", "Good", "Poor", "Bad"):
-        assert word not in text  # no label and no grade word on screen
+    assert "PG" not in text and "HG" not in text  # no glider label
+    for sentence in ("What does this grade mean", "Paraglider:", "Hang glider:"):
+        assert sentence not in text  # just the grade, not a sentence
     # both gliders, labelled, are in the expanded view
     assert len(re.findall(r'class="pill g g-pg ', row)) == 9  # a pill per glider; CSS shows one
     assert len(re.findall(r'class="pill g g-hg ', row)) == 9

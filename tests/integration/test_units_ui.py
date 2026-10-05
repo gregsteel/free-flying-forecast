@@ -29,7 +29,7 @@ def test_every_unit_has_a_selector_and_css_rule(fixture_path, site, rules):
 def test_selector_works_without_javascript(fixture_path, site, rules):
     html = page(fixture_path, site, rules)
     # the selector is plain radio inputs plus CSS; the script only remembers the choice
-    assert html.count('type="radio"') == 15
+    assert html.count('type="radio"') == 17
     assert "localStorage" in html and "try{" in html
 
 

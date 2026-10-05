@@ -9,7 +9,8 @@ VIC. It builds one static, phone-friendly web page from free NOAA weather data -
 - **Days 5 to 7**: a low-confidence daily outlook.
 - **Glider type**: a PG / HG toggle in the header (paraglider by default).
 - **Settings** (hamburger menu): units (knots, metres and Celsius by default; km/h, feet and Fahrenheit
-  available). Both choices are kept in a cookie in the browser.
+  available) and whether grades show as words (the default) or icons. These and the glider choice are kept
+  in a cookie in the browser.
 - **Guide**: collapsed; select any grade to open it at that grade.
 - **How the numbers are calculated**: collapsed; where the data comes from and how the thermal figures are worked out.
 - **Rain, storms and gusts**: rain, thunderstorm risk and gusts (at 10 m, at launch and at thermal height) are graded; cloud shading lowers thermal quality; a notice links to the official BoM Victorian warnings when any are possible.
