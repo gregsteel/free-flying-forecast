@@ -199,6 +199,7 @@ table.today th{font-weight:500;color:var(--muted);text-align:left;padding:.15rem
 table.today td{padding:.2rem;border-bottom:1px solid var(--line);vertical-align:middle}
 table.today tr.past{opacity:.5}table.today tr.nowrow{background:var(--poor-bg)}
 a.pill,a.cicon{text-decoration:none}
+.cicon{display:block}
 a.cicon{display:block;color:inherit;border-radius:6px}
 a.cicon:hover{transform:scale(1.12)}a.cicon:focus-visible,a.pill:focus-visible{outline:3px solid var(--link);outline-offset:2px}
 a.pill:hover{filter:brightness(1.15)}
@@ -291,7 +292,7 @@ Check the <a href="{{ links.bom_warnings }}">Bureau of Meteorology Victorian war
     <span class="cell pg-{{ b.verdict_pg }} hg-{{ b.verdict_hg }}">
       <span class="ctime">{{ b.hour }}</span>
       {% if b.sun_icon %}<span class="csun" role="img" aria-label="{{ b.sun_title }}">{{ b.sun_icon }}</span>{% endif %}
-      {% for g in b.gl %}<a class="cicon g g-{{ g.id }}" href="#guide-{{ '' if g.id == 'pg' else 'hg-' }}{{ g.verdict }}" data-grade="{{ g.verdict }}" aria-label="{{ g.name }}: {{ g.label }}. What does this grade mean?"><span class="gi-i">{{ g.icon }}</span><span class="gi-w">{{ g.label }}</span></a>{% endfor %}
+      {% for g in b.gl %}<span class="cicon g g-{{ g.id }}" role="img" aria-label="{{ g.name }}: {{ g.label }}."><span class="gi-i">{{ g.icon }}</span><span class="gi-w">{{ g.label }}</span></span>{% endfor %}
       <span class="cht">{{ b.thermal_height_short }}{% if b.est %}<small class="est"> est</small>{% endif %}</span>
       {% if b.launch %}<span class="clw">{{ arrow(b.launch_dir, b.launch_rot) }} {{ b.launch_short }}</span>{% endif %}
       {% for g in b.gl %}<span class="tip g g-{{ g.id }}{{ ' tl' if pos < 3 else (' tr' if pos >= slot_count - 3 else '') }}" role="tooltip"><strong>{{ b.clock }}: {{ g.label }}</strong><ul>{% for r in g.reasons %}<li>{{ r }}</li>{% endfor %}</ul></span>{% endfor %}
