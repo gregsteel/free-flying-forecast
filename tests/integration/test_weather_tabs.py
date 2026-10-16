@@ -40,6 +40,7 @@ def test_the_panel_has_a_tab_for_each_place_with_mystic_first_and_selected(
     assert re.findall(r'<input type="radio" name="wx" id="wx-([a-z]+)"( checked)?>', p) == [
         ("mystic", " checked"),
         ("hotham", ""),
+        ("meteogram", ""),
     ]
     assert '<label for="wx-mystic">Mystic</label>' in p
     assert '<label for="wx-hotham">Mt Hotham</label>' in p
@@ -101,7 +102,7 @@ def test_the_chosen_tab_is_remembered_with_the_other_settings(fixture_path, site
 
 
 def test_a_single_tab_shows_no_tab_bar(fixture_path, site, rules):
-    one = dataclasses.replace(site, weather_tabs=site.weather_tabs[:1])
+    one = dataclasses.replace(site, weather_tabs=site.weather_tabs[:1], meteogram=None)
     p = panel(page(fixture_path, one, rules))
     assert 'name="wx"' not in p and 'class="periods"' not in p
     assert "Today at Mystic" in p and "Hotham" not in p
@@ -191,5 +192,52 @@ def test_a_link_needs_both_a_label_and_an_https_address(tmp_path):
             'link_url = "http://www.bom.gov.au/x"',
         )
     )
+    with pytest.raises(ConfigError, match="https"):
+        load_site(f)
+
+
+def test_the_meteogram_is_a_last_tab_whose_picture_links_to_ausrasp(fixture_path, site, rules):
+    p = panel(page(fixture_path, site, rules))
+    assert '<label for="wx-meteogram">Meteogram</label>' in p
+    assert "AUSRASP meteogram for Bright" in p
+    tile = p[p.index('id="tile-meteogram"') :]
+    assert (
+        '<a href="https://ausrasp.com/VIC/" target="_blank" rel="noopener noreferrer">'
+        '<img class="meteogram" src="https://ausrasp.com/VIC/OUT+0/FCST/meteogram_Bright.webp"'
+    ) in tile
+    assert 'loading="lazy"' in tile  # a hidden tab's picture is not fetched until it is opened
+
+
+def test_the_meteogram_is_not_a_place_to_fetch_weather_for(fixture_path, site, rules):
+    html = page(fixture_path, site, rules)
+    tabs = json.loads(re.search(r"var TABS=(\[.*?\]);", html).group(1).replace("\\u0027", "'"))
+    assert [t["id"] for t in tabs] == ["mystic", "hotham"]
+    assert "body:has(#wx-meteogram:checked) div.wx-meteogram{display:block}" in html
+
+
+def test_a_site_without_a_meteogram_has_no_such_tab(fixture_path, site, rules):
+    p = panel(page(fixture_path, dataclasses.replace(site, meteogram=None), rules))
+    assert "meteogram" not in p
+
+
+@pytest.mark.parametrize(
+    "drop, message",
+    [("alt", "missing 'alt'"), ("page", "missing 'page'")],
+)
+def test_a_meteogram_needs_its_parts(tmp_path, drop, message):
+    text = (ROOT / "config/site.mystic.toml").read_text()
+    a = text.index("[meteogram]")
+    b = text.index("[[station_charts]]")
+    block = "\n".join(ln for ln in text[a:b].splitlines() if not ln.startswith(drop + " ="))
+    f = tmp_path / "s.toml"
+    f.write_text(text[:a] + block + "\n\n" + text[b:])
+    with pytest.raises(ConfigError, match=message):
+        load_site(f)
+
+
+def test_a_meteogram_must_be_https(tmp_path):
+    text = (ROOT / "config/site.mystic.toml").read_text()
+    f = tmp_path / "s.toml"
+    f.write_text(text.replace('image = "https://', 'image = "http://', 1))
     with pytest.raises(ConfigError, match="https"):
         load_site(f)

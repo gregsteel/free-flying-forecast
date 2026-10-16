@@ -26,10 +26,11 @@ def test_every_verdict_has_text_not_just_colour(fixture_path, site, rules):
 
 def test_no_external_images_and_single_enhancement_script(fixture_path, site, rules):
     html = render_page(load(fixture_path), site, rules)
-    imgs = re.findall(r"<img\s[^>]*>", html)  # only the station charts are images
+    imgs = re.findall(r"<img\s[^>]*>", html)  # the station charts, and the lazy meteogram
     history = [i for i in imgs if 'class="history"' in i]
     assert len(history) == 5 and all("freeflightwx.com" in i for i in history)
-    assert len(imgs) == 6  # plus the default period's no-script fallback
+    assert len(imgs) == 7  # plus the default period's no-script fallback and the meteogram
+    assert [i for i in imgs if 'class="meteogram"' in i and 'loading="lazy"' in i]
     assert all(" src=" not in i for i in history)  # nothing is fetched until the chart is wanted
     scripts = re.findall(r"<script[^>]*>", html)
     # only our two small scripts: the early settings one and the main enhancement one

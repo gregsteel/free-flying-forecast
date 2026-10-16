@@ -64,15 +64,16 @@ html{scroll-padding-top:calc(var(--hdr,6rem) + .75rem)}
 @media (max-width:44rem){.sticky h1{font-size:1.05rem;line-height:1.2}}
 /* Weather station period: every period is in the page but only the chosen one is shown, so only that chart is fetched. */
 .st{display:none}
-{% if weather_tabs|length > 1 %}.wx{display:none}
-{% for t in weather_tabs %}body:has(#wx-{{ t.id }}:checked) span.wx-{{ t.id }}{display:inline}
+{% if wx_multi %}.wx{display:none}
+{% for t in weather_tabs + ([meteogram] if meteogram else []) %}body:has(#wx-{{ t.id }}:checked) span.wx-{{ t.id }}{display:inline}
 body:has(#wx-{{ t.id }}:checked) div.wx-{{ t.id }}{display:block}
 {% endfor %}{% endif %}/* The club's gauge page, shrunk and cropped to just its circle (the page lays out at 500 px wide: measured, the circle's outer ring runs from x 40 to 459 and y 154 to 573, so 420 px square at 40, 154; 168 px is 420 at .4). */
 .gaugewrap{box-sizing:content-box;position:relative;width:168px;height:168px;overflow:hidden;border-radius:50%;margin:0 auto .6rem;background:#fff;border:1px solid var(--line)}
 .gauge{position:absolute;left:0;top:0;border:0;max-width:none;transform-origin:0 0;transform:scale(.4) translate(-40px,-154px)}
 .fine{margin:.3rem 0 .2rem;font-size:.78rem}
 section[aria-label="Weather station"] .periods{margin:.6rem 0 0}
-.tabnote{margin:.5rem 0 0;font-size:.9rem;font-weight:600}.tablink{margin:.4rem 0 0;font-size:.9rem}
+img.meteogram{display:block;width:100%;max-width:900px;height:auto;margin:0 auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+.tabnote{margin:.5rem 0 0;font-size:.9rem;font-weight:600}.tablink,.metlink{margin:.4rem 0 0;font-size:.9rem}
 {% for c in station_charts %}body:has(#st-{{ c.id }}:checked) span.st-{{ c.id }},body:has(#st-{{ c.id }}:checked) a.st-{{ c.id }}{display:inline}
 body:has(#st-{{ c.id }}:checked) p.st-{{ c.id }}{display:block}
 {% endfor %}.periods{display:flex;flex-wrap:wrap;border:0;margin:0 0 .6rem;padding:0;position:relative}
@@ -323,11 +324,11 @@ Check the <a href="{{ links.bom_warnings }}">Bureau of Meteorology Victorian war
 {% endfor %}
 
 <div class="top">
-{% set multi = weather_tabs|length > 1 %}
+{% set multi = wx_multi %}
 <section id="now" hidden aria-label="Weather today">
-<h2>{% for t in weather_tabs %}<span{% if multi %} class="wx wx-{{ t.id }}"{% endif %}>{{ t.heading }}</span>{% endfor %}</h2>
+<h2>{% for t in weather_tabs + ([meteogram] if meteogram else []) %}<span{% if multi %} class="wx wx-{{ t.id }}"{% endif %}>{{ t.heading }}</span>{% endfor %}</h2>
 {% if multi %}<fieldset class="periods"><legend class="sr">Place</legend>
-{% for t in weather_tabs %}<input type="radio" name="wx" id="wx-{{ t.id }}"{% if loop.first %} checked{% endif %}><label for="wx-{{ t.id }}">{{ t.label }}</label>{% endfor %}
+{% for t in weather_tabs + ([meteogram] if meteogram else []) %}<input type="radio" name="wx" id="wx-{{ t.id }}"{% if loop.first %} checked{% endif %}><label for="wx-{{ t.id }}">{{ t.label }}</label>{% endfor %}
 </fieldset>{% endif %}
 {% for t in weather_tabs %}<div class="tile{% if multi %} wx wx-{{ t.id }}{% endif %}" id="tile-{{ t.id }}">
   <div class="tile-main"><span id="now-icon-{{ t.id }}" class="tile-icon" aria-hidden="true"></span>
@@ -345,7 +346,11 @@ Check the <a href="{{ links.bom_warnings }}">Bureau of Meteorology Victorian war
   {% if t.link_url %}<p class="tablink"><a href="{{ t.link_url }}" target="_blank" rel="noopener noreferrer">{{ t.link_label }}</a></p>{% endif %}
   <p class="muted" id="now-note-{{ t.id }}"></p>
 </div>
-{% endfor %}</section>
+{% endfor %}{% if meteogram %}<div class="tile wx wx-meteogram" id="tile-meteogram">
+  <a href="{{ meteogram.page }}" target="_blank" rel="noopener noreferrer"><img class="meteogram" src="{{ meteogram.image }}" alt="{{ meteogram.alt }}" width="900" height="900" loading="lazy" referrerpolicy="no-referrer"></a>
+  <p class="metlink"><a href="{{ meteogram.page }}" target="_blank" rel="noopener noreferrer">Open the AUSRASP forecast</a></p>
+  <p class="muted">From <a href="{{ links.ausrasp }}">AUSRASP</a>'s latest run. The date in the picture's title is the day it shows.</p>
+</div>{% endif %}</section>
 
 <section aria-label="Weather station">
 <h2><a href="https://www.freeflightwx.com/mystic/index.php">FreeFlight WX</a></h2>
@@ -441,7 +446,8 @@ Check the <a href="{{ links.bom_warnings }}">Bureau of Meteorology Victorian war
 <a href="{{ links.freeflightwx }}">FreeFlightWx</a>.</p>
 <p class="muted">The "Today at Mystic" panel (current conditions and the hourly forecast for today) uses <a href="{{ links.openmeteo }}">Open-Meteo.com</a> model data
 (CC BY 4.0). Forecast data: NOAA GFS.</p>
-<p class="muted">{% if uses_ausrasp %}Thermal height and updraft are <a href="{{ links.ausrasp }}">AUSRASP</a>'s forecast for {{ ausrasp_area }} ({{ ausrasp_runs|join(", ") }}).{% else %}Thermal height, quality and updraft are estimated from the global model, calibrated against <a href="{{ links.ausrasp }}">AUSRASP</a> forecasts.{% endif %} AUSRASP's
+{% if meteogram %}<p class="muted">The meteogram tab is a picture served by <a href="{{ links.ausrasp }}">AUSRASP</a>, loaded by your browser only when you open the tab; it links to AUSRASP's <a href="{{ links.ausrasp_vic }}">Victoria forecast</a>.</p>
+{% endif %}<p class="muted">{% if uses_ausrasp %}Thermal height and updraft are <a href="{{ links.ausrasp }}">AUSRASP</a>'s forecast for {{ ausrasp_area }} ({{ ausrasp_runs|join(", ") }}).{% else %}Thermal height, quality and updraft are estimated from the global model, calibrated against <a href="{{ links.ausrasp }}">AUSRASP</a> forecasts.{% endif %} AUSRASP's
 <a href="{{ links.ausrasp_vic }}">Victoria forecast</a> is supported by the
 <a href="{{ links.vhpa }}">Victorian Hang Gliding and Paragliding Association (VHPA)</a>, and AUSRASP is run on
 donations: please consider supporting it at <a href="{{ links.ausrasp }}">ausrasp.com</a>.</p>

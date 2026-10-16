@@ -84,6 +84,15 @@ note = "Strong wind at Mt Hotham might indicate Mystic is marginal."
 link_label = "Bureau of Meteorology: measured observations at Mount Hotham"
 link_url = "https://www.bom.gov.au/products/IDV60801/IDV60801.94906.shtml"
 
+# A last tab in the same panel: AUSRASP's meteogram for Bright (the nearest town to the launch). Day 0 ("OUT+0") is
+# always today in the latest run, so the address never changes; clicking the picture opens the AUSRASP forecast.
+[meteogram]
+label = "Meteogram"
+heading = "AUSRASP meteogram for Bright"
+image = "https://ausrasp.com/VIC/OUT+0/FCST/meteogram_Bright.webp"
+page = "https://ausrasp.com/VIC/"
+alt = "AUSRASP meteogram for Bright today: thermal strength, cloudbase, wind and sun through the day"
+
 [[station_charts]]
 id = "cur"
 label = "Current"

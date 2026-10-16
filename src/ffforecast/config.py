@@ -67,6 +67,9 @@ class Site:
     observations: ObservationsConfig = ObservationsConfig()
     # The tabs of the "Today" weather panel. Each is {id, label, heading, lat, lon, elevation_m, note}.
     weather_tabs: tuple[dict[str, Any], ...] = ()
+    # An extra tab in that panel showing a picture that links to its page: {id, label, heading, image,
+    # page, alt}. None when [meteogram] is not configured.
+    meteogram: dict[str, str] | None = None
 
 
 @dataclass(frozen=True)
@@ -154,6 +157,24 @@ def _station(d: dict[str, Any], where: str) -> dict[str, Any]:
     if charts and default not in ids:
         raise ConfigError(f"{where}: station_default '{default}' is not one of {ids}")
     return {"station_charts": tuple(charts), "station_default": default}
+
+
+def _meteogram(d: dict[str, Any], tab_ids: list[str], where: str) -> dict[str, str] | None:
+    """The optional [meteogram] tab: a picture (image, https) that links to its page (page, https)."""
+    m = d.get("meteogram")
+    if m is None:
+        return None
+    here = f"{where}: meteogram"
+    for key in ("label", "heading", "image", "page", "alt"):
+        if not str(m.get(key, "")).strip():
+            raise ConfigError(f"{here} is missing '{key}'")
+    if not str(m["image"]).startswith("https://") or not str(m["page"]).startswith("https://"):
+        raise ConfigError(f"{here}: image and page must be https")
+    out = {k: str(m[k]).strip() for k in ("label", "heading", "image", "page", "alt")}
+    out["id"] = "meteogram"
+    if out["id"] in tab_ids:
+        raise ConfigError(f"{here}: a weather_tabs id is already 'meteogram'")
+    return out
 
 
 def _weather_tabs(
@@ -300,7 +321,8 @@ def load_site(path: Path) -> Site:
         domain={k: dict(v) for k, v in d.get("domain", {}).items()},
         ausrasp=_ausrasp(d, w),
         observations=_observations(d, w),
-        weather_tabs=_weather_tabs(d, lat, lon, w),
+        weather_tabs=(tabs := _weather_tabs(d, lat, lon, w)),
+        meteogram=_meteogram(d, [t["id"] for t in tabs], w),
         **_station(d, w),
     )
 

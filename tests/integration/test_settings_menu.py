@@ -39,7 +39,7 @@ def test_all_unit_choices_live_inside_the_menu(fixture_path, site, rules):
     assert "saved in a cookie in this browser" in menu and "holds only these settings" in menu
     # and nowhere else: the page has no second, stray copy of the selector
     # glider 2, units 6, grades as words or icons 2, station period 5, weather place 2
-    assert html.count('type="radio"') == 17
+    assert html.count('type="radio"') == 18
 
 
 def test_hamburger_sits_in_the_page_header_beside_the_title(fixture_path, site, rules):

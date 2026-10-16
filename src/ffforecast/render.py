@@ -391,6 +391,8 @@ def build_context(fc: Forecast, site: Site, rules: Rules) -> dict:
         "outlook": outlook,
         "launch_alt": alt(site.elevation_m),
         "weather_tabs": list(site.weather_tabs),
+        "meteogram": site.meteogram,
+        "wx_multi": len(site.weather_tabs) + (site.meteogram is not None) > 1,
         # only what the script needs to ask for each place's weather
         "tabs_js": [
             {k: t[k] for k in ("id", "label", "lat", "lon", "elevation_m")}
