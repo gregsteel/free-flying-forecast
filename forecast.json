@@ -1,0 +1,1679 @@
+{
+  "site": "mystic",
+  "model": "NOAA GFS 0.25 degree (no regional model)",
+  "cycle": "2026-11-28T00Z",
+  "generated_at": "2026-11-28T22:48:03+11:00",
+  "rules_version": 3,
+  "blocks": [
+    {
+      "start": "2026-11-29T10:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 324,
+        "kph": 4
+      },
+      "wind_aloft": {
+        "dir_deg": 233,
+        "kph": 6
+      },
+      "shear": "light",
+      "thermal_height_m": 1374,
+      "thermal_quality_pct": 80,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 12,
+      "temp_air_c": 6.6,
+      "verdict_pg": "poor",
+      "verdict_hg": "poor",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the NW is marginally crossed (just outside the green sector): noted, but it can still be flown.",
+        "Rain expected (0.1 mm/h).",
+        "Some cloud shading (55% of the possible sun): thermals are a little weaker."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the NW is marginally crossed (just outside the green sector): noted, but it can still be flown.",
+        "Rain expected (0.1 mm/h).",
+        "Some cloud shading (55% of the possible sun): thermals are a little weaker."
+      ],
+      "rain_mm_h": 0.12,
+      "cape_j_kg": 133,
+      "gust_kph": 5,
+      "wind_launch": {
+        "dir_deg": 314,
+        "kph": 5
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 16,
+      "gust_aloft_kph": 27,
+      "wind_ausrasp_kph": 11,
+      "wind_top_kph": 22,
+      "sun_pct": 55,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-29T11:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 307,
+        "kph": 6
+      },
+      "wind_aloft": {
+        "dir_deg": 263,
+        "kph": 10
+      },
+      "shear": "light",
+      "thermal_height_m": 1548,
+      "thermal_quality_pct": 30,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 13,
+      "temp_air_c": 6.1,
+      "verdict_pg": "bad",
+      "verdict_hg": "poor",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (18 kph at 10 m); graded on that.",
+        "Wind 18 kph is in the green band.",
+        "Wind from the WNW is marginally crossed (just outside the green sector): noted, but it can still be flown.",
+        "Rain expected (0.5 mm/h).",
+        "Gusts to 27 kph: rough air likely.",
+        "Cloud shading: only 21% of the possible sun reaches the ground, so thermals are weaker and less reliable."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (18 kph at 10 m); graded on that.",
+        "Wind 18 kph is in the green band.",
+        "Wind from the WNW is marginally crossed (just outside the green sector): noted, but it can still be flown.",
+        "Rain expected (0.5 mm/h).",
+        "Cloud shading: only 21% of the possible sun reaches the ground, so thermals are weaker and less reliable."
+      ],
+      "rain_mm_h": 0.53,
+      "cape_j_kg": 137,
+      "gust_kph": 8,
+      "wind_launch": {
+        "dir_deg": 294,
+        "kph": 8
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 27,
+      "gust_aloft_kph": 36,
+      "wind_ausrasp_kph": 18,
+      "wind_top_kph": 29,
+      "sun_pct": 21,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-29T12:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 318,
+        "kph": 7
+      },
+      "wind_aloft": {
+        "dir_deg": 275,
+        "kph": 12
+      },
+      "shear": "moderate",
+      "thermal_height_m": 1783,
+      "thermal_quality_pct": 50,
+      "updraft_ms": 3.0,
+      "temp_ground_c": 14,
+      "temp_air_c": 4.3,
+      "verdict_pg": "bad",
+      "verdict_hg": "poor",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (18 kph at 10 m); graded on that.",
+        "Wind 18 kph is in the green band.",
+        "Wind from the NW is marginally crossed (just outside the green sector): noted, but it can still be flown.",
+        "Rain expected (0.6 mm/h).",
+        "Gusts to 27 kph: rough air likely.",
+        "Cloud shading: only 36% of the possible sun reaches the ground, so thermals are weaker and less reliable."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (18 kph at 10 m); graded on that.",
+        "Wind 18 kph is in the green band.",
+        "Wind from the NW is marginally crossed (just outside the green sector): noted, but it can still be flown.",
+        "Rain expected (0.6 mm/h).",
+        "Cloud shading: only 36% of the possible sun reaches the ground, so thermals are weaker and less reliable."
+      ],
+      "rain_mm_h": 0.62,
+      "cape_j_kg": 147,
+      "gust_kph": 10,
+      "wind_launch": {
+        "dir_deg": 308,
+        "kph": 9
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 27,
+      "gust_aloft_kph": 27,
+      "wind_ausrasp_kph": 18,
+      "wind_top_kph": 22,
+      "sun_pct": 36,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-29T13:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 316,
+        "kph": 5
+      },
+      "wind_aloft": {
+        "dir_deg": 276,
+        "kph": 14
+      },
+      "shear": "moderate",
+      "thermal_height_m": 1813,
+      "thermal_quality_pct": 50,
+      "updraft_ms": 3.0,
+      "temp_ground_c": 15,
+      "temp_air_c": 5.5,
+      "verdict_pg": "bad",
+      "verdict_hg": "bad",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (22 kph at 10 m); graded on that.",
+        "Wind 22 kph is above 19 kph: may not suit novice pilots.",
+        "Wind from the WNW is marginally crossed (just outside the green sector): noted, but it can still be flown.",
+        "Rain expected (0.4 mm/h).",
+        "Gusts to 32 kph: likely unsuitable for flying.",
+        "Cloud shading: only 38% of the possible sun reaches the ground, so thermals are weaker and less reliable."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (22 kph at 10 m); graded on that.",
+        "Wind 22 kph is in the green band.",
+        "Wind from the WNW is marginally crossed (just outside the green sector): noted, but it can still be flown.",
+        "Rain expected (0.4 mm/h).",
+        "Gusts to 32 kph: rough air likely.",
+        "Cloud shading: only 38% of the possible sun reaches the ground, so thermals are weaker and less reliable."
+      ],
+      "rain_mm_h": 0.39,
+      "cape_j_kg": 130,
+      "gust_kph": 9,
+      "wind_launch": {
+        "dir_deg": 301,
+        "kph": 7
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 32,
+      "gust_aloft_kph": 27,
+      "wind_ausrasp_kph": 22,
+      "wind_top_kph": 22,
+      "sun_pct": 38,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-29T14:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 302,
+        "kph": 5
+      },
+      "wind_aloft": {
+        "dir_deg": 279,
+        "kph": 16
+      },
+      "shear": "moderate",
+      "thermal_height_m": 1719,
+      "thermal_quality_pct": 50,
+      "updraft_ms": 3.0,
+      "temp_ground_c": 18,
+      "temp_air_c": 8.9,
+      "verdict_pg": "bad",
+      "verdict_hg": "poor",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (18 kph at 10 m); graded on that.",
+        "Wind 18 kph is in the green band.",
+        "Wind from the WNW is marginally crossed (just outside the green sector): noted, but it can still be flown.",
+        "Rain expected (0.4 mm/h).",
+        "Gusts to 27 kph: rough air likely.",
+        "Cloud shading: only 37% of the possible sun reaches the ground, so thermals are weaker and less reliable."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (18 kph at 10 m); graded on that.",
+        "Wind 18 kph is in the green band.",
+        "Wind from the WNW is marginally crossed (just outside the green sector): noted, but it can still be flown.",
+        "Rain expected (0.4 mm/h).",
+        "Cloud shading: only 37% of the possible sun reaches the ground, so thermals are weaker and less reliable."
+      ],
+      "rain_mm_h": 0.4,
+      "cape_j_kg": 97,
+      "gust_kph": 13,
+      "wind_launch": {
+        "dir_deg": 293,
+        "kph": 9
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 27,
+      "gust_aloft_kph": 36,
+      "wind_ausrasp_kph": 18,
+      "wind_top_kph": 29,
+      "sun_pct": 37,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-29T15:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 276,
+        "kph": 8
+      },
+      "wind_aloft": {
+        "dir_deg": 267,
+        "kph": 19
+      },
+      "shear": "moderate",
+      "thermal_height_m": 1752,
+      "thermal_quality_pct": 40,
+      "updraft_ms": 3.0,
+      "temp_ground_c": 17,
+      "temp_air_c": 7.7,
+      "verdict_pg": "bad",
+      "verdict_hg": "poor",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (18 kph at 10 m); graded on that.",
+        "Aloft: Wind 19 kph is above 19 kph: may not suit novice pilots.",
+        "Wind from the W is outside the green sector.",
+        "Rain expected (0.1 mm/h).",
+        "Gusts to 27 kph: rough air likely.",
+        "Cloud shading: only 33% of the possible sun reaches the ground, so thermals are weaker and less reliable."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (18 kph at 10 m); graded on that.",
+        "Wind 18 kph is in the green band.",
+        "Wind from the W is outside the green sector.",
+        "Rain expected (0.1 mm/h).",
+        "Cloud shading: only 33% of the possible sun reaches the ground, so thermals are weaker and less reliable."
+      ],
+      "rain_mm_h": 0.13,
+      "cape_j_kg": 102,
+      "gust_kph": 15,
+      "wind_launch": {
+        "dir_deg": 273,
+        "kph": 14
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 27,
+      "gust_aloft_kph": 32,
+      "wind_ausrasp_kph": 18,
+      "wind_top_kph": 25,
+      "sun_pct": 33,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-29T16:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 274,
+        "kph": 9
+      },
+      "wind_aloft": {
+        "dir_deg": 267,
+        "kph": 20
+      },
+      "shear": "moderate",
+      "thermal_height_m": 1742,
+      "thermal_quality_pct": 20,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 17,
+      "temp_air_c": 7.9,
+      "verdict_pg": "bad",
+      "verdict_hg": "poor",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (18 kph at 10 m); graded on that.",
+        "Aloft: Wind 20 kph is above 19 kph: may not suit novice pilots.",
+        "Wind from the W is outside the green sector.",
+        "Gusts to 27 kph: rough air likely.",
+        "Cloud shading: only 20% of the possible sun reaches the ground, so thermals are weaker and less reliable."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (18 kph at 10 m); graded on that.",
+        "Wind 18 kph is in the green band.",
+        "Wind from the W is outside the green sector.",
+        "Cloud shading: only 20% of the possible sun reaches the ground, so thermals are weaker and less reliable."
+      ],
+      "rain_mm_h": 0.09,
+      "cape_j_kg": 58,
+      "gust_kph": 16,
+      "wind_launch": {
+        "dir_deg": 272,
+        "kph": 13
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 27,
+      "gust_aloft_kph": 32,
+      "wind_ausrasp_kph": 18,
+      "wind_top_kph": 25,
+      "sun_pct": 20,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-29T17:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 287,
+        "kph": 7
+      },
+      "wind_aloft": {
+        "dir_deg": 262,
+        "kph": 20
+      },
+      "shear": "moderate",
+      "thermal_height_m": 1615,
+      "thermal_quality_pct": 50,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 16,
+      "temp_air_c": 8.1,
+      "verdict_pg": "bad",
+      "verdict_hg": "bad",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (22 kph at 10 m); graded on that.",
+        "Wind 22 kph is above 19 kph: may not suit novice pilots.",
+        "Strong wind from the W is well outside the green sector.",
+        "Rain expected (0.1 mm/h).",
+        "Gusts to 32 kph: likely unsuitable for flying.",
+        "Some cloud shading (48% of the possible sun): thermals are a little weaker."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (22 kph at 10 m); graded on that.",
+        "Wind 22 kph is in the green band.",
+        "Wind from the W is outside the green sector.",
+        "Rain expected (0.1 mm/h).",
+        "Gusts to 32 kph: rough air likely.",
+        "Some cloud shading (48% of the possible sun): thermals are a little weaker."
+      ],
+      "rain_mm_h": 0.12,
+      "cape_j_kg": 72,
+      "gust_kph": 15,
+      "wind_launch": {
+        "dir_deg": 279,
+        "kph": 12
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 32,
+      "gust_aloft_kph": 36,
+      "wind_ausrasp_kph": 22,
+      "wind_top_kph": 29,
+      "sun_pct": 48,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-29T18:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 262,
+        "kph": 7
+      },
+      "wind_aloft": {
+        "dir_deg": 261,
+        "kph": 20
+      },
+      "shear": "moderate",
+      "thermal_height_m": 1371,
+      "thermal_quality_pct": 60,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 15,
+      "temp_air_c": 9.5,
+      "verdict_pg": "bad",
+      "verdict_hg": "bad",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (22 kph at 10 m); graded on that.",
+        "Wind 22 kph is above 19 kph: may not suit novice pilots.",
+        "Strong wind from the W is well outside the green sector.",
+        "Rain expected (0.2 mm/h).",
+        "Gusts to 32 kph: likely unsuitable for flying.",
+        "Some cloud shading (49% of the possible sun): thermals are a little weaker."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (22 kph at 10 m); graded on that.",
+        "Wind 22 kph is in the green band.",
+        "Wind from the W is outside the green sector.",
+        "Rain expected (0.2 mm/h).",
+        "Gusts to 32 kph: rough air likely.",
+        "Some cloud shading (49% of the possible sun): thermals are a little weaker."
+      ],
+      "rain_mm_h": 0.16,
+      "cape_j_kg": 76,
+      "gust_kph": 15,
+      "wind_launch": {
+        "dir_deg": 262,
+        "kph": 12
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 32,
+      "gust_aloft_kph": 40,
+      "wind_ausrasp_kph": 22,
+      "wind_top_kph": 32,
+      "sun_pct": 49,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-30T10:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 256,
+        "kph": 4
+      },
+      "wind_aloft": {
+        "dir_deg": 178,
+        "kph": 6
+      },
+      "shear": "light",
+      "thermal_height_m": 1270,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 15,
+      "temp_air_c": 10.4,
+      "verdict_pg": "poor",
+      "verdict_hg": "poor",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (14 kph at 10 m); graded on that.",
+        "Wind 14 kph is in the green band.",
+        "Wind from the WSW is outside the green sector."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (14 kph at 10 m); graded on that.",
+        "Wind 14 kph is in the green band.",
+        "Wind from the WSW is outside the green sector."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 8,
+      "wind_launch": {
+        "dir_deg": 238,
+        "kph": 4
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 22,
+      "gust_aloft_kph": 36,
+      "wind_ausrasp_kph": 14,
+      "wind_top_kph": 29,
+      "sun_pct": 100,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-30T11:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 262,
+        "kph": 6
+      },
+      "wind_aloft": {
+        "dir_deg": 215,
+        "kph": 8
+      },
+      "shear": "light",
+      "thermal_height_m": 1549,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 3.0,
+      "temp_ground_c": 16,
+      "temp_air_c": 9.1,
+      "verdict_pg": "poor",
+      "verdict_hg": "poor",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (14 kph at 10 m); graded on that.",
+        "Wind 14 kph is in the green band.",
+        "Wind from the WSW is outside the green sector."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (14 kph at 10 m); graded on that.",
+        "Wind 14 kph is in the green band.",
+        "Wind from the WSW is outside the green sector."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 10,
+      "wind_launch": {
+        "dir_deg": 254,
+        "kph": 7
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 22,
+      "gust_aloft_kph": 32,
+      "wind_ausrasp_kph": 14,
+      "wind_top_kph": 25,
+      "sun_pct": 100,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-30T12:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 254,
+        "kph": 7
+      },
+      "wind_aloft": {
+        "dir_deg": 219,
+        "kph": 9
+      },
+      "shear": "light",
+      "thermal_height_m": 1647,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 3.0,
+      "temp_ground_c": 18,
+      "temp_air_c": 9.4,
+      "verdict_pg": "poor",
+      "verdict_hg": "poor",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (14 kph at 10 m); graded on that.",
+        "Wind 14 kph is in the green band.",
+        "Wind from the WSW is outside the green sector."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (14 kph at 10 m); graded on that.",
+        "Wind 14 kph is in the green band.",
+        "Wind from the WSW is outside the green sector."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 9,
+      "wind_launch": {
+        "dir_deg": 246,
+        "kph": 9
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 22,
+      "gust_aloft_kph": 27,
+      "wind_ausrasp_kph": 14,
+      "wind_top_kph": 22,
+      "sun_pct": 100,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-30T13:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 245,
+        "kph": 7
+      },
+      "wind_aloft": {
+        "dir_deg": 216,
+        "kph": 9
+      },
+      "shear": "light",
+      "thermal_height_m": 1730,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 3.0,
+      "temp_ground_c": 19,
+      "temp_air_c": 9.7,
+      "verdict_pg": "poor",
+      "verdict_hg": "poor",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the WSW is outside the green sector."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the WSW is outside the green sector."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 9,
+      "wind_launch": {
+        "dir_deg": 238,
+        "kph": 10
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 16,
+      "gust_aloft_kph": 22,
+      "wind_ausrasp_kph": 11,
+      "wind_top_kph": 18,
+      "sun_pct": 100,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-30T14:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 239,
+        "kph": 7
+      },
+      "wind_aloft": {
+        "dir_deg": 213,
+        "kph": 9
+      },
+      "shear": "light",
+      "thermal_height_m": 1827,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 3.0,
+      "temp_ground_c": 20,
+      "temp_air_c": 9.5,
+      "verdict_pg": "poor",
+      "verdict_hg": "poor",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the SW is outside the green sector."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the SW is outside the green sector."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 9,
+      "wind_launch": {
+        "dir_deg": 231,
+        "kph": 10
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 16,
+      "gust_aloft_kph": 22,
+      "wind_ausrasp_kph": 11,
+      "wind_top_kph": 18,
+      "sun_pct": 99,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-30T15:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 242,
+        "kph": 7
+      },
+      "wind_aloft": {
+        "dir_deg": 216,
+        "kph": 10
+      },
+      "shear": "light",
+      "thermal_height_m": 1900,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 3.0,
+      "temp_ground_c": 20,
+      "temp_air_c": 9.3,
+      "verdict_pg": "poor",
+      "verdict_hg": "poor",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the SW is outside the green sector."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the SW is outside the green sector."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 9,
+      "wind_launch": {
+        "dir_deg": 234,
+        "kph": 10
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 16,
+      "gust_aloft_kph": 22,
+      "wind_ausrasp_kph": 11,
+      "wind_top_kph": 18,
+      "sun_pct": 97,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-30T16:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 251,
+        "kph": 5
+      },
+      "wind_aloft": {
+        "dir_deg": 212,
+        "kph": 10
+      },
+      "shear": "light",
+      "thermal_height_m": 1904,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 21,
+      "temp_air_c": 9.7,
+      "verdict_pg": "poor",
+      "verdict_hg": "poor",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the WSW is outside the green sector."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the WSW is outside the green sector."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 9,
+      "wind_launch": {
+        "dir_deg": 239,
+        "kph": 8
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 16,
+      "gust_aloft_kph": 22,
+      "wind_ausrasp_kph": 11,
+      "wind_top_kph": 18,
+      "sun_pct": 95,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-30T17:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 281,
+        "kph": 4
+      },
+      "wind_aloft": {
+        "dir_deg": 208,
+        "kph": 8
+      },
+      "shear": "moderate",
+      "thermal_height_m": 1778,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 20,
+      "temp_air_c": 10.6,
+      "verdict_pg": "poor",
+      "verdict_hg": "poor",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the W is outside the green sector."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the W is outside the green sector."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 9,
+      "wind_launch": {
+        "dir_deg": 265,
+        "kph": 6
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 16,
+      "gust_aloft_kph": 18,
+      "wind_ausrasp_kph": 11,
+      "wind_top_kph": 14,
+      "sun_pct": 92,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-11-30T18:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 308,
+        "kph": 6
+      },
+      "wind_aloft": {
+        "dir_deg": 240,
+        "kph": 6
+      },
+      "shear": "light",
+      "thermal_height_m": 1374,
+      "thermal_quality_pct": 60,
+      "updraft_ms": 1.0,
+      "temp_ground_c": 19,
+      "temp_air_c": 13.6,
+      "verdict_pg": "ok",
+      "verdict_hg": "ok",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the NW is marginally crossed (just outside the green sector): noted, but it can still be flown.",
+        "Decent thermals and no problems."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the NW is marginally crossed (just outside the green sector): noted, but it can still be flown.",
+        "Decent thermals and no problems."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 7,
+      "wind_launch": {
+        "dir_deg": 309,
+        "kph": 10
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T00:00:00Z",
+      "gust_launch_kph": 16,
+      "gust_aloft_kph": 14,
+      "wind_ausrasp_kph": 11,
+      "wind_top_kph": 11,
+      "sun_pct": 89,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-12-01T10:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 338,
+        "kph": 6
+      },
+      "wind_aloft": {
+        "dir_deg": 335,
+        "kph": 6
+      },
+      "shear": "light",
+      "thermal_height_m": 1104,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 17,
+      "temp_air_c": 13.9,
+      "verdict_pg": "ok",
+      "verdict_hg": "ok",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (7 kph at 10 m); graded on that.",
+        "Wind 7 kph is in the green band.",
+        "Wind from the NNW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (7 kph at 10 m); graded on that.",
+        "Wind 7 kph is in the green band.",
+        "Wind from the NNW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 6,
+      "wind_launch": {
+        "dir_deg": 340,
+        "kph": 7
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-27T12:00:00Z",
+      "gust_launch_kph": 11,
+      "gust_aloft_kph": 18,
+      "wind_ausrasp_kph": 7,
+      "wind_top_kph": 14,
+      "sun_pct": 100,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-12-01T11:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 331,
+        "kph": 7
+      },
+      "wind_aloft": {
+        "dir_deg": 332,
+        "kph": 7
+      },
+      "shear": "light",
+      "thermal_height_m": 1249,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 19,
+      "temp_air_c": 14.3,
+      "verdict_pg": "ok",
+      "verdict_hg": "ok",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the NNW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the NNW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 6,
+      "wind_launch": {
+        "dir_deg": 331,
+        "kph": 8
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-27T12:00:00Z",
+      "gust_launch_kph": 16,
+      "gust_aloft_kph": 18,
+      "wind_ausrasp_kph": 11,
+      "wind_top_kph": 14,
+      "sun_pct": 98,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-12-01T12:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 332,
+        "kph": 7
+      },
+      "wind_aloft": {
+        "dir_deg": 334,
+        "kph": 8
+      },
+      "shear": "light",
+      "thermal_height_m": 1332,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 20,
+      "temp_air_c": 15.2,
+      "verdict_pg": "ok",
+      "verdict_hg": "ok",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the NNW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the NNW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 7,
+      "wind_launch": {
+        "dir_deg": 332,
+        "kph": 9
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-27T12:00:00Z",
+      "gust_launch_kph": 16,
+      "gust_aloft_kph": 14,
+      "wind_ausrasp_kph": 11,
+      "wind_top_kph": 11,
+      "sun_pct": 95,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-12-01T13:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 326,
+        "kph": 7
+      },
+      "wind_aloft": {
+        "dir_deg": 326,
+        "kph": 10
+      },
+      "shear": "light",
+      "thermal_height_m": 1413,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 22,
+      "temp_air_c": 15.7,
+      "verdict_pg": "ok",
+      "verdict_hg": "ok",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the NW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the NW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 8,
+      "wind_launch": {
+        "dir_deg": 326,
+        "kph": 10
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-27T12:00:00Z",
+      "gust_launch_kph": 16,
+      "gust_aloft_kph": 18,
+      "wind_ausrasp_kph": 11,
+      "wind_top_kph": 14,
+      "sun_pct": 93,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-12-01T14:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 329,
+        "kph": 7
+      },
+      "wind_aloft": {
+        "dir_deg": 325,
+        "kph": 10
+      },
+      "shear": "light",
+      "thermal_height_m": 1457,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 23,
+      "temp_air_c": 16.3,
+      "verdict_pg": "ok",
+      "verdict_hg": "ok",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the NNW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the NNW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 8,
+      "wind_launch": {
+        "dir_deg": 327,
+        "kph": 10
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-27T12:00:00Z",
+      "gust_launch_kph": 16,
+      "gust_aloft_kph": 14,
+      "wind_ausrasp_kph": 11,
+      "wind_top_kph": 11,
+      "sun_pct": 94,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-12-01T15:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 330,
+        "kph": 8
+      },
+      "wind_aloft": {
+        "dir_deg": 326,
+        "kph": 11
+      },
+      "shear": "light",
+      "thermal_height_m": 1469,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 23,
+      "temp_air_c": 16.6,
+      "verdict_pg": "ok",
+      "verdict_hg": "ok",
+      "reasons": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the NNW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "reasons_hg": [
+        "AUSRASP's regional model has a stronger wind here (11 kph at 10 m); graded on that.",
+        "Wind 11 kph is in the green band.",
+        "Wind from the NNW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 8,
+      "wind_launch": {
+        "dir_deg": 328,
+        "kph": 11
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-27T12:00:00Z",
+      "gust_launch_kph": 16,
+      "gust_aloft_kph": 14,
+      "wind_ausrasp_kph": 11,
+      "wind_top_kph": 11,
+      "sun_pct": 97,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-12-01T16:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 329,
+        "kph": 8
+      },
+      "wind_aloft": {
+        "dir_deg": 323,
+        "kph": 12
+      },
+      "shear": "light",
+      "thermal_height_m": 1435,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 23,
+      "temp_air_c": 17.0,
+      "verdict_pg": "ok",
+      "verdict_hg": "ok",
+      "reasons": [
+        "Wind 11 kph is in the green band.",
+        "Wind from the NNW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "reasons_hg": [
+        "Wind 11 kph is in the green band.",
+        "Wind from the NNW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 8,
+      "wind_launch": {
+        "dir_deg": 327,
+        "kph": 11
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-27T12:00:00Z",
+      "gust_launch_kph": 16,
+      "gust_aloft_kph": 18,
+      "wind_ausrasp_kph": 11,
+      "wind_top_kph": 14,
+      "sun_pct": 97,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-12-01T17:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 329,
+        "kph": 7
+      },
+      "wind_aloft": {
+        "dir_deg": 321,
+        "kph": 11
+      },
+      "shear": "light",
+      "thermal_height_m": 1335,
+      "thermal_quality_pct": 100,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 23,
+      "temp_air_c": 17.6,
+      "verdict_pg": "ok",
+      "verdict_hg": "ok",
+      "reasons": [
+        "Wind 11 kph is in the green band.",
+        "Wind from the NW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "reasons_hg": [
+        "Wind 11 kph is in the green band.",
+        "Wind from the NW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 8,
+      "wind_launch": {
+        "dir_deg": 326,
+        "kph": 11
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-27T12:00:00Z",
+      "gust_launch_kph": 16,
+      "gust_aloft_kph": 18,
+      "wind_ausrasp_kph": 7,
+      "wind_top_kph": 14,
+      "sun_pct": 95,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-12-01T18:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 336,
+        "kph": 7
+      },
+      "wind_aloft": {
+        "dir_deg": 330,
+        "kph": 12
+      },
+      "shear": "light",
+      "thermal_height_m": 1015,
+      "thermal_quality_pct": 60,
+      "updraft_ms": 1.0,
+      "temp_ground_c": 22,
+      "temp_air_c": 19.9,
+      "verdict_pg": "ok",
+      "verdict_hg": "ok",
+      "reasons": [
+        "Wind 12 kph is in the green band.",
+        "Wind from the NNW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "reasons_hg": [
+        "Wind 12 kph is in the green band.",
+        "Wind from the NNW is inside the green sector.",
+        "Decent thermals and no problems."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 8,
+      "wind_launch": {
+        "dir_deg": 333,
+        "kph": 12
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-27T12:00:00Z",
+      "gust_launch_kph": 17,
+      "gust_aloft_kph": 14,
+      "wind_ausrasp_kph": 7,
+      "wind_top_kph": 11,
+      "sun_pct": 92,
+      "sun_source": "ausrasp"
+    },
+    {
+      "start": "2026-12-02T10:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 346,
+        "kph": 8
+      },
+      "wind_aloft": {
+        "dir_deg": 328,
+        "kph": 24
+      },
+      "shear": "strong",
+      "thermal_height_m": 1128,
+      "thermal_quality_pct": 70,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 22,
+      "temp_air_c": 18.4,
+      "verdict_pg": "bad",
+      "verdict_hg": "bad",
+      "reasons": [
+        "Aloft: Wind 24 kph is at or above 23 kph: likely unsuitable for flying.",
+        "Wind from the NNW is inside the green sector."
+      ],
+      "reasons_hg": [
+        "Aloft: Wind 24 kph is above 23 kph: may not suit novice pilots.",
+        "Wind from the NNW is inside the green sector."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 21,
+      "wind_launch": {
+        "dir_deg": 343,
+        "kph": 13
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T06:00:00Z",
+      "gust_launch_kph": 21,
+      "gust_aloft_kph": 30,
+      "wind_ausrasp_kph": null,
+      "wind_top_kph": null,
+      "sun_pct": 97,
+      "sun_source": "gfs"
+    },
+    {
+      "start": "2026-12-02T11:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 335,
+        "kph": 9
+      },
+      "wind_aloft": {
+        "dir_deg": 324,
+        "kph": 26
+      },
+      "shear": "strong",
+      "thermal_height_m": 1404,
+      "thermal_quality_pct": 60,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 23,
+      "temp_air_c": 17.0,
+      "verdict_pg": "bad",
+      "verdict_hg": "bad",
+      "reasons": [
+        "Aloft: Wind 26 kph is at or above 23 kph: likely unsuitable for flying.",
+        "Wind from the NNW is inside the green sector."
+      ],
+      "reasons_hg": [
+        "Aloft: Wind 26 kph is above 23 kph: may not suit novice pilots.",
+        "Wind from the NNW is inside the green sector."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 22,
+      "wind_launch": {
+        "dir_deg": 332,
+        "kph": 16
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T06:00:00Z",
+      "gust_launch_kph": 24,
+      "gust_aloft_kph": 33,
+      "wind_ausrasp_kph": null,
+      "wind_top_kph": null,
+      "sun_pct": 96,
+      "sun_source": "gfs"
+    },
+    {
+      "start": "2026-12-02T12:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 327,
+        "kph": 10
+      },
+      "wind_aloft": {
+        "dir_deg": 317,
+        "kph": 27
+      },
+      "shear": "strong",
+      "thermal_height_m": 1617,
+      "thermal_quality_pct": 60,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 24,
+      "temp_air_c": 16.2,
+      "verdict_pg": "bad",
+      "verdict_hg": "bad",
+      "reasons": [
+        "Aloft: Wind 27 kph is at or above 23 kph: likely unsuitable for flying.",
+        "Wind from the NW is inside the green sector."
+      ],
+      "reasons_hg": [
+        "Aloft: Wind 27 kph is above 23 kph: may not suit novice pilots.",
+        "Wind from the NW is inside the green sector."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 21,
+      "wind_launch": {
+        "dir_deg": 322,
+        "kph": 16
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T06:00:00Z",
+      "gust_launch_kph": 24,
+      "gust_aloft_kph": 34,
+      "wind_ausrasp_kph": null,
+      "wind_top_kph": null,
+      "sun_pct": 98,
+      "sun_source": "gfs"
+    },
+    {
+      "start": "2026-12-02T13:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 324,
+        "kph": 10
+      },
+      "wind_aloft": {
+        "dir_deg": 316,
+        "kph": 28
+      },
+      "shear": "strong",
+      "thermal_height_m": 1611,
+      "thermal_quality_pct": 60,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 25,
+      "temp_air_c": 17.1,
+      "verdict_pg": "bad",
+      "verdict_hg": "bad",
+      "reasons": [
+        "Aloft: Wind 28 kph is at or above 23 kph: likely unsuitable for flying.",
+        "Wind from the NW is marginally crossed (just outside the green sector): noted, but it can still be flown."
+      ],
+      "reasons_hg": [
+        "Aloft: Wind 28 kph is above 23 kph: may not suit novice pilots.",
+        "Wind from the NW is marginally crossed (just outside the green sector): noted, but it can still be flown."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 22,
+      "wind_launch": {
+        "dir_deg": 319,
+        "kph": 17
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T06:00:00Z",
+      "gust_launch_kph": 25,
+      "gust_aloft_kph": 35,
+      "wind_ausrasp_kph": null,
+      "wind_top_kph": null,
+      "sun_pct": 97,
+      "sun_source": "gfs"
+    },
+    {
+      "start": "2026-12-02T14:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 327,
+        "kph": 10
+      },
+      "wind_aloft": {
+        "dir_deg": 320,
+        "kph": 28
+      },
+      "shear": "strong",
+      "thermal_height_m": 1895,
+      "thermal_quality_pct": 60,
+      "updraft_ms": 3.0,
+      "temp_ground_c": 26,
+      "temp_air_c": 15.0,
+      "verdict_pg": "bad",
+      "verdict_hg": "bad",
+      "reasons": [
+        "Aloft: Wind 28 kph is at or above 23 kph: likely unsuitable for flying.",
+        "Wind from the NW is inside the green sector.",
+        "Gusts to 26 kph: rough air likely."
+      ],
+      "reasons_hg": [
+        "Aloft: Wind 28 kph is above 23 kph: may not suit novice pilots.",
+        "Wind from the NW is inside the green sector."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 23,
+      "wind_launch": {
+        "dir_deg": 323,
+        "kph": 17
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T06:00:00Z",
+      "gust_launch_kph": 26,
+      "gust_aloft_kph": 35,
+      "wind_ausrasp_kph": null,
+      "wind_top_kph": null,
+      "sun_pct": 97,
+      "sun_source": "gfs"
+    },
+    {
+      "start": "2026-12-02T15:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 319,
+        "kph": 10
+      },
+      "wind_aloft": {
+        "dir_deg": 316,
+        "kph": 31
+      },
+      "shear": "strong",
+      "thermal_height_m": 2198,
+      "thermal_quality_pct": 50,
+      "updraft_ms": 3.0,
+      "temp_ground_c": 26,
+      "temp_air_c": 12.6,
+      "verdict_pg": "bad",
+      "verdict_hg": "bad",
+      "reasons": [
+        "Aloft: Wind 31 kph is at or above 23 kph: likely unsuitable for flying.",
+        "Wind from the NW is marginally crossed (just outside the green sector): noted, but it can still be flown.",
+        "Gusts to 26 kph: rough air likely."
+      ],
+      "reasons_hg": [
+        "Aloft: Wind 31 kph is above 23 kph: may not suit novice pilots.",
+        "Wind from the NW is marginally crossed (just outside the green sector): noted, but it can still be flown."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 23,
+      "wind_launch": {
+        "dir_deg": 316,
+        "kph": 17
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T06:00:00Z",
+      "gust_launch_kph": 26,
+      "gust_aloft_kph": 38,
+      "wind_ausrasp_kph": null,
+      "wind_top_kph": null,
+      "sun_pct": 100,
+      "sun_source": "gfs"
+    },
+    {
+      "start": "2026-12-02T16:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 315,
+        "kph": 9
+      },
+      "wind_aloft": {
+        "dir_deg": 311,
+        "kph": 31
+      },
+      "shear": "strong",
+      "thermal_height_m": 2328,
+      "thermal_quality_pct": 50,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 27,
+      "temp_air_c": 11.6,
+      "verdict_pg": "bad",
+      "verdict_hg": "bad",
+      "reasons": [
+        "Aloft: Wind 31 kph is at or above 23 kph: likely unsuitable for flying.",
+        "Wind from the NW is marginally crossed (just outside the green sector): noted, but it can still be flown.",
+        "Gusts to 26 kph: rough air likely."
+      ],
+      "reasons_hg": [
+        "Aloft: Wind 31 kph is above 23 kph: may not suit novice pilots.",
+        "Wind from the NW is marginally crossed (just outside the green sector): noted, but it can still be flown."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 23,
+      "wind_launch": {
+        "dir_deg": 312,
+        "kph": 17
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T06:00:00Z",
+      "gust_launch_kph": 26,
+      "gust_aloft_kph": 39,
+      "wind_ausrasp_kph": null,
+      "wind_top_kph": null,
+      "sun_pct": 100,
+      "sun_source": "gfs"
+    },
+    {
+      "start": "2026-12-02T17:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 315,
+        "kph": 9
+      },
+      "wind_aloft": {
+        "dir_deg": 309,
+        "kph": 30
+      },
+      "shear": "strong",
+      "thermal_height_m": 2138,
+      "thermal_quality_pct": 50,
+      "updraft_ms": 2.0,
+      "temp_ground_c": 26,
+      "temp_air_c": 13.3,
+      "verdict_pg": "bad",
+      "verdict_hg": "bad",
+      "reasons": [
+        "Aloft: Wind 30 kph is at or above 23 kph: likely unsuitable for flying.",
+        "Wind from the NW is marginally crossed (just outside the green sector): noted, but it can still be flown."
+      ],
+      "reasons_hg": [
+        "Aloft: Wind 30 kph is above 23 kph: may not suit novice pilots.",
+        "Wind from the NW is marginally crossed (just outside the green sector): noted, but it can still be flown."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 23,
+      "wind_launch": {
+        "dir_deg": 311,
+        "kph": 17
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T06:00:00Z",
+      "gust_launch_kph": 25,
+      "gust_aloft_kph": 38,
+      "wind_ausrasp_kph": null,
+      "wind_top_kph": null,
+      "sun_pct": 100,
+      "sun_source": "gfs"
+    },
+    {
+      "start": "2026-12-02T18:00:00+11:00",
+      "wind_ground": {
+        "dir_deg": 329,
+        "kph": 6
+      },
+      "wind_aloft": {
+        "dir_deg": 312,
+        "kph": 26
+      },
+      "shear": "strong",
+      "thermal_height_m": 800,
+      "thermal_quality_pct": 0,
+      "updraft_ms": 0.0,
+      "temp_ground_c": 26,
+      "temp_air_c": 26.0,
+      "verdict_pg": "bad",
+      "verdict_hg": "bad",
+      "reasons": [
+        "Aloft: Wind 26 kph is at or above 23 kph: likely unsuitable for flying.",
+        "Wind from the NW is inside the green sector."
+      ],
+      "reasons_hg": [
+        "Aloft: Wind 26 kph is above 23 kph: may not suit novice pilots.",
+        "Wind from the NW is inside the green sector."
+      ],
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "gust_kph": 23,
+      "wind_launch": {
+        "dir_deg": 321,
+        "kph": 12
+      },
+      "thermal_source": "ausrasp",
+      "thermal_run": "2026-11-28T06:00:00Z",
+      "gust_launch_kph": 23,
+      "gust_aloft_kph": 33,
+      "wind_ausrasp_kph": null,
+      "wind_top_kph": null,
+      "sun_pct": 99,
+      "sun_source": "gfs"
+    }
+  ],
+  "outlook": [
+    {
+      "date": "2026-12-03",
+      "wind": {
+        "dir_deg": 344,
+        "kph": 26
+      },
+      "verdict": "bad",
+      "confidence": "low",
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 602,
+      "verdict_hg": "bad",
+      "thermal_source": "ausrasp"
+    },
+    {
+      "date": "2026-12-04",
+      "wind": {
+        "dir_deg": 302,
+        "kph": 19
+      },
+      "verdict": "bad",
+      "confidence": "low",
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "verdict_hg": "bad",
+      "thermal_source": "ausrasp"
+    },
+    {
+      "date": "2026-12-05",
+      "wind": {
+        "dir_deg": 294,
+        "kph": 22
+      },
+      "verdict": "bad",
+      "confidence": "low",
+      "rain_mm_h": 0.0,
+      "cape_j_kg": 0,
+      "verdict_hg": "good",
+      "thermal_source": "gfs"
+    }
+  ],
+  "schema": 4
+}
